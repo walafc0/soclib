@@ -1,0 +1,33 @@
+# -*- python -*-
+
+__id__ = "$Id: dspinplus_router.sd 1195 2009-07-08 12:37:56Z abdelmalek.si-merabet@lip6.fr $"
+__version__ = "$Revision: 1195 $"
+
+Module('caba:dspinplus_router',
+	classname = 'soclib::caba::DspinPlusRouter',
+	tmpl_parameters = [
+	    parameter.Int('dspin_data_size'),
+	    parameter.Int('dspin_fifo_size'),
+	    parameter.Int('dspin_yx_size'),
+	],
+	header_files = ['../source/include/dspinplus_router.h',],
+	implementation_files = ['../source/src/dspinplus_router.cpp',],
+	ports = [
+		Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+		Port('caba:clock_in', 'p_clk', auto = 'clock'),
+	    	Port('caba:dspin_output', 'p_out', 5),
+	    	Port('caba:dspin_input', 'p_in', 5),
+	],
+	instance_parameters = [
+	    parameter.Int('indent'),
+	],
+	uses = [
+	    Uses('caba:base_module'),
+	    Uses('caba:generic_fifo'),
+	],
+	   extensions = [
+	'dsx:interconnect=root',
+	'dsx:mapping_type=interconnect',
+	'dsx:obtain_ident_method=param:indent',
+	],
+)

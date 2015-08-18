@@ -1,0 +1,36 @@
+
+# -*- python -*-
+
+Signal('caba:acc_enbl_signals',
+	tmpl_parameters = [
+		parameter.Int('DATA_BITWIDTH'),
+		parameter.Int('ADDR_BITWIDTH'),
+	],
+	classname = 'ACCELERATOR_ENBL_SIGNALS',
+	header_files = ['../include/soclib_accelerator_fifoports.h'],
+	accepts = {
+		'caba:acc_enbl_signals_in' : 1,
+		'caba:acc_enbl_signals_out' : 1,
+	}
+)
+
+PortDecl('caba:acc_enbl_signals_out',
+	tmpl_parameters = [
+		parameter.Int('DATA_BITWIDTH'),
+		parameter.Int('ADDR_BITWIDTH'),
+	],
+	classname = 'ACCELERATOR_ENBL_SIGNALS_OUT',
+	signal = 'caba:acc_enbl_signals',
+	header_files = ['../include/soclib_accelerator_fifoports.h'],
+)
+
+PortDecl('caba:acc_enbl_signals_in',
+	tmpl_parameters = [
+		parameter.Int('DATA_BITWIDTH'),
+		parameter.Int('ADDR_BITWIDTH'),
+	],
+	classname = 'ACCELERATOR_ENBL_SIGNALS_IN',
+	signal = 'caba:acc_enbl_signals',
+	header_files = ['../include/soclib_accelerator_fifoports.h'],
+)
+

@@ -1,0 +1,26 @@
+# -*- python -*-
+
+__id__ = "$Id$"
+__version__ = "$Revision$"
+
+Module('caba:hht_cmd_flit',
+	   classname = 'soclib::caba::HhtCmdFlit',
+	   tmpl_parameters = [
+			parameter.Module('hht_param',  default = 'caba:hht_param'),
+	   ],
+		uses = [
+			Uses('caba:hht_param'),
+		],
+	   header_files = ['../source/include/hht_flits.h',],
+)
+
+Module('caba:hht_rsp_flit',
+	   classname = 'soclib::caba::HhtRspFlit',
+	   tmpl_parameters = [
+			parameter.Module('hht_param',  default = 'caba:hht_param'),
+	   ],
+		uses = [
+			Uses('caba:hht_param'),
+		],
+	   header_files = ['../source/include/hht_flits.h',],
+)

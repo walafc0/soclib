@@ -1,0 +1,4 @@
+Test Operations atomiques
+Choix remplissage des ID par gestionnaire ou en dur
+Traduction d'erreur
+Support des interruptions (¨¦critures ¨¤ des adresses sp¨¦cifiques)

@@ -1,0 +1,117 @@
+
+%common		# optional at file start
+
+  # New source code module to be compiled
+  %append MODULES soclib_decoder:$(CONFIGPATH)
+
+  # Application license
+  CONFIG_LICENSE_APP_LGPL
+
+  # Mutek features
+  CONFIG_MUTEK_CONSOLE
+  CONFIG_MUTEK_SCHEDULER_MIGRATION
+  CONFIG_MUTEK_MEMALLOC_SMART
+
+  # FS drivers
+  CONFIG_VFS
+  CONFIG_VFS_STATS
+  CONFIG_VFS_GLOBAL_ROOT
+  CONFIG_VFS_GLOBAL_CWD undefined
+
+  CONFIG_DRIVER_FS_ISO9660
+  #CONFIG_DRIVER_FS_FAT
+  #CONFIG_DRIVER_FS_FAT32
+
+  #CONFIG_VFS_VERBOSE
+
+  CONFIG_MUTEK_TIMERMS
+  CONFIG_COMPILE_SAVETEMPS
+
+
+  # Libs
+  CONFIG_PTHREAD
+  CONFIG_PTHREAD_JOIN
+  CONFIG_PTHREAD_CHECK
+  CONFIG_LIBC_STREAM
+  CONFIG_LIBC_STREAM_STD
+
+
+# BUILD OPTIONS
+%section debug
+
+  CONFIG_COMPILE_OPTIMIZE 0
+  CONFIG_COMPILE_DEBUG
+  CONFIG_DEBUG
+
+%else
+
+  CONFIG_COMPILE_OPTIMIZE 2
+  CONFIG_COMPILE_DEBUG
+
+
+####################
+# PLATFORM OPTIONS #
+####################
+#################################################
+# First we define platforms
+
+%section pf_decoder_h264
+  %types soclib_platform
+
+  %notice Targetting benchmark/decoder_h264_mutekh SoCLib platform
+
+  # Memory layout
+  CONFIG_RAM_ADDR 0x7f400000
+  CONFIG_RAM_SIZE 0x00100000
+  
+  CONFIG_ROM_ADDR 0x50000000
+  CONFIG_ROM_SIZE 0x00100000
+
+  CONFIG_SOCLIB_EARLY_CONSOLE
+  CONFIG_SOCLIB_EARLY_CONSOLE_ADDR 0xd0200000
+  %append MODULES pf_def:$(CONFIGPATH)/../../soclib_conf_files
+  %set platform_name pf_decoder_h264
+
+  # Device and drivers
+  CONFIG_DRIVER_CHAR_SOCLIBTTY
+  CONFIG_DRIVER_ICU_SOCLIB
+  #CONFIG_DRIVER_ICU_SOCLIB_XICU
+  CONFIG_DRIVER_BLOCK_SOCLIB
+  CONFIG_DRIVER_TIMER_SOCLIB
+
+  CONFIG_DRIVER_BLOCK_RAMDISK
+  CONFIG_DRIVER_BLOCK_RAMDISK_BLOCKSIZE 2048
+  CONFIG_DRIVER_BLOCK_RAMDISK_SIZE 2048
+
+#################################################
+# CPUs
+%section soclib-mips32el soclib-mipsel soclib-mips
+  %types soclib_cpu
+
+  CONFIG_CPU_MIPS32EL_SOCLIB
+  CONFIG_DRIVER_ICU_MIPS
+
+#################################################
+# Then the soclib generic part
+
+%section soclib-*
+  %types architecture
+  %requiretypes soclib_platform soclib_cpu
+
+  # Platform types
+  CONFIG_ARCH_SOCLIB
+  CONFIG_CPU_MAXCOUNT 6
+  
+  CONFIG_CPU_RESET_HANDLER
+
+  CONFIG_ARCH_DEVICE_TREE
+  CONFIG_FDT
+  CONFIG_DRIVER_ENUM_FDT
+
+
+
+%common
+  %requiretypes architecture
+
+%section default
+  %error Missing build configuration section names, please specify BUILD=xxx

@@ -1,0 +1,20 @@
+
+# -*- python -*-
+
+__id__ = "$Id: vci_initiator_simple_read_req.sd 1261 2009-09-21 09:39:27Z alinevieiramello@hotmail.com $"
+__version__ = "$Revision: 1261 $"
+
+Module('caba:vci_initiator_simple_read_req',
+	classname = 'soclib::caba::VciInitSimpleReadReq',
+	   tmpl_parameters = [
+	parameter.Module('vci_param',  default = 'caba:vci_param'),
+	],
+	implementation_files = ['../src/caba/vci/vci_initiator/simple_read_req.cpp',],
+	uses = [
+		Uses('caba:vci_initiator_simple_req'),
+		Uses('caba:base_module'),
+		Uses('common:mapping_table'),
+		Uses('caba:vci_initiator'),
+		Uses('caba:vci_initiator_fsm'),
+		],
+)

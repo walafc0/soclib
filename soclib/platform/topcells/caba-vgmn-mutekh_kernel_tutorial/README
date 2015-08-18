@@ -1,0 +1,34 @@
+
+Build simulator
+===============
+
+$ make system.x
+
+Build MutekH
+============
+
+In the MutekH directory, compile the desired kernel using the intended
+configuration files and BUILD flags.
+
+ $ make CONF=config BUILD=pf-tutorial:soclib-mips32el
+
+See MutekH quick start guide for Soclib for more informations:
+
+http://www.mutekh.org/trac/mutekh/wiki/Arch/Soclib/Tutorial
+
+Run the simulator
+=================
+
+You must specify the CPU you want to use on command line. General syntax is:
+
+ $ ./system.x cpu_type0:count0 cpu_specific_kernel_image0 cpu_type1:count1 cpu_specific_kernel_image1 ...
+
+ Single mips processor:
+ $ ./system.x mips32el:1 ~/mutekh/kernel-soclib-mips.out
+
+ Four arm processors:
+ $ ./system.x arm:4 ~/mutekh/kernel-soclib-arm.out
+
+ 2 arm and 2 mips processors:
+ $ ./system.x arm:2 ~/mutekh/kernel-soclib-arm.out mips32el:2 ~/mutekh/kernel-soclib-mips.out
+

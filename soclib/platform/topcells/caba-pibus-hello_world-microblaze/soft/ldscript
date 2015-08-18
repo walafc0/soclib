@@ -1,0 +1,19 @@
+MEMORY 
+{
+   bram : ORIGIN = 0x00000000, LENGTH = 0x00008000
+}
+
+EXTERN(_boot)
+
+SECTIONS
+{
+   .all    : { boot.o(.boot .text) *(.text)
+               *(.rodata)
+               *(.data)
+               _edata = ALIGN(4);
+               *(.sdata)
+               *(.sbss )
+               *(.bss )
+               _end = ALIGN(4);   } > bram
+   _stack_top  = 0x00008000;
+}

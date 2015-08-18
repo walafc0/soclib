@@ -1,0 +1,35 @@
+
+             SystemC 2.2.0 --- Sep  8 2008 15:39:21
+        Copyright (c) 1996-2006 by all Contributors
+                    ALL RIGHTS RESERVED
+Successfull Instanciation of tc_tc4200: tc4200_hw
+Successfull Instanciation of tc4200: tc4200
+Loading at 0xbfc00000 size 512: .reset 
+Loading at 0x80000000 size 65536: .excep 
+Loading at 0x400000 size 327680: .text 
+Loading at 0x10000000 size 131072: .rodata .data .sdata 
+Hello from processor 0
+ Monitoring LDPC decoder 
+  idle   : 1
+  syndok : 0
+  itdone : 0
+Time elapsed: 0 cycles.
+Time elapsed: 10000 cycles.
+
+#################
+processor 0 : decoding input frame sent
+#################
+ Monitoring LDPC decoder 
+  idle   : 0
+  syndok : 0
+  itdone : 0
+Time elapsed: 20000 cycles.
+ Monitoring LDPC decoder 
+  idle   : 1
+  syndok : 1
+  itdone : 0
+ Decoding verification
+Time elapsed: 30000 cycles.
+Time elapsed: 40000 cycles.
+ Successful decoding
+Time elapsed: 50000 cycles.

@@ -1,0 +1,58 @@
+export TARGET_PREFIX="${PWD}/ocean-c_${TARGET_SIM}_${TARGET_NOC}_${TARGET_NBP}_${TARGET_MEM}_${TARGET_NCL}_${TARGET_CLS}"
+export APP_NAME="ocean"
+export BENCH_CLASS="apps"
+export APP_NAME_EXT="contiguous_partitions"
+
+if [ "${TARGET_SIM}" == "SOCLIB" ] ; then
+
+export MACRO_FILE="${PWD}/null_macros/c.m4.null.POSIX_DNA_DS"
+
+	export TARGET_CAL="MIPS_MIPS32"
+	if [ "${TARGET_MEM}" == "LOCAL" ] ; then
+		export TARGET_SYSTEM_KSP_OS="SYSTEM_KSP_OS_DNA_LM"
+	elif [ "${TARGET_MEM}" == "GLOBAL" ] ; then
+		export TARGET_SYSTEM_KSP_OS="SYSTEM_KSP_OS_DNA"
+	else
+		echo "[ERROR  ] not supported TARGET_MEM : ${TARGET_MEM} "
+	fi
+	export TARGET_SYSTEM_KSP_TASK="SYSTEM_KSP_TASK_PTHREAD"
+	export TARGET_SYSTEM_ASP_C=""
+	export TARGET_SYSTEM_ASP_M=""
+	export TARGET_SYSTEM_ASP_COM=""
+	export TARGET_SYSTEM_SSP_CAL="SYSTEM_SSP_CAL_${TARGET_CAL}"
+	export TARGET_SYSTEM_SSP_PAL="SYSTEM_SSP_PAL_SOCLIB"
+	export TARGET_SYSTEM_LIBS="${TARGET_SYSTEM_SSP_CAL} ${TARGET_SYSTEM_KSP_OS} ${TARGET_SYSTEM_ASP_COM} ${TARGET_SYSTEM_KSP_TASK} ${TARGET_SYSTEM_ASP_C} ${TARGET_SYSTEM_ASP_M}"  
+
+	export DNA_CFLAGS="-DDNA_ENABLE_TRACE"
+	export DNA_CHANNEL_DEVICES=""
+	export DNA_SYSTEM_DEVICES="soclib"
+	export DNA_DISK_DEVICES="fdaccess"
+	export DNA_FILESYSTEMS="devfs rootfs"
+
+	export TARGET_M4="m4"
+	export TARGET_M4FLAGS="-s -Ulen -Uindex"
+	export TARGET_CC="mips-sls-dnaos-gcc"
+	export TARGET_CFLAGS="-pipe -Wall -O3 -g -G0 -EL -std=c99 -Wall -msoft-float -march=mips32 -DDEFAULT_N=130 -DDEFAULT_P=${TARGET_NBP} -DDEFAULT_E=1e-7 -DSIM_SOCLIB" 
+
+	if [ "${TARGET_MEM}" == "LOCAL" ] ; then
+		export TARGET_CFLAGS="${TARGET_CFLAGS} -DDISTRIBUTED"
+	fi
+
+	export TARGET_LD="mips-sls-dnaos-gcc"
+	export TARGET_LDFLAGS="-msoft-float -EL -lm"
+	export TARGET_ARFLAGS="cru"
+	export TARGET_AR="mips-sls-dnaos-ar"
+	export TARGET_RANLIB="mips-sls-dnaos-ranlib"
+	if [ "${TARGET_MEM}" == "LOCAL" ] ; then
+		export TARGET_LDSCRIPT="-T ./ldscripts/mips_${TARGET_NOC}_${TARGET_NBP}p_lm"
+	elif [ "${TARGET_MEM}" == "GLOBAL" ] ; then
+		export TARGET_LDSCRIPT="-T ./ldscripts/mips_${TARGET_NOC}_${TARGET_NBP}p_gm"
+	else
+		echo "[ERROR  ] not supported TARGET_MEM : ${TARGET_MEM} "
+	fi
+
+elif [ "${TARGET_SIM}" == "NATIVE" ] ; then
+	echo "[ERROR  ] not supported TARGET_SIM : ${TARGET_SIM} "
+else
+	echo "[ERROR  ] unrecognized TARGET_SIM : ${TARGET_SIM} "
+fi

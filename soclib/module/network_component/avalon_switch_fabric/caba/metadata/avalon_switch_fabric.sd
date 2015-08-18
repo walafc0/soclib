@@ -1,0 +1,69 @@
+
+# -*- python -*-
+
+__id__ = "$Id: avalon_switch_fabric.sd 1195 2009-07-08 12:37:56Z abdelmalek.si-merabet@lip6.fr $"
+__version__ = "$Revision: 1195 $"
+
+Module('caba:avalon_address_decoding_logic',
+       classname = 'soclib::caba::AvalonAddressDecodingLogic',
+		tmpl_parameters = [
+		parameter.Module('avalon_param',  default = 'caba:avalon_param'),
+		],
+	     header_files = ['../source/include/avalon_address_decoding_logic',],
+       implementation_files = ['../source/src/avalon_address_decoding_logic.cpp',],
+              ports = [
+       	Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+       	Port('caba:clock_in', 'p_clk', auto = 'clock'),
+		Port('caba:avalon_adl_in', 'p_adl_in'),
+		Port('caba:avalon_adl_out', 'p_adl_out'),
+		],
+       uses = [
+        Uses('caba:base_module'),
+        Uses('caba:avalonbus'),
+        ],
+)
+
+Module('caba:avalon_mux',
+       classname = 'soclib::caba::AvalonMux',
+ 		tmpl_parameters = [
+		parameter.Module('avalon_param',  default = 'caba:avalon_param'),
+		],
+	    header_files = ['../source/include/avalon_mux.h',],
+     	implementation_files = ['../source/src/avalon_mux.cpp',],
+        ports = [
+       	Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+       	Port('caba:clock_in', 'p_clk', auto = 'clock'),
+		Port('caba:avalon_mux_master', 'p_mux_master'),
+		Port('caba:avalon_mux_slave', 'p_mux_slave'),
+		],
+       uses = [
+        Uses('caba:base_module'),
+        Uses('caba:avalonbus'),
+        ],
+)
+
+Module('caba:avalon_switch_fabric',
+       classname = 'soclib::caba::AvalonSwitchFabric',
+       header_files = ['../source/include/avalon_switch_fabric.h',],
+       implementation_files = ['../source/src/avalon_switch_fabric.cpp',],
+       tmpl_parameters = [
+		parameter.Int('nb_master', default = 1),
+		parameter.Int('nb_slave', default = 1),
+		parameter.Module('avalon_param',  default = 'caba:avalon_param')		
+        ],
+       ports = [
+	Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+	Port('caba:clock_in', 'p_clk', auto = 'clock'),
+	Port('caba:avalon_switch_master', 'p_avalon_master'),
+	Port('caba:avalon_switch_slave', 'p_avalon_slave'),
+	],
+       uses = [
+        Uses('caba:base_module'),
+        Uses('caba:avalonbus'),
+        Uses('caba:avalon_arbiter'),
+        Uses('caba:avalon_mux'),
+        Uses('caba:avalon_address_decoding_logic'),
+        ],
+)
+
+

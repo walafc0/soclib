@@ -1,0 +1,48 @@
+
+# -*- python -*-
+
+Module('caba:input_buffer',
+	classname = 'soclib::caba::InputBuffer',
+	tmpl_parameters = [
+		parameter.Int('WIDTH', default = '16'),
+		parameter.Type('OUT_TYPE', default = 'sc_uint<16>'),
+	],
+	header_files = [ '../include/input_buffer.h', ],
+	implementation_files = ['../src/input_buffer.cpp', ],
+	ports = [
+		Port('caba:bit_in',   'p_resetn', auto = 'resetn'),
+		Port('caba:clock_in', 'p_clk', auto = 'clock'),
+		Port('caba:fifo_input', 'p_input',
+			data_t=parameter.StringExt('sc_uint<%s>', parameter.Reference('WIDTH'))),
+		Port('caba:word_out', 'p_output', word_t=parameter.Reference('OUT_TYPE')),
+		Port('caba:bit_in',  'p_writeok'),
+		Port('caba:bit_out', 'p_write'),
+	],
+	uses = [
+		Uses('caba:base_module'),
+	],
+)
+
+
+Module('caba:output_buffer',
+	classname = 'soclib::caba::OutputBuffer',
+	tmpl_parameters = [
+		parameter.Int('WIDTH', default = '16'),
+		parameter.Type('IN_TYPE', default = 'sc_uint<16>'),
+	],
+	header_files = [ '../include/output_buffer.h', ],
+	implementation_files = ['../src/output_buffer.cpp', ],
+	ports = [
+		Port('caba:bit_in',   'p_resetn', auto = 'resetn'),
+		Port('caba:clock_in', 'p_clk', auto = 'clock'),
+		Port('caba:word_in', 'p_input', word_t=parameter.Reference('IN_TYPE')),
+		Port('caba:fifo_output', 'p_output',
+			data_t=parameter.StringExt('sc_uint<%s>', parameter.Reference('WIDTH'))),
+		Port('caba:bit_in',  'p_write'),
+		Port('caba:bit_out', 'p_writeok'),
+	],
+	uses = [
+		Uses('caba:base_module'),
+	],
+)
+

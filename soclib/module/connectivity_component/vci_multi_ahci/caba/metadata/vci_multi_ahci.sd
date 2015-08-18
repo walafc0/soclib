@@ -1,0 +1,42 @@
+# -*- python -*-
+Module('caba:vci_multi_ahci',
+    classname = 'soclib::caba::VciMultiAhci',
+
+    tmpl_parameters = [ parameter.Module('vci_param',  default = 'caba:vci_param'), ],
+	   
+    header_files = [ '../source/include/vci_multi_ahci.h', ],
+
+    interface_files = [ '../../include/soclib/multi_ahci.h', ],
+
+    implementation_files = [ '../source/src/vci_multi_ahci.cpp', ],
+
+    ports = [
+	    Port('caba:vci_target'   , 'p_vci_target'),
+   	    Port('caba:vci_initiator', 'p_vci_initiator'),	
+	    Port('caba:bit_in'       , 'p_resetn', auto = 'resetn'),
+	    Port('caba:bit_out'      , 'p_irq', parameter.Reference('names', 'len')),
+	    Port('caba:clock_in'     , 'p_clk', auto = 'clock'),
+	],
+
+    uses = [
+	    Uses('caba:base_module'),
+	    Uses('common:mapping_table'),
+    ],
+
+	instance_parameters = [
+       parameter.Module('mt', typename = 'common:mapping_table', 
+                              auto = 'env:mapping_table'),
+       parameter.IntTab('srcid'),
+	   parameter.IntTab('tgtid'),
+	   parameter.StringArray('filenames'),
+	   parameter.Int('block_size',default=512),
+	   parameter.Int('burst_size',default=64),
+	   parameter.Int('latency',   default=0),
+    ],
+ 
+    extensions = [
+        'dsx:addressable=tgtid',
+      	'dsx:max_segments=1',
+        'dsx:get_ident=tgtid:p_vci_target:mt,srcid:p_vci_initiator:mt',	
+    ],
+)

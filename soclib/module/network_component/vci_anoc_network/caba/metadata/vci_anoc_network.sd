@@ -1,0 +1,49 @@
+# -*- python -*-
+
+__id__ = "$Id: vci_anoc_network.sd 1698 2010-04-14 03:29:34Z nipo $"
+__version__ = "$Revision: 1698 $"
+
+Module('caba:vci_anoc_network',
+	classname = 'soclib::caba::VciAnocNetwork',
+	tmpl_parameters = [
+	    parameter.Module('vci_param', default = 'caba:vci_param'),
+	    parameter.Int('anoc_fifo_size'),
+	    parameter.Int('anoc_yx_size'),
+	],
+	header_files = [
+	'../source/include/vci_anoc_network.h',
+	],
+	implementation_files = [
+	'../source/src/vci_anoc_network.cpp',
+	],
+	ports = [
+		# FIXME: Ports vci
+	    Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+	    Port('caba:clock_in', 'p_clk', auto = 'clock'),
+	],
+	instance_parameters = [
+	    parameter.Module('mt', 'common:mapping_table'),
+	    parameter.Int('width_network'),
+	    parameter.Int('height_network'),
+	],
+	uses = [
+	    Uses('caba:base_module'),
+	    Uses('common:mapping_table'),
+	    Uses('common:anoc_common'),
+	    Uses('common:anoc_node'),
+	    Uses('caba:vci_anoc_wrapper'),
+	],
+)
+Module('common:anoc_node',
+	classname = 'soclib::common::anoc_node',
+	header_files = [
+	'../../common/source/include/anoc_node.h',
+	],
+	implementation_files = [
+	'../../common/source/src/anoc_node.cpp',
+	],
+	uses = [
+	    Uses('common:anoc_common'),
+	],
+)
+

@@ -1,0 +1,62 @@
+
+# -*- python -*-
+
+__id__ = "$Id: mips32.sd 1569 2010-02-20 04:40:42Z becoulet $"
+__version__ = "$Revision: 1569 $"
+
+Module('common:mips32',
+	classname = 'soclib::common::Mips32Iss',
+	header_files = ["../include/mips32.h",],
+	   uses = [
+	Uses('common:iss2'),
+	Uses('common:base_module'),
+	],
+	implementation_files = [
+	"../src/mips32.cpp",
+	"../src/mips32_cp0.cpp",
+	"../src/mips32_hazard.cpp",
+	"../src/mips32_instructions.cpp",
+	"../src/mips32_load_store.cpp",
+	"../src/mips32_run.cpp",
+	"../src/mips32_special.cpp",
+	"../src/mips32_special2.cpp",
+	"../src/mips32_special3.cpp",
+	"../src/mips32_fpu.cpp",
+	],
+	   constants = {
+	'n_irq':6
+	},
+#   debug = True,
+)
+
+# Mips32 Little endian (Mips32ElIss)
+
+__id__ = "$Id: mips32.sd 1569 2010-02-20 04:40:42Z becoulet $"
+__version__ = "$Revision: 1569 $"
+
+Module('common:mips32el',
+	classname = 'soclib::common::Mips32ElIss',
+	header_files = ["../include/mips32.h",],
+	uses = [
+		Uses('common:mips32'),
+		],
+	  extensions = [
+	'dsx:cpu=mips32el'
+	],
+)
+
+# Mips32 Big endian (Mips32EbIss)
+
+__id__ = "$Id: mips32.sd 1569 2010-02-20 04:40:42Z becoulet $"
+__version__ = "$Revision: 1569 $"
+
+Module('common:mips32eb',
+	classname = 'soclib::common::Mips32EbIss',
+	header_files = ["../include/mips32.h",],
+	uses = [
+		Uses('common:mips32'),
+		],
+	  extensions = [
+	'dsx:cpu=mips32eb'
+	],
+)

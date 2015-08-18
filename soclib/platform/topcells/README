@@ -1,0 +1,13 @@
+
+Example platforms
+-----------------
+
+Each platform has an explicit name:
+
+type-interconnect-application-processor
+
+type:         modelization (caba, tlmt)
+interconnect: vgmn, vci_ring, pibus
+application:  hellow_world, framebuffer test, timer test, ...
+processor:    mipsel, ppc405, arm7tdmi, microblaze, ...
+

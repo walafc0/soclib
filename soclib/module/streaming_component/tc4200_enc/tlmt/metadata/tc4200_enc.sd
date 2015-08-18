@@ -1,0 +1,23 @@
+# -*- python -*-
+
+__id__ = "$Id: tc4200_enc.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+#Module('tlmt:tc4200_enc',
+#	classname = 'soclib::tlmt::tc4200_enc',
+#	tmpl_parameters = [
+#		parameter.Module('vci_param',  default = 'tlmt:vci_param')
+#	],
+#	header_files = ['../source/include/tc4200_enc.h',],
+#	implementation_files = ['../source/src/tc4200_enc.cpp',],
+#	ports = [
+#		Port('caba:vci_target', 'p_vci'),
+#		Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+#		Port('caba:clock_in', 'p_clk', auto = 'clock'),
+#	],
+#	uses = [
+#		Uses('caba:base_module'),
+#	],
+#	instance_parameters = [
+#	]
+#)

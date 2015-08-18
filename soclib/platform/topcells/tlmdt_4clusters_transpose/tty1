@@ -1,0 +1,19 @@
+[20h !!!  Processor 1 running !!!
+
+ *** Starting transpose for image 0 *** at cycle 85539 
+ *** Completing transpose for image 0 *** at cycle 724429 
+
+ *** Starting transpose for image 1 *** at cycle 821551 
+ *** Completing transpose for image 1 *** at cycle 1460495 
+
+ *** Starting transpose for image 2 *** at cycle 1564458 
+ *** Completing transpose for image 2 *** at cycle 2203498 
+
+ *** Starting transpose for image 3 *** at cycle 2227862 
+ *** Completing transpose for image 3 *** at cycle 2866905 
+
+ *** Starting transpose for image 4 *** at cycle 2934361 
+ *** Completing transpose for image 4 *** at cycle 3573398 
+
+
+!!!  Exit  Processor  0x001   !!!

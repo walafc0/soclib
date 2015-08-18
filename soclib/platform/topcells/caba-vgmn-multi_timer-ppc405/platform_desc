@@ -1,0 +1,25 @@
+
+# -*- python -*-
+
+
+todo = Platform('caba', 'top.cpp',
+				uses = [
+	Uses('caba:vci_ram'),
+	Uses('caba:vci_multi_tty'),
+	Uses('caba:vci_timer'),
+	Uses('caba:vci_vgmn'),
+	Uses('caba:vci_xcache_wrapper', iss_t = 'common:iss2_simhelper', simhelper_iss_t = 'common:ppc405'),
+	Uses('caba:vci_xcache_wrapper', iss_t = 'common:gdb_iss', gdb_iss_t = 'common:ppc405'),
+	Uses('common:elf_file_loader'),
+	],
+	cell_size = 4,
+	plen_size = 9,
+	addr_size = 32,
+	rerror_size = 1,
+	clen_size = 1,
+	rflag_size = 1,
+	srcid_size = 8,
+	pktid_size = 1,
+	trdid_size = 1,
+	wrplen_size = 1
+)

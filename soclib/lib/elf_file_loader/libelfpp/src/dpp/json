@@ -1,0 +1,1607 @@
+/* -*- c++ -*-
+
+   C++ JSON parser template classes
+
+   This file is part of the dpp library of C++ template classes
+
+   doc: http://diaxen.ssji.net/dpp/index.html
+   repo: https://www.ssji.net/svn/projets/trunk/libdpp
+
+   This program is free software: you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public License
+   as published by the Free Software Foundation, either version 3 of
+   the License, or (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with this program.  If not, see
+   <http://www.gnu.org/licenses/>.
+
+   (c) 2013 Alexandre Becoulet <alexandre.becoulet@free.fr>
+
+*/
+
+#ifndef DPP_JSON_HH_
+#define DPP_JSON_HH_
+
+/** @file @module{JSON} */
+
+#include <exception>
+#include <string>
+#include <sstream>
+#include <iostream>
+#include <cstdlib>
+#include <map>
+#include <vector>
+#include <cassert>
+#include <iomanip>
+
+#if !defined(_DPP_OVERRIDE)
+# if __cplusplus >= 201103
+#  define _DPP_OVERRIDE override
+# else
+#  define _DPP_OVERRIDE
+# endif
+#endif
+
+namespace dpp {
+
+  /** Specify JSON language extensions */
+  enum json_extensions
+    {
+      /** Accept EOF as a valid json text. */
+      JSON_EXT_EMPTY_TEXT      = 0x0001,
+      /** Accept an kind of value as root value instead of object and array only. */
+      JSON_EXT_ANY_ROOT        = 0x0002,
+      /** Accept floating point numbers. */
+      JSON_EXT_FLOAT_NUMBER    = 0x0010,
+      /** Accept hexadecimal numbers. */
+      JSON_EXT_HEX_NUMBER      = 0x0020,
+      /** Accept octal numbers. */
+      JSON_EXT_OCT_NUMBER      = 0x0040,
+      /** Accept binary numbers. */
+      JSON_EXT_BIN_NUMBER      = 0x0080,
+      /** Accept numbers in all supported bases. */
+      JSON_EXT_ANY_BASE        = 0x00e0,
+      /** Accept C style comments in input. */
+      JSON_EXT_C_COMMENT       = 0x0100,
+      /** Accept C++ style comments in input. */
+      JSON_EXT_CPP_COMMENT     = 0x0200,
+      /** Accept # comments in input. */
+      JSON_EXT_SHARP_COMMENT   = 0x0400,
+      /** Accept any supported style of comments in input. */
+      JSON_EXT_ANY_COMMENT     = 0x0700,
+      /** Accept single quoted strings. */
+      JSON_EXT_SINGLE_QUOTE    = 0x1000,
+      /** Accept object key strings which are not quoted. */
+      JSON_EXT_UNQUOTED_KEYS   = 0x2000,
+      /** Accept number values as object keys. */
+      JSON_EXT_NUMBER_KEYS     = 0x4000,
+      /** Accept extra comma at end of objects and arrays. */
+      JSON_EXT_EXTRA_COMMA     = 0x8000,
+
+      /** Disable all extensions. */
+      JSON_EXT_NONE            = 0x0000,
+      /** Accept strict JSON grammar only. */
+      JSON_EXT_STRICT          = JSON_EXT_FLOAT_NUMBER,
+      /** Enable all extensions. */
+      JSON_EXT_ALL             = 0xffff,
+    };
+
+  /** Specify JSON options */
+  enum json_options
+    {
+      JSON_OPT_NONE       = 0,
+      /** Enable use of \u escaping in output for character code >= 127. */
+      JSON_OPT_U_ESCAPING = 0x10000,
+    };
+
+  /** Specify JSON value types */
+  enum json_value_types
+    {
+      JSON_NULL,
+      JSON_BOOL,
+      JSON_NUMBER,
+      JSON_STRING,
+      JSON_OBJECT,
+      JSON_ARRAY,
+    };
+
+  /** JSON boolean values */
+  enum json_bool
+    {
+      JSON_FALSE = 0,
+      JSON_TRUE  = 1,
+    };
+
+  class json_error;
+
+  template <typename Char = char,
+	    int ext = JSON_EXT_STRICT>
+  class json_scanner;
+
+  template <typename Char = char,
+	    typename Number = double,
+	    int opt = JSON_OPT_NONE>
+  class json_value;
+
+  template <typename Char = char,
+	    typename Number = double,
+	    int ext = JSON_EXT_STRICT>
+  class json_parser;
+
+  //////////////////////////////////////////////////////////////////////
+
+  /**
+     @short JSON error class
+     @module {JSON}
+     @header dpp/json
+   */
+  class json_error : public std::exception
+  {
+    std::string _what;
+
+  public:
+
+    const char* what() const throw()
+    {
+      return _what.c_str();
+    }
+
+    json_error(const char *msg, unsigned int line = 0, unsigned int column = 0)
+    {
+      std::ostringstream s;
+      s << "JSON:" << line << ":" << column << ": " << msg;
+      _what = s.str();
+    }
+
+    ~json_error() throw()
+    {
+    }
+  };
+
+  //////////////////////////////////////////////////////////// scanner
+
+  /**
+     @short JSON scanner
+     @module {JSON}
+     @header dpp/json
+
+     @This implements an JSON scanner. Derived classes must override
+     some functions to handle JSON scanning events.
+
+     The @ref json_extensions enum contains some configuration flags
+     which can be ored together and passed as the @tt ext template
+     argument of this class.
+
+     @section {Example}
+     @example test/test_json_scanner.cc:ext|scanner
+     @example test/test_json_scanner.cc:scanner2
+     @end section
+   */
+  template <typename Char, int ext>
+  class json_scanner
+  {
+  public:
+    typedef std::basic_string<Char> string;
+    typedef std::basic_istream<Char> istream;
+
+    /* @This starts scanning of a JSON text from the input stream
+       associated with the scanner. The function returns once a
+       complete JSON text has been scanned. The stream doesn't need to
+       reach an end of file for this function to return. */
+    void scan() throw(json_error)
+    {
+      scan_start_json();
+      process_value();
+      scan_end_json();
+    }
+
+  protected:
+
+    json_scanner(istream &i)
+      : _i(&i),
+	_depth(0),
+	_line(1),
+	_col(1)
+    {
+    }
+
+    virtual void scan_start_json()
+    {
+    }
+
+    virtual void scan_end_json()
+    {
+    }
+
+    virtual void scan_start_object()
+    {
+    }
+
+    virtual void scan_end_object()
+    {
+    }
+
+    virtual void scan_start_array()
+    {
+    }
+
+    virtual void scan_end_array()
+    {
+    }
+
+    virtual void scan_colon()
+    {
+    }
+
+    virtual void scan_comma()
+    {
+    }
+
+    virtual void scan_number(const string &number, bool is_float, int base)
+    {
+    }
+
+    virtual void scan_string(const string &str)
+    {
+    }
+
+    virtual void scan_bool(json_bool b)
+    {
+    }
+
+    virtual void scan_null()
+    {
+    }
+
+    /** @This returns the current object/array nesting level. */
+    unsigned int depth()
+    {
+      return _depth;
+    }
+
+    /** @This returns the current line number. */
+    unsigned int line()
+    {
+      return _line;
+    }
+
+    /** @This returns the current column number. */
+    unsigned int column()
+    {
+      return _col;
+    }
+
+    /** @internal throw */
+    void error(const char *msg)
+    {
+      throw json_error(msg, _line, _col - 1);
+    }
+
+  private:
+    int getc_eof(bool &eof)
+    {
+      Char c;
+
+      _i->get(c);
+
+      if ((eof = _i->eof()))
+	return 0;
+
+      if (!_i->good())
+	error("io error reading JSON text");
+
+      _col++;
+      if (c == '\n')
+	{
+	  _line++;
+	  _col = 1;
+	}
+
+      return c;
+    }
+
+    int getc()
+    {
+      bool eof;
+      int c = getc_eof(eof);
+      if (eof)
+	error("unexpected end of JSON text");
+      return c;
+    }
+
+    void ungetc()
+    {
+      _i->unget();
+      _col--;
+    }
+
+    int skip_space_eof(bool &eof)
+    {
+      while (1)
+	{
+	  int c;
+	  do {
+	    c = getc_eof(eof);
+	  } while (!eof && c <= 32);
+
+	  if (!(ext & JSON_EXT_ANY_COMMENT) || eof)
+	    return c;
+
+	  switch (c)  /* skip comments */
+	    {
+	    case '/':
+	      switch (c = getc())
+		{
+		case '*':    /* c style comments */
+		  if (!(ext & JSON_EXT_C_COMMENT))
+		    break;
+		  for (int l = 0; (c = getc()) != '/' || l != '*'; l = c)
+		    ;
+		  continue;
+
+		case '/':    /* c++ style comments */
+		  if (ext & JSON_EXT_CPP_COMMENT)
+		    goto eol;
+		}
+	      error("unexpected character in JSON text");
+
+	    case '#':        /* # comments */ 
+	      if (ext & JSON_EXT_SHARP_COMMENT)
+		goto eol;
+	    }
+	  return c;
+	eol:
+	  while (getc() != '\n')
+	    ;
+	}
+    }
+
+    int skip_space()
+    {
+      bool eof;
+      int c = skip_space_eof(eof);
+      if (eof)
+	error("unexpected end of JSON text");
+      return c;
+    }
+
+    void process_word_boundary(int c, const char *msg)
+    {
+      if (((c|32) >= 'a' && (c|32) <= 'z') || (c >= '0' && c <= '9') || c == '_')
+	error(msg);
+      if (c > 32)
+	ungetc();
+    }
+
+    void process_keyword(const char *kw)
+    {
+      int c;
+      for (; *kw; kw++)
+	if ((c = getc()) != *kw)
+	  error("bad value");
+
+      bool eof;
+      c = getc_eof(eof);
+      if (!eof)
+	process_word_boundary(c, "bad value");
+    }
+
+    void process_value()
+    {
+      bool eof;
+      int c = skip_space_eof(eof);
+
+      if (eof)
+	{
+	  if (!_depth && (ext & JSON_EXT_EMPTY_TEXT))
+	    return;
+	  error("unexpected end of JSON text");
+	}
+
+      switch (c)
+	{
+	case '{':
+	  scan_start_object();
+	  _depth++;
+	  process_object();
+	  _depth--;
+	  return scan_end_object();
+	case '[':
+	  scan_start_array();
+	  _depth++;
+	  process_array();
+	  _depth--;
+	  return scan_end_array();
+	}
+
+      if (!(ext & JSON_EXT_ANY_ROOT) && !_depth)
+	error("object or array expected as root value");
+
+      switch (c)
+	{
+	case '-':
+	case '.':
+	case '0' ... '9':
+	  return process_number(c);
+	case '\'':
+	  if (!(ext & JSON_EXT_SINGLE_QUOTE))
+	    break;
+	case '"':
+	  return process_string(c);
+	case 't':
+	  process_keyword("rue");
+	  return scan_bool(JSON_TRUE);
+	case 'f':
+	  process_keyword("alse");
+	  return scan_bool(JSON_FALSE);
+	case 'n':
+	  process_keyword("ull");
+	  return scan_null();
+	}
+
+      error("unexpected character in JSON text");
+    }
+
+    void process_object()
+    {
+      bool pair = false;
+      bool comma = false;
+
+      while (1)
+	{
+	  int c = skip_space();
+
+	  switch (c)
+	    {
+	    case 'A' ... 'Z':
+	    case 'a' ... 'z':
+	    case '_':
+	      if (!(ext & JSON_EXT_UNQUOTED_KEYS))
+		goto err;
+	      process_name(c);
+	      break;
+	    case '.':
+	    case '0' ... '9':
+	      if (!(ext & JSON_EXT_NUMBER_KEYS))
+		goto err;
+	      process_number(c);
+	      break;
+	    case '\'':
+	      if (!(ext & JSON_EXT_SINGLE_QUOTE))
+		goto err;
+	    case '"':
+	      process_string(c);
+	      break;
+	    case '}':
+	      if (!(ext & JSON_EXT_EXTRA_COMMA) && comma)
+		error("extra comma at end of object");
+	      return;
+	    case ',':
+	      if (!pair)
+		error("expected name/value pair before comma in object");
+	      scan_comma();
+	      pair = false;
+	      comma = true;
+	      continue;
+	    default:
+	    err:
+	      error("expected name or closing brace in object");
+	    }
+
+	  c = skip_space();
+
+	  if (c != ':')
+	    error("expected colon after name in object");
+	  scan_colon();
+
+	  skip_space();
+	  ungetc();
+
+	  process_value();
+	  pair = true;
+	  comma = false;
+	}
+    }
+
+    void process_array()
+    {
+      bool value = false;
+      bool comma = false;
+
+      while (1)
+	{
+	  int c = skip_space();
+
+	  switch (c)
+	    {
+	    case ',':
+	      if (!value)
+		error("expected value or closing square bracket in array");
+	      scan_comma();
+	      value = false;
+	      comma = true;
+	      continue;
+	    case ']':
+	      if (!(ext & JSON_EXT_EXTRA_COMMA) && comma)
+		error("extra comma at end of array");
+	      return;
+	    default:
+	      if (value)
+		error("expected comma or closing square bracket in array");
+	      ungetc();
+	      process_value();
+	      value = true;
+	      comma = false;
+	    }
+	}
+    }
+
+    void process_number(int c)
+    {
+      int state = 0;
+      int base = 10;
+      bool done = false;
+      bool eof = false;
+      bool flt = false;
+      string num;
+
+      do {
+	switch (c)
+	  {
+	  case '-':
+	    if (state > 0)
+	      goto end;
+	    state = 1;
+	    break;
+	  case '0':
+	    done = true;
+	    if (state < 2)
+	      {
+		state = 2;
+		if (ext & JSON_EXT_OCT_NUMBER)
+		  base = 8;
+	      }
+	    else if (state < 3)
+	      state = 3;
+	    break;
+	  case 'x':
+	  case 'X':
+	    if (!(ext & JSON_EXT_HEX_NUMBER) || state != 2)
+	      goto end;
+	    state = 5;
+	    done = false;
+	    base = 16;
+	    break;
+	  case '8' ... '9':
+	    if ((ext & JSON_EXT_OCT_NUMBER) && base == 8)
+	      error("bad octal number");
+	  case '2' ... '7':
+	    if ((ext & JSON_EXT_BIN_NUMBER) && base == 2)
+	      error("bad binary number");
+	  case '1':
+	    if (state < 3)
+	      state = 3;
+	    done = true;
+	    break;
+	  case '.':
+	    done = false;
+	    if (!(ext & JSON_EXT_FLOAT_NUMBER))
+	      goto end;
+	    if (state > 3)
+	      goto end;
+	    state = 4;
+	    if (ext & JSON_EXT_ANY_BASE)
+	      base = 10;
+	    flt = true;
+	    break;
+	  case 'a' ... 'f':
+	  case 'A' ... 'F':
+	    if ((ext & JSON_EXT_HEX_NUMBER) && base == 16)
+	      done = true;
+	    else switch (c)
+	      {
+	      case 'e':		// fp exponent
+	      case 'E':
+		if (!(ext & JSON_EXT_FLOAT_NUMBER))
+		  goto end;
+		if (state < 2 || state > 4 || !done)
+		  goto end;
+		state = 5;
+		if (ext & JSON_EXT_ANY_BASE)
+		  base = 10;
+		flt = true;
+		done = false;
+		break;
+	      case 'b':
+	      case 'B':	    	// binary number
+		if (!(ext & JSON_EXT_BIN_NUMBER) || state != 2)
+		  goto end;
+		state = 5;
+		done = false;
+		base = 2;
+		break;
+	      default:
+		goto end;
+	      }
+	    break;
+	  default:
+	    goto end;
+	  }
+
+	num += c;
+	c = getc_eof(eof);
+      } while (!eof);
+
+    end:
+      if (!done)
+	error("bad number");
+      if (!eof)
+	process_word_boundary(c, "bad number");
+
+      scan_number(num, flt, base);
+    }
+
+    void process_string(int d)
+    {
+      string str;
+
+      while (1)
+	{
+	  int c = getc();
+
+	  switch (c)
+	    {
+	    case '"':
+	    case '\'':
+	      if (d == c)
+		return scan_string(str);
+	      break;
+	    case '\\':
+	      switch (c = getc())
+		{
+		case '\'':
+		  if (!(ext & JSON_EXT_SINGLE_QUOTE))
+		    goto err;
+		case '/':
+		case '\\':
+		case '"':
+		  break;
+		case 'b':
+		  c = '\b';
+		  break;
+		case 'f':
+		  c = '\f';
+		  break;
+		case 'n':
+		  c = '\n';
+		  break;
+		case 'r':
+		  c = '\r';
+		  break;
+		case 't':
+		  c = '\t';
+		  break;
+		case 'u': {
+		  char hex[5];
+		  for (int i = 0; i < 4; i++)
+		    hex[i] = getc();
+		  hex[4] = 0;
+		  c = std::strtoul(hex, NULL, 16);
+		  break;
+		}
+		default:
+		err:
+		  error("bad string escaping sequence");
+		}
+	      }
+
+	  str += c;
+	}
+    }
+
+    void process_name(int c)
+    {
+      string str;
+
+      while (1)
+	{
+	  str += c;
+	  c = getc();
+	  switch (c)
+	    {
+	    case '0' ... '9':
+	    case 'A' ... 'Z':
+	    case 'a' ... 'z':
+	    case '_':
+	      continue;
+	    default:
+	      ungetc();
+	      return scan_string(str);
+	    }
+	}
+    }
+
+    istream *_i;
+    unsigned int _depth;
+    unsigned int _line;
+    unsigned int _col;
+  };
+
+  ////////////////////////////////////////////////////////////////////// value
+
+  /** @module {JSON} 
+   @This outputs a JSON escaped string to a standard stream. */
+  template <typename Char, int opt>
+  void json_escape_string(std::basic_ostream<Char> &o,
+			  const std::basic_string<Char> &str)
+  {
+    typedef std::basic_string<Char> string;
+
+    o << '"';
+    for (typename string::const_iterator i = str.begin(); i != str.end(); i++)
+      {
+	Char c = *i;
+	if ((opt & JSON_OPT_U_ESCAPING) && (c & ~0x7f))
+	  {
+	    const char *hex = "0123456789abcdef";
+	    o << '\\' << 'u'
+	      << hex[(c >> 12) & 15] << hex[(c >> 8) & 15]
+	      << hex[(c >> 4) & 15] << hex[c & 15];
+	  }
+	else switch (c)
+	  {
+	  case '\b':
+	    o << '\\' << 'b';
+	    break;
+	  case '\f':
+	    o << '\\' << 'f';
+	    break;
+	  case '\n':
+	    o << '\\' << 'n';
+	    break;
+	  case '\r':
+	    o << '\\' << 'r';
+	    break;
+	  case '\t':
+	    o << '\\' << 't';
+	    break;
+	  case '"':
+	    o << '\\' << '"';
+	    break;
+	  default:
+	    o << c;
+	  }
+      }
+    o << '"';
+  }
+
+#if __GNUC__ >= 4
+# define _DPP_JSON_REF_ADD(x, n) __sync_add_and_fetch(&(x), (n))
+# define _DPP_JSON_REF_GET(x) __sync_add_and_fetch(&(x), 0)
+# define _DPP_JSON_REF_DELETE(o) delete o
+#else
+# warning No GNU C atomic operations available, dpp::json_value is not thread-safe
+# define _DPP_JSON_REF_ADD(x, n) ((x) += (n))
+# define _DPP_JSON_REF_GET(x) (x)
+# define _DPP_JSON_REF_DELETE(o) std::abort()
+#endif
+
+  /**
+     @short JSON value class
+     @module {JSON}
+     @header dpp/json
+
+     @This implements a JSON value container. A JSON values tree can
+     be built using objects of this class.
+
+     Copy on write is used when JSON arrays and objects are copied.
+
+     The @ref json_options enum contains some option flags
+     which can be ored together and passed as the @tt ext template
+     argument of this class.
+
+     @section {Example}
+     @example test/test_json_scanner.cc:build
+     @end section
+   */
+  template <typename Char, typename Number, int opt>
+  class json_value
+  {
+  public:
+    typedef std::basic_ostream<Char> ostream;
+    typedef std::basic_string<Char> string;
+    typedef Number number;
+    typedef std::map<string, json_value> object_type;
+    typedef std::vector<json_value> array_type;
+
+  private:
+
+    struct object : public object_type
+    {
+      mutable unsigned int _refs;
+    };
+
+    struct array : public array_type
+    {
+      mutable unsigned int _refs;
+    };
+
+    void * storage() const
+    {
+      return (void*)&_str;
+    }
+
+    object * object_cow()
+    {
+      if (_DPP_JSON_REF_GET(_obj->_refs) > 1)
+	{
+	  object *o = new object(*_obj);
+	  o->_refs = 1;
+	  if (_DPP_JSON_REF_ADD(_obj->_refs, -1) == 0)
+	    _DPP_JSON_REF_DELETE(_obj);
+	  _obj = o;
+	}
+      return const_cast<object*>(_obj);
+    }
+
+    array * array_cow()
+    {
+      if (_DPP_JSON_REF_GET(_ary->_refs) > 1)
+	{
+	  array *a = new array(*_ary);
+	  a->_refs = 1;
+	  if (_DPP_JSON_REF_ADD(_ary->_refs, -1) == 0)
+	    _DPP_JSON_REF_DELETE(_ary);
+	  _ary = a;
+	}
+      return const_cast<array*>(_ary);
+    }
+
+    void check_type(json_value_types t) const
+    {
+      if (_type != t)
+	throw json_error("wrong json_value type");
+    }
+
+    void init(const json_value &value)
+    {
+      switch (_type = value._type)
+	{
+	case JSON_STRING:
+	  new (storage()) string(*(const string*)(value.storage()));
+	  break;
+	case JSON_NUMBER:
+	  new (storage()) number(*(const number*)(value.storage()));
+	  break;
+	case JSON_OBJECT:
+	  _obj = value._obj;
+	  _DPP_JSON_REF_ADD(_obj->_refs, 1);
+	  break;
+	case JSON_ARRAY:
+	  _ary = value._ary;
+	  _DPP_JSON_REF_ADD(_ary->_refs, 1);
+	  break;
+	case JSON_BOOL:
+	  _bool = value._bool;
+	case JSON_NULL:
+	  break;
+	}
+    }
+
+#if __cplusplus >= 201103
+    void init(json_value &&value)
+    {
+      switch (_type = value._type)
+	{
+	case JSON_STRING:
+	  new (storage()) string(std::move(*(string*)(value.storage())));
+	  break;
+	case JSON_NUMBER:
+	  new (storage()) number(std::move(*(number*)(value.storage())));
+	  break;
+	case JSON_OBJECT:
+	  _obj = value._obj;
+	  break;
+	case JSON_ARRAY:
+	  _ary = value._ary;
+	  break;
+	case JSON_BOOL:
+	  _bool = value._bool;
+	case JSON_NULL:
+	  break;
+	}
+
+      value._type = JSON_NULL;
+    }
+#endif
+
+    void init(json_value_types t)
+    {
+      switch (_type = t)
+	{
+	case JSON_STRING:
+	  new (storage()) string();
+	  break;
+	case JSON_NUMBER:
+	  new (storage()) number();
+	  break;
+	case JSON_OBJECT:
+	  _obj = new object();
+	  _obj->_refs = 1;
+	  break;
+	case JSON_ARRAY:
+	  _ary = new array();
+	  _ary->_refs = 1;
+	  break;
+	case JSON_BOOL:
+	  _bool = JSON_FALSE;
+	case JSON_NULL:
+	  break;
+	}
+    }
+
+    void destroy()
+    {
+      switch (_type)
+	{
+	case JSON_STRING:
+	  ((string*)storage())->~string();
+	  break;
+	case JSON_NUMBER:
+	  ((number*)storage())->~number();
+	  break;
+	case JSON_OBJECT:
+	  if (_DPP_JSON_REF_ADD(_obj->_refs, -1) == 0)
+	    delete _obj;
+	  break;
+	case JSON_ARRAY:
+	  if (_DPP_JSON_REF_ADD(_ary->_refs, -1) == 0)
+	    delete _ary;
+	  break;
+	case JSON_BOOL:
+	case JSON_NULL:
+	  break;
+	}
+    }
+
+    void print(ostream &o) const
+    {
+      switch (_type)
+	{
+	case JSON_STRING:
+	  json_escape_string<Char, opt>(o, *(const string*)storage());
+	  break;
+	case JSON_NUMBER:
+	  o << *(number*)storage();
+	  break;
+	case JSON_OBJECT: {
+	  Char s = '{';
+	  for (typename object::const_iterator i = _obj->begin(); i != _obj->end(); i++)
+	    {
+	      o << s << ' ';
+	      json_escape_string<Char, opt>(o, i->first);
+	      o << ' ' << ':' << ' ';
+	      i->second.print(o);
+	      s = ',';
+	    }
+	  o << ' ' << '}';
+	  break;
+	}
+	case JSON_ARRAY: {
+	  Char s = '[';
+	  for (typename array::const_iterator i = _ary->begin(); i != _ary->end(); i++)
+	    {
+	      o << s << ' ';
+	      i->print(o);
+	      s = ',';
+	    }
+	  o << ' ' << ']';
+	  break;
+	}
+	case JSON_BOOL:
+	  o << (_bool ? "true" : "false");
+	  break;
+	case JSON_NULL:
+	  o << "null";
+	  break;
+	}
+    }
+
+    friend ostream & operator<< (ostream &o, const json_value &value)
+    {
+      value.print(o);
+      return o;
+    }
+
+  public:
+    ~json_value()
+    {
+      destroy();
+    }
+
+    json_value()
+    {
+      _type = JSON_NULL;
+    }
+
+    json_value(const json_value &value)
+    {
+      init(value);
+    }
+
+#if __cplusplus >= 201103
+    json_value(json_value &&value)
+    {
+      init(value);
+    }
+#endif
+
+    json_value & operator=(const json_value &value)
+    {
+      destroy();
+      init(value);
+      return *this;
+    }
+
+#if __cplusplus >= 201103
+    json_value & operator=(json_value &&value)
+    {
+      destroy();
+      init(value);
+      return *this;
+    }
+#endif
+
+    /** @This creates a new JSON value of given type. */
+    json_value(json_value_types t)
+    {
+      init(t);
+    }
+
+    json_value & operator=(json_value_types t)
+    {
+      destroy();
+      init(t);
+      return *this;
+    }
+
+    /** @This returns the type of the JSON value. */
+    json_value_types type() const
+    {
+      return _type;
+    }
+
+    json_value & operator=(const json_bool &b)
+    {
+      destroy();
+      _type = JSON_BOOL;
+      _bool = b;
+      return *this;
+    }
+
+    json_bool & to_bool()
+    {
+      check_type(JSON_BOOL);
+      return _bool;
+    }
+
+    json_bool to_bool() const
+    {
+      check_type(JSON_BOOL);
+      return _bool;
+    }
+
+    json_value(json_bool b)
+    {
+      _type = JSON_BOOL;
+      _bool = b;
+    }
+
+    json_value & operator=(const string &str)
+    {
+      destroy();
+      _type = JSON_STRING;
+      new (storage()) string(str);
+      return *this;
+    }
+
+    /** @This returns a modifiable reference to the internal string
+	object of a JSON string value. */
+    string & to_string_ref()
+    {
+      check_type(JSON_STRING);
+      return *(string*)storage();
+    }
+
+    /** @This returns a const reference to the internal string
+	object of a JSON string value. */
+    const string & to_string() const
+    {
+      check_type(JSON_STRING);
+      return *(const string*)storage();
+    }
+
+    json_value(const string &str)
+    {
+      _type = JSON_STRING;
+      new (storage()) string(str);
+    }
+
+    json_value & operator=(const number &str)
+    {
+      destroy();
+      _type = JSON_NUMBER;
+      new (storage()) number(str);
+      return *this;
+    }
+
+    /** @This returns a modifiable reference to the internal number
+	object of a JSON number value. */
+    number & to_number()
+    {
+      check_type(JSON_NUMBER);
+      return *(number*)storage();
+    }
+
+    /** @This returns a const reference to the internal number
+	object of a JSON number value. */
+    const number & to_number() const
+    {
+      check_type(JSON_NUMBER);
+      return *(const number*)storage();
+    }
+
+    json_value(const number &num)
+    {
+      _type = JSON_NUMBER;
+      new (storage()) number(num);
+    }
+
+    /** @This returns a modifiable reference to the internal map
+	object of a JSON object value. @This triggers object copy on write. */
+    object_type & to_object_ref()
+    {
+      check_type(JSON_OBJECT);
+      return *object_cow();
+    }
+
+    /** @This returns a const reference to the internal map
+	object of a JSON object value. */
+    const object_type & to_object() const
+    {
+      check_type(JSON_OBJECT);
+      return *_obj;
+    }
+
+    /** @This returns a modifiable reference to the internal vector
+	object of a JSON array value. @This triggers array copy on write. */
+    array_type & to_array_ref()
+    {
+      check_type(JSON_ARRAY);
+      return *array_cow();
+    }
+
+    /** @This returns a const reference to the internal vector
+	object of a JSON array value. */
+    const array_type & to_array() const
+    {
+      check_type(JSON_ARRAY);
+      return *_ary;
+    }
+
+    /** @This returns an existing entry from JSON object. A null
+	value is returned if no entry with specified key exists. @multiple */
+    const json_value & at(const string &key) const
+    {
+      check_type(JSON_OBJECT);
+      typename object::const_iterator i = _obj->find(key);
+      if (i == _obj->end())
+	return _json_null;
+      return i->second;
+    }
+
+    const json_value & operator[](const string &key) const
+    {
+      return at(key);
+    }
+
+    /** @This returns an existing entry from a JSON object or inserts
+        and return a new modifiable null entry. */
+    json_value & operator[](const string &key)
+    {
+      check_type(JSON_OBJECT);
+      return object_cow()->insert(typename object::value_type(key, json_value())).first->second;
+    }
+
+    /** @This inserts a new entry with the given key and value in JSON object value. */
+    void store(const string &key, const json_value &value)
+    {
+      check_type(JSON_OBJECT);
+      object *obj = object_cow();
+      obj->insert(typename object::value_type(key, value));
+    }
+
+    /** @This remove any entry with the given key from a JSON object value. */
+    void erase(const string &key)
+    {
+      check_type(JSON_OBJECT);
+      object *obj = object_cow();
+      obj->erase(key);
+    }
+
+    typename object_type::iterator object_begin()
+    {
+      check_type(JSON_OBJECT);
+      object *obj = object_cow();
+      return obj->begin();
+    }
+
+    typename object_type::const_iterator object_begin() const
+    {
+      check_type(JSON_OBJECT);
+      return _obj->begin();
+    }
+
+    typename object_type::const_iterator object_cbegin()
+    {
+      check_type(JSON_OBJECT);
+      return _obj->begin();
+    }
+
+    typename object_type::iterator object_end()
+    {
+      check_type(JSON_OBJECT);
+      object *obj = object_cow();
+      return obj->end();
+    }
+
+    typename object_type::const_iterator object_end() const
+    {
+      check_type(JSON_OBJECT);
+      return _obj->end();
+    }
+
+    typename object_type::const_iterator object_cend()
+    {
+      check_type(JSON_OBJECT);
+      return _obj->end();
+    }
+
+    /** @This returns an existing entry from a JSON array. A null
+	value is returned if no entry with specified index exists. @multiple */
+    const json_value & at(const number &num) const
+    {
+      check_type(JSON_ARRAY);
+      int i = num;
+      if (i < 0 || i >= _ary->size())
+	return _json_null;
+      return (*_ary)[i];
+    }
+
+    const json_value & operator[](const number &num) const
+    {
+      return at(num);
+    }
+
+    /** @This returns an existing entry from a JSON array or resize
+	the array so that it contains enough null entries to be able
+	to return a modifiable reference to a new null value at specified
+	index. @multiple */
+    json_value & operator[](const number &num)
+    {
+      check_type(JSON_ARRAY);
+      array *ary = array_cow();
+      int i = num;
+      if (i >= ary->size())
+	ary->resize(i + 1);
+      return (*ary)[i];
+    }
+
+    void store(const number &num, const json_value &value)
+    {
+      (*this)[num] = value;
+    }
+
+    /** @This adds a new entry at the end of a JSON array. */
+    void append(const json_value &value)
+    {
+      check_type(JSON_ARRAY);
+      array *ary = array_cow();
+      ary->push_back(value);
+    }
+
+    /** @This resizes a JSON array. */
+    void resize(int size)
+    {
+      check_type(JSON_ARRAY);
+      array *ary = array_cow();
+      ary->resize(size);
+    }
+
+    typename array_type::iterator array_begin()
+    {
+      check_type(JSON_ARRAY);
+      array *ary = array_cow();
+      return ary->begin();
+    }
+
+    typename array_type::const_iterator array_begin() const
+    {
+      check_type(JSON_ARRAY);
+      return _ary->begin();
+    }
+
+    typename array_type::const_iterator array_cbegin()
+    {
+      check_type(JSON_ARRAY);
+      return _ary->begin();
+    }
+
+    typename array_type::iterator array_end()
+    {
+      check_type(JSON_ARRAY);
+      array *ary = array_cow();
+      return ary->end();
+    }
+
+    typename array_type::const_iterator array_end() const
+    {
+      check_type(JSON_ARRAY);
+      return _ary->end();
+    }
+
+    typename array_type::const_iterator array_cend()
+    {
+      check_type(JSON_ARRAY);
+      return _ary->end();
+    }
+
+  private:
+
+    static json_value _json_null;
+
+    json_value_types _type;
+    union {
+#define _DPP_JSON_VALUE_STORAGE(size) ((((size) - 1) | (sizeof(long long) - 1)) + 1) / sizeof(long long)
+      long long _str[_DPP_JSON_VALUE_STORAGE(sizeof(string))];
+      long long _num[_DPP_JSON_VALUE_STORAGE(sizeof(number))];
+      const array * _ary;
+      const object * _obj;
+      json_bool _bool;
+    };
+  };
+
+  template <typename Char, typename Number, int opt>
+  json_value<Char, Number, opt> json_value<Char, Number, opt>::_json_null;
+
+  ////////////////////////////////////////////////////////////////////// parser
+
+#define _DPP_JSON_PARSE_FLOAT(type)					\
+  template <typename Char>						\
+  bool json_number_parse(type &x, const std::basic_string<Char> &str,	\
+			 bool is_float, int base)			\
+  {									\
+    std::basic_istringstream<Char> is(str);				\
+									\
+    if (base == 10)							\
+      is >> x;								\
+    else								\
+      {									\
+	long long int n;						\
+	is >> std::setbase(base) >> n;					\
+	x = n;								\
+      }									\
+    return true;							\
+  }
+
+  _DPP_JSON_PARSE_FLOAT(float)
+  _DPP_JSON_PARSE_FLOAT(double)
+
+#define _DPP_JSON_PARSE_INT(type)					\
+  template <typename Char>						\
+  bool json_number_parse(type &x, const std::basic_string<Char> &str,	\
+			 bool is_float, int base)			\
+  {									\
+    std::basic_istringstream<Char> is(str);				\
+    if (is_float)							\
+      return false;							\
+    is >> std::setbase(base) >> x;					\
+    return true;							\
+  }
+
+  _DPP_JSON_PARSE_INT(signed int)
+  _DPP_JSON_PARSE_INT(unsigned int)
+  _DPP_JSON_PARSE_INT(signed long int)
+  _DPP_JSON_PARSE_INT(unsigned long int)
+  _DPP_JSON_PARSE_INT(signed long long int)
+  _DPP_JSON_PARSE_INT(unsigned long long int)
+
+  /**
+     @short JSON value class
+     @module {JSON}
+     @header dpp/json
+
+     @This implements a JSON parser which can build a tree of @ref
+     json_value instances from a JSON text stream.
+
+     The @ref json_extensions and @ref json_options enums contain some
+     configuration flags which can be ored together and passed as the
+     @tt ext template argument of this class.
+
+     @section {Example}
+     @example test/test_json_scanner.cc:ext|parse
+     @end section
+   */
+  template <typename Char, typename Number, int ext>
+  class json_parser : protected json_scanner<Char, ext>
+  {
+    typedef json_scanner<Char, ext> base;
+    typedef std::basic_string<Char> string;
+    typedef std::basic_istream<Char> istream;
+    typedef Number number;
+    typedef json_value<Char, number> value;
+
+  public:
+    json_parser(istream &i)
+      : json_scanner<Char, ext>(i)
+    {
+    }
+
+    /* @This starts parsing of a JSON text from the input stream
+       associated with the parser. The function returns the root value
+       once a complete JSON text has been parsed. The stream doesn't
+       need to reach an end of file for this function to return. */
+    value parse() throw(json_error)
+    {
+      try {
+	base::scan();
+      } catch (...) {
+	_stack.clear();
+	_root = JSON_NULL;
+	throw;
+      }
+      assert(_stack.size() == 0);
+      value r = _root;
+      _root = JSON_NULL;
+      return r;
+    }
+
+  private:
+
+    enum state_e
+      {
+	STATE_ARRAY_VALUE,
+	STATE_OBJ_KEY,
+	STATE_OBJ_VALUE,
+      };
+
+    struct stack_s
+    {
+      value _value;
+      state_e _state;
+      string _key;
+
+      stack_s(const json_value_types &t)
+	: _value(t),
+	  _state(t == JSON_ARRAY ? STATE_ARRAY_VALUE : STATE_OBJ_KEY)
+      {
+      }
+    };
+
+    template <typename T>
+    void store_value(int i, const T &value)
+    {
+      if (_stack.size() == 0)
+	{
+	  _root = value;
+	}
+      else
+	{
+	  stack_s &s = _stack[i];
+	  switch (s._value.type())
+	    {
+	    case JSON_ARRAY:
+	      s._value.append(value);
+	      break;
+	    case JSON_OBJECT:
+	      s._value.store(s._key, value);
+	      break;
+	    default:
+	      abort();
+	    }
+	}
+    }
+
+    void pop()
+    {
+      if (_stack.size() > 1)
+	{
+	  int s = _stack.size();
+	  store_value(s - 2, _stack[s - 1]._value);
+	}
+      else
+	{
+	  _root = _stack.front()._value;
+	}
+      _stack.pop_back();
+    }
+
+    void scan_start_object() _DPP_OVERRIDE
+    {
+      _stack.push_back(JSON_OBJECT);
+    }
+
+    void scan_end_object() _DPP_OVERRIDE
+    {
+      pop();
+    }
+
+    void scan_start_array() _DPP_OVERRIDE
+    {
+      _stack.push_back(JSON_ARRAY);
+    }
+
+    void scan_end_array() _DPP_OVERRIDE
+    {
+      pop();
+    }
+
+    void scan_colon() _DPP_OVERRIDE
+    {
+      _stack.back()._state = STATE_OBJ_VALUE;
+    }
+
+    void scan_comma() _DPP_OVERRIDE
+    {
+      if (_stack.back()._state == STATE_OBJ_VALUE)
+	_stack.back()._state = STATE_OBJ_KEY;
+    }
+
+    void scan_number(const string &num, bool is_float, int base) _DPP_OVERRIDE
+    {
+      if ((ext & JSON_EXT_NUMBER_KEYS) &&
+	  !_stack.empty() &&
+	  _stack.back()._state == STATE_OBJ_KEY)
+	_stack.back()._key = num;
+      else
+	{
+	  number n;
+	  if (!json_number_parse(n, num, is_float, base))
+	    base::error("unable to parse number");
+	  store_value(_stack.size() - 1, n);
+	}
+    }
+
+    void scan_string(const string &str) _DPP_OVERRIDE
+    {
+      if (!_stack.empty() &&
+	  _stack.back()._state == STATE_OBJ_KEY)
+	_stack.back()._key = str;
+      else
+	store_value(_stack.size() - 1, str);
+    }
+
+    void scan_bool(json_bool b) _DPP_OVERRIDE
+    {
+      store_value(_stack.size() - 1, b);
+    }
+
+    void scan_null() _DPP_OVERRIDE
+    {
+      store_value(_stack.size() - 1, JSON_NULL);
+    }
+
+    std::vector<stack_s> _stack;
+    value _root;
+  };
+
+}
+
+#endif
+

@@ -1,0 +1,35 @@
+
+# -*- python -*-
+
+Module('caba:vci_ethernet',
+	   classname = 'soclib::caba::VciEthernet',
+	   tmpl_parameters = [
+	parameter.Module('vci_param',  default = 'caba:vci_param'),
+	],
+	   header_files = ['../source/include/vci_ethernet.h',
+					],
+    interface_files = [
+					   '../../include/soclib/ethernet.h'
+					   ],
+	   implementation_files = ['../source/src/vci_ethernet.cpp',],
+	   ports = [
+	Port('caba:vci_target', 'p_vci_target'),
+	Port('caba:vci_initiator', 'p_vci_initiator'),
+	Port('caba:bit_out', 'p_irq'),
+	Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+	Port('caba:clock_in', 'p_clk', auto = 'clock'),
+	],
+	   uses = [
+	Uses('caba:base_module'),
+	Uses('caba:vci_target_fsm', default_target = 'true', support_llsc = 'false'),
+	Uses('caba:vci_initiator_simple_read_req'),
+	Uses('caba:vci_initiator_simple_write_req'),
+	Uses('caba:vci_initiator_fsm'),
+	],
+	instance_parameters = [
+        parameter.Module('mt', typename = 'common:mapping_table'),
+        parameter.IntTab('srcid'),
+        parameter.IntTab('tgtid'),
+        parameter.String('filename'),
+        ],
+)

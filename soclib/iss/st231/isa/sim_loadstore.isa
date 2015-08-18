@@ -1,0 +1,89 @@
+/* *****************************************************************************
+                                    BSD LICENSE
+********************************************************************************
+Copyright (c) 2006, INRIA
+Authors: Zheng LI (zheng.x.li@inria.fr)
+
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+ - Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+ - Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+ - Neither the name of the INRIA nor the names of its contributors may be
+   used to endorse or promote products derived from this software without
+   specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED.
+IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+***************************************************************************** */
+
+/**
+ * Returns the target register of the load instruction.
+ */
+action {int} loadstore_target_register({CPU *} {cpu}) { 
+  cerr << "ISS Error: action loadstore_target_register not set for: ";
+  disasm(cpu,cerr);
+  cerr << endl;
+  exit(1);
+}
+
+//Load word & Load bytes
+group_load_word.loadstore_target_register =  { return idest; }
+group_load_bytes.loadstore_target_register =  { return nlidest; }
+
+//Store word & Store bytes
+group_store.loadstore_target_register =  { return rsc2; }
+
+
+
+/**
+ * Returns the memory acces size in bytes of a load / store instruction
+ */
+action {int} memory_access_size({CPU *} {cpu}) {  
+  cerr << "ISS Error: action memory_acces_size not set for: ";
+  disasm(cpu,cerr);
+  cerr << endl;
+  exit(1);
+}
+
+//Load word & Load bytes
+group_load_word.memory_access_size =   { return 4; }
+ldh.memory_access_size             =   { return 2; }
+ldh_d.memory_access_size           =   { return 2; }
+ldhu.memory_access_size            =   { return 2; }
+ldhu_d.memory_access_size          =   { return 2; }
+ldb.memory_access_size             =   { return 1; }
+ldb_d.memory_access_size           =   { return 1; }
+ldbu.memory_access_size            =   { return 1; }
+ldbu_d.memory_access_size          =   { return 1; }
+
+//Store word & Store bytes
+stw.memory_access_size             =   { return 4; }
+sth.memory_access_size             =   { return 2; }
+stb.memory_access_size             =   { return 1; }
+
+
+
+/**
+ * Returns the effective memory address of the target load / store instruction.
+ * In case of a load / store with update, provide the effective (non updated) address
+ */
+action {uint32_t} loadstore_effective_address({CPU *} {cpu}) { 
+  return cpu->GetEA();
+}
+

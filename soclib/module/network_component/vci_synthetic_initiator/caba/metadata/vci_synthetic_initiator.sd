@@ -1,0 +1,25 @@
+# -*- python -*-
+
+Module('caba:vci_synthetic_initiator',
+       classname = 'soclib::caba::VciSyntheticInitiator',
+       tmpl_parameters = [parameter.Module('vci_param', default = 'caba:vci_param'),],
+       header_files = ['../sources/include/vci_synthetic_initiator.h', ],
+       implementation_files = ['../sources/src/vci_synthetic_initiator.cpp',],
+       uses = [
+               Uses('caba:base_module'),
+               Uses('caba:generic_fifo'),
+              ],
+       ports = [
+                Port('caba:vci_initiator','p_vci'),
+                Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+                Port('caba:clock_in', 'p_clk', auto = 'clock'),
+               ],
+       instance_parameters = 
+               [
+                parameter.Int('srcid'),
+                parameter.Int('length'),
+                parameter.Int('load'),
+                parameter.Int('fifo_depth'),
+               ],
+)
+

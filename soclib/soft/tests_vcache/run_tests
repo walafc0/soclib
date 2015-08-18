@@ -1,0 +1,34 @@
+#!/bin/sh
+
+PATH=${PATH}:/users/outil/dsx/cctools/bin
+export PATH
+SOCLIB_TTY=TERM
+export SOCLIB_TTY
+
+for dir in test_sanity test_exceptions test_mmu_basic \
+   test_excep_ls test_excep_ls_delayslot \
+   test_excep_if test_excep_if_delayslot \
+   test_exception_epc_modify	\
+   test_dtlb_inval test_itlb_inval \
+   test_dtlb_ptprinval test_itlb_ptprinval \
+   test_sync \
+   test_llsc test_sc_no_ll test_sc_update_cache test_pte_llsc \
+   test_interrupt test_interrupt_extended test_interrupt_extended2 \
+   test_interrupt_extended3 test_interrupt_extended4 \
+   test_interrupt_epc_modify \
+   test_xicu_timer \
+   test_interrupt_delayslot \
+   test_interrupt_mask \
+   test_interrupt_external_mask \
+   test_excep_cop test_excep_cop_delayslot test_excep_cop1 \
+   test_syscall test_syscall_delayslot \
+   test_breakpoint test_breakpoint_delayslot \
+   test_ri test_ri_delayslot \
+   test_ao test_ao_delayslot \
+   test_trap test_trap_delayslot \
+   test_dcache_inval_pa test_icache_inval_pa \
+   test_pte2i_ref test_pte2lw_ref test_pte2ll_ref test_pte2sw_dirty test_pte2sc_dirty \
+   ; do
+	echo -n ${dir}": "
+	(cd $dir && ./run)
+done

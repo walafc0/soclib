@@ -1,0 +1,29 @@
+
+# -*- python -*-
+
+__id__ = "$Id: fifo_writer.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+Module('caba:fifo_writer',
+	classname = 'soclib::caba::FifoWriter',
+	header_files = ["../source/include/fifo_writer.h",],
+	implementation_files = [
+		"../source/src/fifo_writer.cpp",
+		],
+		   ports = [
+	Port('caba:fifo_input', 'p_fifo'),
+	Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+	Port('caba:clock_in', 'p_clk', auto = 'clock'),
+	],
+	uses = [
+		Uses('caba:base_module'),
+		Uses('common:process_wrapper'),
+		],
+	instance_parameters = [
+        parameter.String('binary'),
+        parameter.StringArray('argv'),
+	],
+	tmpl_parameters = [
+	parameter.Type('word_t'),
+	],
+)

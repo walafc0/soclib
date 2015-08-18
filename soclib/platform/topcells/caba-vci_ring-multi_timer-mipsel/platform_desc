@@ -1,0 +1,28 @@
+
+# -*- python -*-
+
+
+todo = Platform('caba', 'top.cpp',
+				uses = [
+	Uses('caba:vci_xcache_wrapper', iss_t = 'common:ississ2', iss2_t = 'common:iss_simhelper', simhelper_iss_t = 'common:mipsel'),
+	Uses('caba:vci_locks'),
+	Uses('caba:vci_simple_ram'),
+	Uses('caba:vci_multi_tty'),
+	Uses('caba:vci_timer'),
+	Uses('caba:vci_simple_ring_fast',
+        ring_cmd_data_size = 40,
+        ring_rsp_data_size =33,
+        ),
+	Uses('common:elf_file_loader'),
+	],
+	cell_size = 4,
+	plen_size = 8,
+	addr_size = 32,
+	rerror_size = 1,
+	clen_size = 1,
+	rflag_size = 1,
+	srcid_size = 8,
+	pktid_size = 4,
+	trdid_size = 4,
+	wrplen_size = 1
+)

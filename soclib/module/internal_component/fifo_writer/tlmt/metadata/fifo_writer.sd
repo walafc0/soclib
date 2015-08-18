@@ -1,0 +1,16 @@
+#     Aline Vieira de Mello <Aline.Vieira-de-Mello@lip6.fr>
+
+__id__ = "$Id: fifo_writer.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+Module('tlmt:fifo_writer',
+       classname = 'soclib::tlmt::FifoWriter',
+       tmpl_parameters = [parameter.Module('vci_param',  default = 'tlmt:vci_param')],
+       header_files = ["../source/include/fifo_writer.h",],
+       implementation_files = ["../source/src/fifo_writer.cpp"],
+       ports = [Port('tlmt:fifo_initiator', 'p_fifo')],
+       uses = [Uses('tlmt:base_module'),
+               Uses('common:process_wrapper')],
+       instance_parameters = [parameter.String('binary'),
+                              parameter.StringArray('argv')],
+       )

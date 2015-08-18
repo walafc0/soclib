@@ -1,0 +1,42 @@
+
+# -*- python -*-
+
+Module('caba:vci_simple_rom',
+      classname = 'soclib::caba::VciSimpleRom',
+
+      tmpl_parameters = [
+         parameter.Module('vci_param', default = 'caba:vci_param'),
+         ],
+
+      header_files = [
+         '../source/include/vci_simple_rom.h',
+         ],
+
+      implementation_files = [
+         '../source/src/vci_simple_rom.cpp',
+         ],
+
+      ports = [
+         Port('caba:vci_target', 'p_vci'),
+         Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+         Port('caba:clock_in', 'p_clk', auto = 'clock'),
+         ],
+
+      uses = [
+         Uses('caba:base_module'),
+         Uses('common:loader'),
+         Uses('common:mapping_table'),
+         ],
+
+      instance_parameters = [
+         parameter.IntTab('ident'),
+         parameter.Module('mt', 'common:mapping_table'),
+         parameter.Module('loader', 'common:loader', auto='env:loader'),
+         ],
+      extensions = [
+         'dsx:addressable=ident',
+         'dsx:get_ident=ident:p_vci:mt',
+         'dsx:obtain_ident_method=param:ident',
+         'dsx:mapping_type=memory',
+         ],
+      )

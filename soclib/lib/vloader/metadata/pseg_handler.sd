@@ -1,0 +1,17 @@
+
+# -*- python -*-
+
+__id__ = "$Id: pseg_handler.sd 1 2012-05-19 15:24:50Z moka $"
+__version__ = "$Revision: 1 $"
+
+Module('common:pseg_handler',
+	classname = 'soclib::common::PSegHandler',
+	header_files = ['../include/pseg_handler.h',
+                        '../include/mapping_info.h'],
+	implementation_files = ['../src/pseg_handler.cpp',
+							],
+	uses = [
+		Uses('common:exception'),
+		Uses('common:pseg'),
+		],
+)

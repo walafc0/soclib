@@ -1,0 +1,47 @@
+Avant propos :
+Cette version de splash2 est issue du splash2 original auquel nous avons appliqué un patch
+trouvé sur le net (modified splash-2). Ce patch corige des bugs, et fourni l'ensemble des
+macros POSIX.
+
+Utilisation générale : 
+
+Dans sa forme générale, pour obtenir une compatibilité avec un OS souhaité il suffit
+d'écrire un fichier de macros M4 dans null_macros. Nous fournissons ici les sources originales et le
+patch de SPLASH-2. Dans le trunk se trouve la version modifée et utilisée par TIMA. Si au sein du Lip6
+vous utilisez une méthode de compilation similaire (décrite ci-dessous), il sera aisé de configurer/compiler
+les applications indépendamment de MUTEK_H/DNA_OS.
+ 
+
+Utilisation dans APES (l'os utilisé au TIMA) :
+Nous avons ajouté/modifié certains Makefiles, ainsi que des fichiers de configuration pour la
+plateforme (nb processeurs, local/global memory etc), et l'application (taille du jeu de données etc).
+
+Le but est de facilité la compilation d'une application (paramètres) pour une plateforme spécifique
+(ldscript, nombre de processeurs, etc).
+
+Ainsi, pour compiler une application nous devons mettre en place l'environnement DNA (cd apes-elements, . install.sh),
+puis exécuter le script suivant :
+
+> cd trunk/codes
+> install.sh <nom_configuration_plateforme> <nom_configuration_application>
+> make clean -s
+> make -s
+
+Note : "make app_clean" nettoie l'application, binaire générés mais également les .h et .c
+créés par l'expansion des macros M4
+
+
+Exemple :
+> ./install.sh soclib_dspin_4p_gm fft
+
+A l'aide du script compile.sh , nous pouvons compiler un ensemble d'applications pour un ensemble de plateformes.
+> ./compile.sh 
+
+checklist :
+dans codes/checklist , se trouvent l'ensemble des paramètres de configurations des applications
+vis-à-vis d'une utilisation soclib.
+
+NOTES:
+Certains fichiers ont été modifiés afin de permettre une compatibilité avec l'environnement DNA/SOCLIB.
+l'essentiel des modifications concernent la non prise en compte des arguments en ligne de commande (argc/argv).
+

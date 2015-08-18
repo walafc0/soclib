@@ -1,0 +1,48 @@
+
+# -*- python -*-
+
+__id__ = "$Id: rtl.sd 1752 2010-05-27 08:38:36Z nipo $"
+__version__ = "$Revision: 1752 $"
+
+Signal('rtl:clock',
+       accepts = {'rtl:clock_in':True},
+       )
+
+Signal('rtl:bit',
+       accepts = {'rtl:bit_in':True,
+                  'rtl:bit_out':1},
+       )
+
+PortDecl('rtl:bit_in',
+         signal = 'rtl:bit',
+         )
+
+PortDecl('rtl:bit_out',
+         signal = 'rtl:bit',
+         )
+
+Signal('rtl:word',
+       accepts = {'rtl:word_in':True,
+                  'rtl:word_out':1},
+       tmpl_parameters = [
+          parameter.Int('W'),
+       ],
+       )
+
+PortDecl('rtl:word_in',
+         signal = 'rtl:word',
+         tmpl_parameters = [
+             parameter.Int('W'),
+         ],
+         )
+
+PortDecl('rtl:word_out',
+         signal = 'rtl:word',
+         tmpl_parameters = [
+             parameter.Int('W'),
+         ],
+         )
+
+PortDecl('rtl:clock_in',
+         signal = 'rtl:clock',
+         )

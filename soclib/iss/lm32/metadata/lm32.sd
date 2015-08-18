@@ -1,0 +1,26 @@
+# -*- python -*-
+
+# Lattice Mico32 LM32
+
+__id__ = "$Id: lm32.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+Module('common:lm32',
+	classname = 'soclib::common::LM32Iss',
+	header_files = ["../include/lm32.h",],
+	uses = [
+		Uses('common:iss2'),
+		Uses('common:base_module'),
+		],
+	implementation_files = [
+		"../src/lm32.cpp",
+		"../src/lm32_isa.cpp",
+        "../src/lm32_load_store.cpp",
+        "../src/lm32_debug.cpp",
+		],
+    constants = {
+        'n_irq':32
+        },
+       tmpl_parameters = [parameter.Bool('lEndianInterface', default='true'), ],
+    #debug = True ,
+)

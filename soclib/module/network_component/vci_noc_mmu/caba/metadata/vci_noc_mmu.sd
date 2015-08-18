@@ -1,0 +1,33 @@
+
+# -*- python -*-
+
+__id__ = "$Id: vci_noc_mmu.sd 20 2012-11-11 $"
+
+Module('caba:vci_noc_mmu',
+	classname = 'soclib::caba::VciNocMmu',
+    tmpl_parameters =      [ parameter.Module('vci_param', default = 'caba:vci_param') ],
+	header_files =         [ '../source/include/vci_noc_mmu.h' ],
+	implementation_files = [ '../source/src/vci_noc_mmu.cpp' ],
+	uses =  [ Uses('caba:base_module'),
+	          Uses('common:mapping_table'),
+	          Uses('caba:generic_fifo'),
+	          Uses('caba:generic_tlb', addr_t = 'uint32_t'), 
+            ],
+	ports = [ Port('caba:vci_initiator', 'p_vci_ini'),
+	          Port('caba:vci_target', 'p_vci_tgt'),
+	          Port('caba:vci_target', 'p_vci_config'),
+	          Port('caba:bit_in','p_irq', parameter.Reference('channels')),
+	          Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+	          Port('caba:clock_in', 'p_clk', auto = 'clock'), 
+            ],
+	instance_parameters = [ parameter.Module('mt', 'common:mapping_table'),
+                            parameter.IntTab('tgtid'),
+	                        parameter.IntTab('srcid'),
+    	                    parameter.Int('channels'),
+    	                    parameter.Int('dcache_words'),
+    	                    parameter.Int('tlb_ways'),
+    	                    parameter.Int('tlb_sets'),
+    	                    parameter.Int('debug_start'), 
+                          ],
+)
+

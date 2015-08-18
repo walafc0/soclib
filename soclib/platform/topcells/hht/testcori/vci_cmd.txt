@@ -1,0 +1,33 @@
+' Fichier de commandes VCI.
+' Syntaxe : 
+' Une ligne commenncant par ' est un commentaire
+' [srcid [trdid [pktid]] RE(address, plen[|be])
+' [srcid [trdid [pktid]] WR(address, plen,wdata1[|be1][,wdata2[|be2]]...)
+'
+' Exemples de commandes :
+' Lecture de 4 mots (4*4octets = 0x10)
+  0 0 0 RE(20,4)
+' Lecture d'un mot ou l'on ne definit pas les id (id identique)
+'   1     RE(20,4)
+' Lecture d'un mot ou l'on ne definit que srcid et trdid
+'  2 0   RE(20,4)
+' Lecture masquee (d'un octet)
+'  3 0 0 RE(20,4|2)
+' Ecriture d'un mot
+'  4 0 0 WR(20,4,123)
+' Ecriture postee(trdid=1) d'un mot
+'  5 1 0 WR(20,4,123)
+' Ecriture masquee (de deux octets)
+'  6 0 0 WR(20,4,123|B)
+' Ecriture masquee de trois mots dont le premier a un filtre 0xF
+  7 0 0 WR(0,C,123,234|2,345|B)
+' ou
+'  8 0 0 WR(20,C,123,
+'                234|2,
+'                345|B)
+' ou, en forcant eop a false avec ; a la place de ) en fin de ligne
+'  9 0 0 WR(20,C,123;
+'  9 0 0 WR(20,C,234|2;
+'  9 0 0 WR(20,C,345|B)
+'0 0 0 WR(20,C,123|F,234|2,345|B)
+

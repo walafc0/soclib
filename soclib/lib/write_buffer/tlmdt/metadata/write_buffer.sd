@@ -1,0 +1,10 @@
+
+# -*- python -*-
+
+__id__ = "$Id: write_buffer.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+Module('tlmdt:write_buffer',
+	classname = 'soclib::tlmdt::WriteBuffer',
+	header_files = ['../source/include/write_buffer.h',],
+)

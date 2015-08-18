@@ -1,0 +1,21 @@
+
+# -*- python -*-
+
+__id__ = "$Id: vci_initiator_fsm.sd 1424 2009-11-26 14:26:45Z joel.porquet@lip6.fr $"
+__version__ = "$Revision: 1424 $"
+
+Module('caba:vci_initiator_fsm',
+	classname = 'soclib::caba::VciInitiatorFsm',
+	   tmpl_parameters = [
+	parameter.Module('vci_param',  default = 'caba:vci_param'),
+	],
+	header_files = ['../include/caba/vci/vci_initiator_fsm.h',],
+	implementation_files = ['../src/caba/vci/vci_initiator_fsm.cpp',],
+	uses = [
+		Uses('common:mapping_table'),
+		Uses('caba:base_module'),
+		Uses('caba:vci_initiator'),
+        Uses('caba:vci_buffers'),
+		],
+#	   debug = True,
+)

@@ -1,0 +1,15 @@
+
+# -*- python -*-
+
+__id__ = "$Id: pts_wrapper.sd 1100 2009-05-11 15:08:31Z nipo $"
+__version__ = "$Revision: 1100 $"
+
+Module('common:pts_wrapper',
+	classname = 'soclib::common::PtsWrapper',
+	header_files = ['../include/pts_wrapper.h',],
+	implementation_files = ['../src/pts_wrapper.cpp',],
+	uses = [
+		Uses('common:exception'),
+		Uses('common:fd_poller'),
+		],
+)

@@ -1,0 +1,20 @@
+
+
+# -*- python -*-
+
+
+todo = Platform('caba', 'top.cpp',
+				uses = [
+	Uses('caba:demodulator'),
+	],
+        cell_size = 4,
+        plen_size = 8,
+        addr_size = 32,
+        rerror_size = 1,
+        clen_size = 1,
+        rflag_size = 1,
+        srcid_size = 8,
+        pktid_size = 1,
+        trdid_size = 1,
+        wrplen_size = 1
+)

@@ -1,0 +1,44 @@
+
+%common		# optional at file start
+
+  %append MODULES +soclib_decoder:$(CONFIGPATH)
+
+  # Application license
+  CONFIG_LICENSE_APP_LGPL
+
+  # Mutek features
+  CONFIG_MUTEK_CONSOLE
+  CONFIG_MUTEK_SCHEDULER_MIGRATION
+  CONFIG_MUTEK_MEMALLOC_SMART
+
+  # FS drivers
+  CONFIG_VFS
+  CONFIG_VFS_STATS
+  CONFIG_VFS_GLOBAL_ROOT
+  CONFIG_VFS_GLOBAL_CWD undefined
+
+  CONFIG_DRIVER_FS_ISO9660
+  #CONFIG_DRIVER_FS_FAT
+  #CONFIG_DRIVER_FS_FAT32
+
+  #CONFIG_VFS_VERBOSE
+
+  CONFIG_MUTEK_TIMERMS
+  CONFIG_COMPILE_SAVETEMPS
+
+
+  # Libs
+  CONFIG_PTHREAD
+  CONFIG_PTHREAD_JOIN
+  CONFIG_PTHREAD_CHECK
+  #CONFIG_VFS_LIBC_STREAM not supported any more
+  CONFIG_LIBC_STREAM
+
+%section pf_caba
+  %include ../../../caba_platform/soclib_conf_files/build_options.conf
+  %include ../../../caba_platform/soclib_conf_files/platforms.conf
+
+%section pf_tlmdt
+  %include ../../../tlmdt_platform/soclib_conf_files/build_options.conf
+  %include ../../../tlmdt_platform/soclib_conf_files/platforms.conf
+

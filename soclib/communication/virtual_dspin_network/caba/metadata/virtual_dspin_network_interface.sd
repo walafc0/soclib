@@ -1,0 +1,13 @@
+# -*- python -*-
+
+__id__ = "$Id: dspin.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+PortDecl('caba:virtual_dspin_network_port',
+	classname = 'soclib::caba::VirtualDspinNetworkPort',
+	header_files = ['../source/include/virtual_dspin_network_interface.h'],
+	tmpl_parameters = [
+		parameter.Int('cmd_data_size'),
+		parameter.Int('rsp_data_size'),
+	],
+)

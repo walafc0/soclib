@@ -1,0 +1,18 @@
+
+# -*- python -*-
+
+# Mips Big endian (MipsEbIss)
+
+__id__ = "$Id: mipseb.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+Module('common:mipseb',
+	classname = 'soclib::common::MipsEbIss',
+	header_files = ["../include/iss/mips.h",],
+	uses = [
+		Uses('common:mips'),
+		],
+	  extensions = [
+	'dsx:cpu=mipseb'
+	],
+)

@@ -1,0 +1,129 @@
+/*
+ *uncomment this if you want the linker to output srecords.
+OUTPUT_FORMAT(srec)
+ *
+ */
+ENTRY(trap_table)
+OUTPUT_ARCH(sparc)
+SEARCH_DIR(.)
+__DYNAMIC  =  0;        
+
+/*
+ * The memory map looks like this:
+ * +--------------------+ <- low memory
+ * | .text              |
+ * |        _stext      |
+ * |        _etext      |
+ * |        ctor list   | the ctor and dtor lists are for
+ * |        dtor list   | C++ support
+ * |        _end_text   |
+ * +--------------------+
+ * | .data              | initialized data goes here
+ * |        _sdata      |
+ * |        _edata      |
+ * +--------------------+
+ * | .bss               |
+ * |        __bss_start | start of bss, cleared by crt0
+ * |        _end        | start of heap, used by sbrk()
+ * +--------------------+
+ * |    heap space      |
+ * |        _ENDHEAP    |
+ * |    stack space     | 
+ * |        __stack     | top of stack
+ * +--------------------+ <- high memory
+ */
+
+ISR_STACK_SIZE = (16 * 1024);
+RAM_SIZE = 1M;
+RAM_START = 0x00000000;
+RAM_END = RAM_START + RAM_SIZE;
+
+/*
+ * Setup the memory map of the Soclib test system (system.cpp)
+ * Stack grows down towards low memory. 
+ */
+
+__trap_stack = RAM_END - 4 * 16;
+__stack      = __trap_stack - ISR_STACK_SIZE;
+
+SECTIONS
+{
+  .text : {
+        _stext = .;
+        CREATE_OBJECT_SYMBOLS
+        trap.o(.text)
+        *(.text)
+
+        __CTOR_LIST__ = .;
+        LONG((__CTOR_END__ - __CTOR_LIST__) / 4 - 2)
+        *(.ctors)
+        LONG(0)
+        __CTOR_END__ = .;
+
+        __DTOR_LIST__ = .;
+        LONG((__DTOR_END__ - __DTOR_LIST__) / 4 - 2)
+        *(.dtors)
+         LONG(0)
+        __DTOR_END__ = .;
+
+        *(.lit)
+        *(.shdata)
+        _etext  =  .;
+  }  
+
+  .data  : {
+        _sdata  =  .;
+        *(.data)
+        *(.rodata) *(.rodata*)
+        _edata  =  .;
+  } 
+
+  .bss SIZEOF(.data) + ADDR(.data) : {
+        . = ALIGN(4);
+        _bss_start = .;
+        *(.bss)
+        *(COMMON)
+        . = ALIGN(4);
+        _end = ALIGN(0x8);
+        _heap = .;
+  }
+
+  .mstack  : { }  
+  .rstack  : { }  
+  .stab  0 (NOLOAD) : {
+    [ .stab ]
+  }
+
+  .stabstr  0 (NOLOAD) :
+  {
+    [ .stabstr ]
+  }
+
+
+  /* DWARF debug sections.
+     Symbols in the DWARF debugging sections are relative to the beginning
+     of the section so we begin them at 0.  */
+  /* DWARF 1 */
+  .debug          0 : { *(.debug) }
+  .line           0 : { *(.line) }
+  /* GNU DWARF 1 extensions */
+  .debug_srcinfo  0 : { *(.debug_srcinfo) }
+  .debug_sfnames  0 : { *(.debug_sfnames) }
+  /* DWARF 1.1 and DWARF 2 */
+  .debug_aranges  0 : { *(.debug_aranges) }
+  .debug_pubnames 0 : { *(.debug_pubnames) }
+  /* DWARF 2 */
+  .debug_info     0 : { *(.debug_info) }
+  .debug_abbrev   0 : { *(.debug_abbrev) }
+  .debug_line     0 : { *(.debug_line) }
+  .debug_frame    0 : { *(.debug_frame) }
+  .debug_str      0 : { *(.debug_str) }
+  .debug_loc      0 : { *(.debug_loc) }
+  .debug_macinfo  0 : { *(.debug_macinfo) }
+  /* SGI/MIPS DWARF 2 extensions */
+  .debug_weaknames 0 : { *(.debug_weaknames) }
+  .debug_funcnames 0 : { *(.debug_funcnames) }
+  .debug_typenames 0 : { *(.debug_typenames) }
+  .debug_varnames  0 : { *(.debug_varnames) }
+  /* These must appear regardless of  .  */
+}

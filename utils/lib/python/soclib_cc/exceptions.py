@@ -1,0 +1,4 @@
+
+class ExpectedException(Exception):
+	pass
+

@@ -1,0 +1,43 @@
+
+# -*- python -*-
+
+Module('caba:vci_multi_dma',
+	classname = 'soclib::caba::VciMultiDma',
+
+	tmpl_parameters = [ 
+        parameter.Module('vci_param',  default = 'caba:vci_param'), 
+    ],
+
+	header_files = [
+        '../source/include/vci_multi_dma.h', 
+    ],
+
+    interface_files = [ 
+        '../../include/soclib/multi_dma.h', 
+    ],
+
+    implementation_files = [
+        '../source/src/vci_multi_dma.cpp',
+    ],
+
+    ports = [
+        Port('caba:clock_in', 'p_clk', auto = 'clock'),
+        Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+        Port('caba:vci_target', 'p_vci_target'),
+        Port('caba:vci_initiator', 'p_vci_initiator'),
+        Port('caba:bit_out', 'p_irq', parameter.Reference('channels') ),
+    ],
+
+    uses =  [
+		Uses('caba:base_module'),
+		Uses('common:mapping_table'),
+    ],
+
+	instance_parameters = [
+        parameter.Module('mt', 'common:mapping_table'),
+		parameter.IntTab('srcid'),
+		parameter.IntTab('tgtid'),
+        parameter.Int('burst_max_size'),
+        parameter.Int('channels'),
+    ],
+)

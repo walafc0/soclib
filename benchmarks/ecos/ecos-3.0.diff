@@ -1,0 +1,40 @@
+Index: packages/ecos.db
+===================================================================
+--- packages/ecos.db	(revision 1)
++++ packages/ecos.db	(working copy)
+@@ -3866,6 +3866,16 @@
+            `target sim --board=jmr3904' should be used from inside gdb."
+ }
+ 
++package CYGPKG_HAL_MIPS_MIPS32_SOCLIB {
++	alias		{ "SoCLib Mips32 hardware simulator" soclib_mips }
++	directory	hal/mips/soclib
++	script		hal_mips_mips32_soclib.cdl
++	hardware
++	description "
++           The SoCLib HAL package should be used when targetting the
++           SoCLib hardware simulator with mips32 processors."
++}
++
+ package CYGPKG_HAL_MIPS_MIPS32 {
+ 	alias		{ "MIPS32 HAL" hal_mips32 mips32_hal mips32_arch_hal }
+ 	directory	hal/mips/mips32/
+@@ -5755,6 +5765,18 @@
+            `target sim --board=jmr3904' should be used from inside gdb."
+ }
+ 
++target soclib_mips {
++        alias		{ "SoCLib Mips32 hardware simulator" }
++	packages        { CYGPKG_HAL_MIPS
++                          CYGPKG_HAL_MIPS_MIPS32
++                          CYGPKG_HAL_MIPS_MIPS32_SOCLIB
++        }
++    set_value CYGHWR_HAL_MIPS_MIPS32_CORE "4Kc"
++        description "
++           The SoCLib HAL package should be used when targetting the
++           SoCLib hardware simulator with mips32 processors."
++}
++
+ target atlas_mips32_4kc {
+         alias		{ "MIPS Atlas board with Mips32 4Kc processor" }
+ 	packages        { CYGPKG_HAL_MIPS

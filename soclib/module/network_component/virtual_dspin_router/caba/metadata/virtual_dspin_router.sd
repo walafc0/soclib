@@ -1,0 +1,30 @@
+# -*- python -*-
+
+Module('caba:virtual_dspin_router',
+	classname = 'soclib::caba::VirtualDspinRouter',
+
+	tmpl_parameters = [ parameter.Int('flit_width'), ],
+
+	header_files = ['../source/include/virtual_dspin_router.h',],
+	implementation_files = ['../source/src/virtual_dspin_router.cpp',],
+	ports = [
+		Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+		Port('caba:clock_in', 'p_clk', auto = 'clock'),
+		Port('caba:dspin_output', 'p_out', [2, 5], dspin_data_size = parameter.Reference('flit_width')), 
+		Port('caba:dspin_input', 'p_in', [2, 5], dspin_data_size = parameter.Reference('flit_width')),
+	],
+	instance_parameters = [
+                parameter.Int('x'),
+                parameter.Int('y'),
+                parameter.Int('x_width'),
+                parameter.Int('y_width'),
+                parameter.Int('nb_chan'),
+                parameter.Int('in_fifo_depth'),
+                parameter.Int('out_fifo_depth'),
+
+	],
+	uses = [
+		Uses('caba:base_module'),
+		Uses('caba:generic_fifo',),
+	],
+)

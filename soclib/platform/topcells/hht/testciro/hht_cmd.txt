@@ -1,0 +1,40 @@
+' Fichier de commandes HHT.
+' Syntaxe : 
+' Une ligne commencant par ' est un commentaire
+' [unitid [srctag]] RD(addr,count)
+' [unitid [srctag]] RB(addr,mask)
+' [unitid [srctag]] ND(addr,count,data1[,data2[,data3]]...)
+' [unitid [srctag]] NB(addr,count,mask,data1[,data2[,data3]]...)
+' [unitid [srctag]] AT(addr,1,adddata1,adddata2)
+' [unitid [srctag]] AT(addr,3,cmpdata1,cmpdata2,strdata1,strdata2)
+'
+' mask s'applique sur une zone de 8 mots alignee et est notte en hexadecimal.
+' Remplacer N par P dans NB ou ND rend l'ecriture postee.
+'
+' Exemples de commandes :
+' Lecture d'un mot
+  0 0 RD(20,0)
+' Lecture de 8 mots
+  1 0 RD(20,7)
+' Lecture d'un mot ou l'on ne definit pas les id (id identique)
+      RD(20,0)
+' Lecture masquee (d'un octet)
+  3 0 RB(20,2)
+' Ecriture d'un mot
+  4 0 ND(20,0,123)
+' Ecriture postee d'un mot
+  5 0 PD(20,0,123)
+' Ecriture masquee (de deux octets)
+  6 0 NB(20,1,B,123)
+' Ecriture masquee de trois mots dont le premier(123) a un filtre 0xF
+  7 0 NB(20,3,B2F00000,123,234,345)
+' ou
+  8 0 NB(20,3,B2F00000,123,
+'                       234,
+'                       345)
+' Fetch & Add d'un double-mot
+  10 0 AT(20,1,FFFFFFFF,FFFFFFFF)
+  10 0 AT(20,1,FFFFFFFF,FFFFFFFF)
+' Compare & Swap d'un double mot
+  11 0 AT(20,3,400,3FC,123,0)
+

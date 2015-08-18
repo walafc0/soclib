@@ -1,0 +1,36 @@
+
+# -*- python -*-
+
+__id__ = "$Id: pibus_bcu.sd 1699 2010-04-14 03:30:30Z nipo $"
+__version__ = "$Revision: 1699 $"
+
+Module('caba:pibus_bcu',
+	classname = 'soclib::caba::PibusBcu',
+	header_files = ["../source/include/pibus_bcu.h",],
+	implementation_files = ["../source/src/pibus_bcu.cpp",],
+	ports = [
+		Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+		Port('caba:clock_in', 'p_clk', auto = 'clock'),
+		Port('caba:bit_in',  'p_req', parameter.Reference('nb_master')),
+		Port('caba:bit_out', 'p_gnt', parameter.Reference('nb_master')),
+		Port('caba:bit_out', 'p_sel', parameter.Reference('nb_slave')),
+
+		#Port('caba:word_in', 'p_a', word_t='sc_dt::sc_uint<32>'),
+		#Port('caba:bit_in',  'p_lock'),
+		#Port('caba:word_in', 'p_ack', word_t='sc_dt::sc_uint<2>'),
+		#Port('caba:bit_out', 'p_tout'),
+		Port('caba:pibus_bcu_port', 'p_pi'),
+	],
+	uses = [
+		Uses('caba:base_module'),
+		Uses('common:mapping_table'),
+		Uses('caba:pibus'),
+		],
+	instance_parameters = [
+		parameter.Module('mt', typename = 'common:mapping_table'),
+		parameter.Int('nb_master'),
+		parameter.Int('nb_slave'),
+		parameter.Int('time_out'),
+	],
+)
+

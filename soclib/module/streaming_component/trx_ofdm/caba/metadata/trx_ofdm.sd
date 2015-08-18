@@ -1,0 +1,40 @@
+# -*- python -*-
+
+__id__ = "$Id: trx_ofdm.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+Module('caba:trx_ofdm',
+	classname = 'soclib::caba::trx_ofdm',
+	header_files = [
+	'../../common/source/include/FixC.h',                    
+	'../../common/source/include/fft_radix_4_2.h',           
+	'../../common/source/include/trx_ofdm_core_config.h',    
+	'../../common/source/include/trx_ofdm_core_ro_config.h', 
+	'../../common/source/include/trx_ofdm_core.h',
+	'../source/include/trx_ofdm.h',      
+	],
+	implementation_files = [
+	'../../common/source/src/FixC.cpp',                    
+	'../../common/source/src/fft_radix_4_2.cpp',           
+	'../../common/source/src/trx_ofdm_core_config.cpp',    
+	'../../common/source/src/trx_ofdm_core_ro_config.cpp', 
+	'../../common/source/src/trx_ofdm_core.cpp',
+	'../source/src/trx_ofdm.cpp',      
+	],
+	ports = [
+	Port('caba:fifo_input', 'p_from_MWMR', 2),
+	Port('caba:fifo_output', 'p_to_MWMR', 2),
+	Port('caba:fifo_input', 'p_core_config'),
+	Port('caba:word_out', 'p_config', 6, word_t = 'uint32_t'),
+	Port('caba:word_in', 'p_status', 6, word_t = 'uint32_t'),
+	Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+	Port('caba:clock_in', 'p_clk', auto = 'clock'),
+	],
+	uses = [
+		Uses('caba:base_module'),
+		Uses('caba:anoc_copro_wrapper'),
+	],
+	instance_parameters = [
+        	parameter.Int('clk_period_'),
+	],
+)

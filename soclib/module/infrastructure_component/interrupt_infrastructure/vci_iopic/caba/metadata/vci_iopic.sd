@@ -1,0 +1,35 @@
+
+# -*- python -*-
+
+__id__ = "$Id: vci_wti_generator.sd 1904 2010-09-14 12:31:44Z nipo $"
+__version__ = "$Revision: 1904 $"
+
+Module('caba:vci_iopic',
+       classname = 'soclib::caba::VciIopic',
+
+	   tmpl_parameters = [ parameter.Module('vci_param',  default = 'caba:vci_param'), ],
+
+       header_files = ['../source/include/vci_iopic.h', ],
+
+       implementation_files = ['../source/src/vci_iopic.cpp',],
+
+       ports = [
+               Port('caba:clock_in', 'p_clk', auto = 'clock'),
+               Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+               Port('caba:vci_initiator', 'p_vci_initiator'),
+               Port('caba:vci_target', 'p_vci_target'),
+               Port('caba:bit_in', 'p_hwi', parameter.Reference('channels') ),
+	           ],
+       uses = [
+               Uses('caba:base_module'),
+               Uses('common:mapping_table'),
+               Uses('caba:vci_target'),
+               Uses('caba:vci_initiator'),
+              ],
+       instance_parameters = [
+	          parameter.Module('mt', 'common:mapping_table'),
+           	  parameter.IntTab('srcid'),
+           	  parameter.IntTab('tgtid'),
+              parameter.Int('channels'),
+	          ],
+)

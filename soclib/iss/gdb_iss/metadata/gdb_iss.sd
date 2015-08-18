@@ -1,0 +1,27 @@
+
+# -*- python -*-
+
+__id__ = "$Id: gdb_iss.sd 2121 2011-09-18 18:36:30Z becoulet $"
+__version__ = "$Revision: 2121 $"
+
+Module('common:gdb_iss',
+	classname = 'soclib::common::GdbServer',
+	header_files = ["../include/iss/gdbserver.h",
+			],
+	implementation_files = [
+		"../src/iss/gdbserver.cpp",
+		],
+	   tmpl_parameters = [
+	parameter.Module('gdb_iss_t'),
+	],
+	   uses = [
+	Uses('common:iss2'),
+	Uses('common:exception'),
+	Uses('common:loader'),
+        Uses('common:dpp'),
+	],
+	   extensions = [
+	'dsx:cpu=wrapper:gdb_iss_t',
+	'dsx:static_config_lines=%(class)s::set_loader(%(env:loader)s)',
+   ],
+)

@@ -1,0 +1,45 @@
+
+# -*- python -*-
+
+__id__ = "$Id: vci_block_device.sd 1699 2010-04-14 03:30:30Z nipo $"
+__version__ = "$Revision: 1699 $"
+
+Module('caba:vci_block_device',
+	   classname = 'soclib::caba::VciBlockDevice',
+	   tmpl_parameters = [
+	parameter.Module('vci_param',  default = 'caba:vci_param'),
+	],
+	   header_files = ['../source/include/vci_block_device.h',
+					],
+    interface_files = [
+					   '../../include/soclib/block_device.h'
+					   ],
+	   implementation_files = ['../source/src/vci_block_device.cpp',],
+	   ports = [
+	Port('caba:vci_target', 'p_vci_target'),
+	Port('caba:vci_initiator', 'p_vci_initiator'),
+	Port('caba:bit_out', 'p_irq'),
+	Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+	Port('caba:clock_in', 'p_clk', auto = 'clock'),
+	],
+	   uses = [
+	Uses('caba:base_module'),
+	Uses('caba:vci_target_fsm', default_target = 'true', support_llsc = 'false'),
+	Uses('caba:vci_initiator_simple_read_req'),
+	Uses('caba:vci_initiator_simple_write_req'),
+	Uses('caba:vci_initiator_fsm'),
+	],
+	instance_parameters = [
+        parameter.Module('mt', typename = 'common:mapping_table'),
+        parameter.IntTab('srcid'),
+        parameter.IntTab('tgtid'),
+        parameter.String('filename'),
+        parameter.Int('block_size', default = 512),
+        parameter.Int('latency', default = 0),
+        ],
+	   extensions = [
+	'dsx:addressable=tgtid',
+	'dsx:max_segments=1',
+	'dsx:get_ident=tgtid:p_vci_target:mt,srcid:p_vci_initiator:mt',
+   ],
+)

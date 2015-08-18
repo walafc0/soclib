@@ -1,0 +1,30 @@
+
+# -*- python -*-
+
+__id__ = "$Id: avalon_arbiter.sd 1195 2009-07-08 12:37:56Z abdelmalek.si-merabet@lip6.fr $"
+__version__ = "$Revision: 1195 $"
+
+Module('caba:avalon_arbiter',
+	classname = 'soclib::caba::AvalonArbiter',
+	tmpl_parameters = [
+	parameter.Module('avalon_param',  default = 'caba:avalon_param'),
+	],
+		header_files = ["../source/include/avalon_arbiter.h",],
+	implementation_files = ["../source/src/avalon_arbiter.cpp",],
+	ports = [
+		Port('caba:clock_in', 'p_clk', auto = 'clock'),
+		Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+	    Port('caba:avalon_arbiter_master', 'p_arbiter_master'),
+	    Port('caba:avalon_arbiter_slave', 'p_arbiter_slave'),
+	    Port('caba:bit_out', 'sel_master'),
+	],
+	instance_parameters = [
+	    parameter.Int('routage'),
+        parameter.Int('n_master'),
+        parameter.Int('slave_index'),
+	],
+	uses = [
+		Uses('caba:base_module'),
+        Uses('caba:avalonarbiter'),
+		],
+)

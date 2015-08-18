@@ -1,0 +1,24 @@
+
+# -*- python -*-
+
+Module('caba:wb_slave_vci_initiator_wrapper',
+	classname = 'soclib::caba::WbSlaveVciInitiatorWrapper',
+    tmpl_parameters = [
+        parameter.Module('vci_param',  default = 'caba:vci_param'),
+        parameter.Module('wb_param',  default = 'caba:wb_param'),
+	],
+	header_files = ['../source/include/wb_slave_vci_initiator_wrapper.h',],
+	implementation_files = ['../source/src/wb_slave_vci_initiator_wrapper.cpp',],
+    ports = [
+		Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+		Port('caba:clock_in', 'p_clk', auto = 'clock'),
+        Port('caba:vci_initiator', 'p_vci'),
+        Port('caba:wb_slave', 'p_wb'),
+	],
+	uses = [
+		Uses('caba:base_module'),
+		Uses('caba:wishbone'),
+		Uses('common:mapping_table'),
+		],
+   #debug = True ,
+)

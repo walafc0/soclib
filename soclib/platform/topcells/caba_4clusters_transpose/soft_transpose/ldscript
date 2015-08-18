@@ -1,0 +1,94 @@
+/**********************************************************
+	File : ldscript 
+	Author : Alain Greiner
+	Date : October 2009
+**********************************************************/
+
+/* definition of the base address for all segments 
+The peripherals base addresses are referenced by the
+software drivers and must be defined, even if the 
+peripherals are not present in the architecture */
+
+seg_kcode_base  = 0x80000000;       /* le code du système */
+seg_kdata_base  = 0x91000000;       /* les donnees du système */
+seg_kunc_base   = 0x92000000;       /* les données non cachées du système */
+seg_code_base   = 0x20000000;       /* le code utilisateur */ 
+seg_data_base   = 0x31000000;       /* les données utilisateur */
+
+seg_stack_base  = 0x04000000;       /* la pile utilisateur */
+
+seg_icu_base    = 0x86000000;       /* controleur ICU */
+seg_tty_base    = 0x87000000;       /* controleur TTY */
+seg_timer_base  = 0x88000000;       /* controleur TIMER */
+seg_ioc_base    = 0x89000000;       /* controleur I/O */
+seg_dma_base    = 0x9A000000;       /* controleur DMA */
+seg_fb_base     = 0xAB000000;       /* controleur FRAME BUFFER */
+seg_locks_base  = 0x8C000000;       /* controleur LOCKS */
+seg_gcd_base    = 0x8D000000;       /* controleur GCD */
+
+seg_reset_base  = 0xBFC00000;       /* le code de boot */
+
+/* definition of various hardware parameters.
+These variables are referenced in the drivers.c file,
+and must be defined, even if the corresponding
+peripherals are not present in the architecture */
+
+NB_TTYS       		= 1;
+NB_LOCKS        	= 0;
+NB_TIMERS       	= 1;
+NB_PROCS		= 4;
+
+/* Maximum number of tasks per processoir
+It is referenced in the drivers.c file to compute
+the global TTY index = proc_id*NB_TASKS + task_id */
+
+NB_TASKS		= 1;
+
+/* Grouping sections into segments */
+
+SECTIONS
+{
+   . = seg_kcode_base;
+   seg_kcode : {
+      *(.giet)
+      *(.switch)
+      *(.drivers)
+      *(.isr)
+   } 
+   . = seg_kdata_base;
+   seg_kdata : {
+      *(.kdata)
+   } 
+   . = seg_kunc_base;
+   seg_kunc : {
+      *(.unckdata)
+   } 
+   . = seg_kdata_base;
+   seg_kdata : {
+      *(.ksave)
+   } 
+   . = seg_code_base;
+   seg_code : {
+      *(.text)
+   } 
+   . = seg_reset_base;
+   seg_reset : {
+      *(.reset)
+   } 
+   . = seg_data_base;
+   seg_data : {
+      *(.rodata)
+      . = ALIGN(4);
+      *(.rodata.*)
+      . = ALIGN(4);
+      *(.data)
+      . = ALIGN(4);
+      *(.sdata)
+      _gp = .;
+      . = ALIGN(4);
+      *(.bss)
+      *(COMMON)
+      *(.sbss)
+   } 
+}
+

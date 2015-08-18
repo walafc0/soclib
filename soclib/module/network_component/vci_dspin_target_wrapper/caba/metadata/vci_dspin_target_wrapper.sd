@@ -1,0 +1,33 @@
+# -*- python -*-
+
+Module('caba:vci_dspin_target_wrapper',
+	classname = 'soclib::caba::VciDspinTargetWrapper',
+
+	tmpl_parameters = [
+	    parameter.Module('vci_param',  default = 'caba:vci_param'),
+	    parameter.Int('dspin_cmd_width'),
+	    parameter.Int('dspin_rsp_width'),
+	],
+
+	header_files = [
+        '../source/include/vci_dspin_target_wrapper.h',
+    ],
+
+	implementation_files = [
+        '../source/src/vci_dspin_target_wrapper.cpp',
+    ],
+
+	ports = [
+		Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+		Port('caba:clock_in', 'p_clk', auto = 'clock'),
+	    Port('caba:dspin_input', 'p_dspin_cmd',
+              dspin_data_size = parameter.Reference('dspin_cmd_width')),
+	   	Port('caba:dspin_output', 'p_dspin_rsp', 
+              dspin_data_size = parameter.Reference('dspin_rsp_width')),
+	    Port('caba:vci_initiator', 'p_vci'),
+	],
+
+	uses = [ 
+        Uses('caba:base_module'),
+    ],
+)

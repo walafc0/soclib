@@ -1,0 +1,70 @@
+/dts-v1/;
+
+/ {
+	model = "MutekH_SoCLib_Tutorial";
+	compatible = "MutekH_SoCLib_Tutorial";
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		Mips,32@0 {
+			name = "Mips,32";
+			device_type = "cpu";
+			reg = <0>;
+			icudev_type = "cpu:mips";
+		};
+
+		Mips,32@1 {
+			name = "Mips,32";
+			device_type = "cpu";
+			reg = <1>;
+			icudev_type = "cpu:mips";
+		};
+
+		Mips,32@2 {
+			name = "Mips,32";
+			device_type = "cpu";
+			reg = <2>;
+			icudev_type = "cpu:mips";
+		};
+	};
+
+	icu@0 {
+	    device_type = "soclib:icu";
+	    irq_count = <2>;
+	    reg = <0xd2200000 0x10>;
+	    irq = <&{/cpus/Mips,32@0} 0>;
+	};
+
+	tty@0 {
+	    device_type = "soclib:tty";
+		tty_count = <1>;
+		reg = <0xd0200000 0x10>;
+		irq = <&{/icu@0} 0>;
+	};
+
+	block@0 {
+	    device_type = "soclib:ramdisk";
+		reg = <0x68200000 0x00100000>;
+		irq = <&{/icu@0} 1>;
+	};
+
+	framebuffer {
+	    device_type = "soclib:framebuffer";
+	        reg = <0x10200000 0x00200000>;
+	};
+
+	memory@0 {
+		device_type = "memory";
+		cached;
+		memreg: reg = <0x7f400000 0x00100000>;
+	};
+
+	chosen {
+		console = &{/tty@0};
+		timer = &{/icu@0};
+	};
+
+};

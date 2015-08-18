@@ -1,0 +1,13 @@
+# -*- python -*-
+
+Module('tlmdt:vci_block_device',
+       classname = 'soclib::tlmdt::VciBlockDevice',
+       tmpl_parameters = [ parameter.Module('vci_param',  default = 'tlmdt:vci_param') ],
+       header_files = ['../source/include/vci_block_device.h' ],
+       interface_files = [  '../../include/soclib/block_device.h' ],
+       implementation_files = ['../source/src/vci_block_device.cpp' ],
+       uses = [	Uses('common:tlmdt'),
+		Uses('common:mapping_table'),
+		],
+       #debug = True,
+       )

@@ -1,0 +1,16 @@
+# -*- python -*-
+
+__id__ = "$Id: microblaze.sd 2133 2011-10-11 20:23:42Z petrot $"
+__version__ = "$Revision: 2133 $"
+
+Module('common:microblazeobsolete',
+	classname = 'soclib::common::MicroBlazeObsoleteIss',
+	header_files = ["../include/iss/microblaze.h",],
+	implementation_files = [
+		"../src/iss/microblaze.cpp",
+		],
+	uses = [
+		Uses('common:base_module'),
+		Uses('common:iss'),
+		],
+)

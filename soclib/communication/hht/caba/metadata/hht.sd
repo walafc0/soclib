@@ -1,0 +1,50 @@
+# -*- python -*-
+
+__id__ = "$Id$"
+__version__ = "$Revision$"
+
+Signal('caba:hht',
+	tmpl_parameters = [parameter.Module('hht_param', default = 'caba:hht_param')],
+	classname = 'soclib::caba::HhtSignals',
+	header_files = ['../source/include/hht_signals.h'],   
+	uses = [
+	    Uses('caba:fifo_signals'),
+		Uses('caba:hht_cmd_flit'),
+		Uses('caba:hht_rsp_flit'),
+	],
+	accepts = {
+	'caba:hht_initiator': 1,
+	'caba:hht_target': 1
+	},
+	   )
+
+PortDecl('caba:hht_initiator',
+	 tmpl_parameters = [parameter.Module('hht_param', default = 'caba:hht_param')],
+	 classname = 'soclib::caba::HhtInitiator',
+	 signal = 'caba:hht',
+	 header_files = ['../source/include/hht_initiator.h'],	
+	uses = [
+	    Uses('caba:fifo_input'),
+		Uses('caba:fifo_output')
+	],
+	 )
+
+PortDecl('caba:hht_target',
+	 tmpl_parameters = [parameter.Module('hht_param', default = 'caba:hht_param')],
+	 classname = 'soclib::caba::HhtTarget',
+	 signal = 'caba:hht',
+	 header_files = ['../source/include/hht_target.h'],
+	uses = [
+	    Uses('caba:fifo_input'),
+		Uses('caba:fifo_output')
+	],
+	 )
+
+Module('caba:hht_param',
+	   classname = 'soclib::caba::HhtParam',
+	   tmpl_parameters = [
+			parameter.Int('ctrl_size'),
+			parameter.Int('data_size'),
+		],
+		header_files = ['../source/include/hht_param.h',],
+)

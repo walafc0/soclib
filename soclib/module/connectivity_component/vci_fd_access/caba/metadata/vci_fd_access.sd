@@ -1,0 +1,43 @@
+
+# -*- python -*-
+
+__id__ = "$Id: vci_fd_access.sd 2136 2011-10-25 15:29:34Z becoulet $"
+__version__ = "$Revision: 2136 $"
+
+Module('caba:vci_fd_access',
+	   classname = 'soclib::caba::VciFdAccess',
+	   tmpl_parameters = [
+	parameter.Module('vci_param',  default = 'caba:vci_param'),
+	],
+	   header_files = ['../source/include/vci_fd_access.h',
+					],
+    interface_files = [
+					   '../../include/soclib/fd_access.h'
+					   ],
+	   implementation_files = ['../source/src/vci_fd_access.cpp',],
+	   ports = [
+	Port('caba:vci_target', 'p_vci_target'),
+	Port('caba:vci_initiator', 'p_vci_initiator'),
+	Port('caba:bit_out', 'p_irq'),
+	Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+	Port('caba:clock_in', 'p_clk', auto = 'clock'),
+	],
+	   uses = [
+	Uses('caba:base_module'),
+	Uses('caba:vci_target_fsm', default_target = 'true', support_llsc = 'false'),
+	Uses('caba:vci_initiator_simple_read_req'),
+	Uses('caba:vci_initiator_simple_write_req'),
+	Uses('caba:vci_initiator_fsm'),
+        Uses('common:dpp'),
+	],
+	instance_parameters = [
+        parameter.Module('mt', typename = 'common:mapping_table'),
+		parameter.IntTab('srcid'),
+		parameter.IntTab('tgtid'),
+	],
+	   extensions = [
+	'dsx:addressable=tgtid',
+	'dsx:max_segments=1',
+	'dsx:get_ident=srcid:p_vci_target:mt,tgtid:p_vci_initiator:mt',
+   ],
+)

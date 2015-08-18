@@ -1,0 +1,106 @@
+==============================================================================
+==============================================================================
+=SOME EXPLANATIONS ON THE WORK PERFORMED ON THE PORTING OF SNAPGEAR ON SOCLIB=
+==============================================================================
+==============================================================================
+
+========================================================
+TGI : T0043357 Fabien Colas-Bigey, Thales Communications
+========================================================
+
+--------------------------------------------
+- Structure of files at the root directory -
+--------------------------------------------
+- config.mk
+  This file contains the configuration options of the H264 decoder. The user
+can choose among several options in order to test the functioning of the
+platform in different modes. Here are the potential options.
+  * CPU : mips32el, or ppc, or arm
+  * FORMAT : cif or qcif
+  * NB_PROC : 1 or 3 in the qcif format and 1, 2, 4 or 6 in the cif format.
+  * FRAMEBUFFER : YES or NO. If YES, the framebuffer will be connected to the
+platform and print the output image.
+  * DBF : YES or NO. If YES, the output image will be filtered by a deblocking
+filter before printing.
+  * GDB_SERVER : YES or NO
+  * MEM_CHECKER : YES or NO
+  * TIMER : YES or NO
+
+- soclib_addresses.h
+  Contains the addresses of the different memory segments. This file is used by
+the top to create the appropriate cache tables. The user should not modify this
+file.
+
+- platform_desc
+  Contains the list of components used in the platform. The user should not
+modify this file.
+
+- top.cpp
+  Top of the platform. This file details the connexions of the blocks together.
+
+- disk
+  Contains the 264 streams required by the decoder.
+
+---------------------------------------------------------
+- Structure of files at the soclib_conf_files directory -
+---------------------------------------------------------
+This folder contains configuration files that are used by the software to adapt
+its configuration to the structure of the platform. The user does not have to
+care about these files, they are automatically selected depending on the
+configuration choosen.
+
+- *.dts
+  These files reflects the configuration of the platform. They describe
+interconnexions between devices and explicit connexions of interrupts. It is
+required by mutekh operating system. Different versions exist for each
+processor and processor number.
+
+- platforms.conf & platforms-soclib.conf
+  Configuration files used to select operating system parameters. These files
+are used by mutekh.
+
+----------------------------------------------------------
+- Structure of files at the decoder_h264_clone directory -
+----------------------------------------------------------
+This folder contains the sources of the software application: the h264 decoder.
+The user does not have to modify these files.
+
+
+---------------------------------
+- Structure of virtual platform -
+---------------------------------
+- processor : mips, powerpc or arm
+- Caches
+  Both icache and dcache are 4 way set associative. The size of the cache is
+defined as follows:
+  size = nways * nsets * nwords * 4BytesperWord
+  nways  : number of ways in associativity
+  nsets  : number of sets; We consider, 1 block = 1 cache line
+  nwords : number of words per cache line
+  In our case we have size = 4 * 64 * 16 * 4BytesperWord = 16 KB
+
+
+---------------
+- Compilation -
+---------------
+To compile the system, simply type make in the shell. Several files are then
+created:
+- cpu_type.h
+  This file is generated taking into account the configuration established by
+the user in the config.mk.
+- block.iso
+  This file contains an iso structure of the disk folder. It is used by the
+operating system to create a virtual file system.
+- platform_h264.x
+  This file is the executable of the system.
+- mutekh
+  This folder contains the executable of the software part of the system. It is
+automatically loaded by the executable of the platform.
+
+--------------
+- Simulation -
+--------------
+
+- To lauch simulation :
+  % make
+  % ./platform_h264

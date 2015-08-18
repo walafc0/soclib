@@ -1,0 +1,26 @@
+# -*- python -*-
+
+__id__ = "$Id$"
+__version__ = "$Revision$"
+
+Module('caba:vci_ciro_config_initiator',
+	classname = 'soclib::caba::VciCiroConfigInitiator',
+	tmpl_parameters = [
+		parameter.Module('vci_param',  default = 'caba:vci_param'),
+	],
+	header_files = ['../source/include/vci_ciro_config_initiator.h',],
+	implementation_files = ['../source/src/vci_ciro_config_initiator.cpp',],
+	ports = [	    
+		Port('caba:vci_initiator', 'p_vci'),
+		Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+		Port('caba:clock_in', 'p_clk', auto = 'clock'),	
+	],
+	uses = [
+	    Uses('caba:base_module'),
+	    Uses('caba:vci_initiator'),
+	],
+	instance_parameters = [
+		parameter.IntTab('ident'),
+#        parameter.Module('mt', typename = 'common:mapping_table'),
+	],
+)

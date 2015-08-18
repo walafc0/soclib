@@ -1,0 +1,28 @@
+# -*- python -*-
+
+__id__ = "$Id: gate.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+Signal('caba:gate',
+	   classname = 'soclib::caba::GateSignals',
+	   accepts = {'caba:gate_initiator':1,
+		      'caba:gate_target':1},
+	   header_files = ['../source/include/gate_signals.h'],
+	   
+	   )
+
+PortDecl('caba:gate_initiator',
+         classname = 'soclib::caba::GateInitiator',
+	 signal = 'caba:gate',
+	 header_files = ['../source/include/gate_ports.h'],
+	 
+	 )
+
+PortDecl('caba:gate_target',
+         classname = 'soclib::caba::GateTarget',
+	 signal = 'caba:gate',
+	 header_files = ['../source/include/gate_ports.h'],
+	 
+	 )
+
+

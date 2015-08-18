@@ -1,0 +1,6 @@
+SystemC-2.2 got picky about multiple drivers. This intended behaviour, but
+we dont want to use _rv datatypes, so you must export
+
+SC_SIGNAL_WRITE_CHECK=DISABLE
+
+before launching simulation.

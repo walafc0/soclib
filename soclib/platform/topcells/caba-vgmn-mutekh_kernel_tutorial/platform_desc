@@ -1,0 +1,59 @@
+# -*- python -*-
+
+#locs = {}
+#execfile('mutekh/.config.py', {}, locs)
+
+#use_memcheck = (
+#  "CONFIG_SOCLIB_MEMCHECK" in locs and
+#  locs["CONFIG_SOCLIB_MEMCHECK"] == 'defined')
+
+#if locs['CONFIG_CPU_PPC'] == 'defined':
+#  cpu = "ppc405"
+#elif locs['CONFIG_CPU_ARM'] == 'defined':
+#  cpu = "arm"
+#elif locs['CONFIG_CPU_MIPS'] == 'defined':
+#  if locs['CONFIG_CPU_ENDIAN_BIG'] == 'defined':
+#    cpu = 'mips32eb'
+#  else:
+#    cpu = 'mips32el'
+#else:
+#  raise ValueError('No suitable cpu found in mutekh configuration')
+
+use =  [
+	Uses('caba:vci_locks'),
+	Uses('caba:vci_ram'),
+	Uses('caba:vci_fdt_rom'),
+	Uses('caba:vci_heterogeneous_rom'),
+	Uses('caba:vci_multi_tty'),
+	Uses('caba:vci_xicu'),
+	Uses('caba:vci_block_device'),
+	Uses('caba:vci_ethernet'),
+	Uses('caba:vci_rttimer'),
+	Uses('caba:vci_fd_access'),
+        Uses('caba:vci_simhelper'),
+	Uses('caba:vci_vgmn'),
+        Uses('common:elf_file_loader'),
+	Uses('common:plain_file_loader'),
+        Uses('caba:vci_xcache_wrapper', iss_t = 'common:gdb_iss', gdb_iss_t = 'common:iss_memchecker', iss_memchecker_t = 'common:ppc405'),
+        Uses('caba:vci_xcache_wrapper', iss_t = 'common:gdb_iss', gdb_iss_t = 'common:iss_memchecker', iss_memchecker_t = 'common:arm'),
+        Uses('caba:vci_xcache_wrapper', iss_t = 'common:gdb_iss', gdb_iss_t = 'common:iss_memchecker', iss_memchecker_t = 'common:mips32eb'),
+        Uses('caba:vci_xcache_wrapper', iss_t = 'common:gdb_iss', gdb_iss_t = 'common:iss_memchecker', iss_memchecker_t = 'common:mips32el'),
+        Uses('caba:vci_xcache_wrapper', iss_t = 'common:gdb_iss', gdb_iss_t = 'common:iss_memchecker', iss_memchecker_t = 'common:niosII'),
+        Uses('caba:vci_xcache_wrapper', iss_t = 'common:gdb_iss', gdb_iss_t = 'common:iss_memchecker', iss_memchecker_t = 'common:lm32'),
+        Uses('caba:vci_xcache_wrapper', iss_t = 'common:gdb_iss', gdb_iss_t = 'common:iss_memchecker', iss_memchecker_t = 'common:sparcv8', NWIN=8),
+        Uses('caba:vci_xcache_wrapper', iss_t = 'common:gdb_iss', gdb_iss_t = 'common:iss_memchecker', iss_memchecker_t = 'common:sparcv8', NWIN=2),
+        ]
+
+todo = Platform('caba', 'top.cc',
+        uses=use,
+	cell_size = 4,
+	plen_size = 9,
+	addr_size = 32,
+	rerror_size = 1,
+	clen_size = 1,
+	rflag_size = 1,
+	srcid_size = 8,
+	pktid_size = 1,
+	trdid_size = 1,
+	wrplen_size = 1
+)

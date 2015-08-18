@@ -1,0 +1,39 @@
+
+# -*- python -*-
+
+__id__ = "$Id: vci_ring_initiator_wrapper.sd 1698 2010-04-14 03:29:34Z nipo $"
+__version__ = "$Revision: 1698 $"
+
+Module('caba:vci_ring_initiator_wrapper',
+	classname = 'soclib::caba::VciRingInitiatorWrapper',
+	   tmpl_parameters = [
+	parameter.Module('vci_param',  default = 'caba:vci_param'),
+        
+
+	],
+	header_files = ['../source/include/vci_ring_initiator_wrapper.h',],
+	implementation_files = ['../source/src/vci_ring_initiator_wrapper.cpp',],
+	ports = [
+	
+                Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+		Port('caba:clock_in', 'p_clk', auto = 'clock'),
+	        Port('caba:vci_target', 'p_vci'),
+        	Port('caba:ring_in', 'p_ring_in'),
+	        Port('caba:ring_out', 'p_ring_out'),
+	],
+	instance_parameters = [
+        parameter.Bool('alloc_init'),
+        parameter.Int('wrapper_fifo_depth'), 
+        parameter.Module('mt', 'common:mapping_table'),
+        parameter.IntTab('ringid'),
+        parameter.Int('srcid'),  
+		],
+
+
+	uses = [
+		Uses('caba:base_module'),
+                Uses('common:mapping_table'),
+	        Uses('caba:generic_fifo'),
+
+		],
+)

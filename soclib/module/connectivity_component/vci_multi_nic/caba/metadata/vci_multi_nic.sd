@@ -1,0 +1,53 @@
+
+# -*- python -*-
+
+Module('caba:vci_multi_nic',
+	classname = 'soclib::caba::VciMultiNic',
+
+	tmpl_parameters = [ 
+        parameter.Module('vci_param', default = 'caba:vci_param'),
+    ],
+
+	header_files = [
+        '../source/include/vci_multi_nic.h',
+	    '../source/include/nic_rx_chbuf.h',
+	    '../source/include/nic_tx_chbuf.h',
+	    '../source/include/fifo_multi_buffer.h',
+        '../source/include/nic_rx_backend.h',
+	    '../source/include/nic_tx_backend.h', 
+	    '../source/include/nic_rx_tap.h',
+	    '../source/include/nic_tx_tap.h', 
+	    '../source/include/nic_rx_gmii.h',
+	    '../source/include/nic_tx_gmii.h', 
+	    '../source/include/ethernet_crc.h', 
+    ],
+
+    interface_files = [ 
+        '../../include/soclib/multi_nic.h', 
+    ],
+
+    implementation_files = [
+        '../source/src/vci_multi_nic.cpp',
+    ],
+
+    ports = [
+        Port('caba:clock_in', 'p_clk', auto = 'clock'),
+        Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+        Port('caba:vci_target', 'p_vci'),
+        Port('caba:bit_out', 'p_rx_irq', parameter.Reference('channels') ),
+        Port('caba:bit_out', 'p_tx_irq', parameter.Reference('channels') ),
+    ],
+
+	uses =  [
+		Uses('caba:base_module'),
+		Uses('common:mapping_table'),
+		Uses('caba:generic_fifo'),
+	],
+
+	instance_parameters = [
+        parameter.Module('mt', 'common:mapping_table'),
+        parameter.IntTab('tgtid'),
+        parameter.Int('channels'),
+        parameter.Int('timeout'),
+    ],
+)

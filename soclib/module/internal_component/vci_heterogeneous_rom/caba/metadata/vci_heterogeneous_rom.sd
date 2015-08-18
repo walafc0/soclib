@@ -1,0 +1,26 @@
+
+# -*- python -*-
+
+__id__ = "$Id: vci_heterogeneous_rom.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+Module('caba:vci_heterogeneous_rom',
+	classname = 'soclib::caba::VciHeterogeneousRom',
+	   tmpl_parameters = [
+	parameter.Module('vci_param',  default = 'caba:vci_param'),
+	],
+	header_files = ['../source/include/vci_heterogeneous_rom.h',],
+	implementation_files = ['../source/src/vci_heterogeneous_rom.cpp',],
+			  ports = [
+	Port('caba:vci_target', 'p_vci'),
+	],
+	uses = [
+		Uses('caba:base_module'),
+		Uses('caba:vci_target_fsm', default_target = 'true', support_llsc = 'false'),
+		Uses('common:loader'),
+		Uses('common:mapping_table'),
+		],
+	   extensions = [
+	'dsx:addressable',
+   ],
+)

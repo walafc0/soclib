@@ -1,0 +1,14 @@
+
+# -*- python -*-
+
+__id__ = "$Id: plain_file_loader.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+Module('common:plain_file_loader',
+	implementation_files = ['../src/plain_file_loader.cpp',
+							],
+	uses = [
+		Uses('common:exception'),
+		Uses('common:loader'),
+		],
+)

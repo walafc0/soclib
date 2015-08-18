@@ -1,0 +1,23 @@
+
+# -*- python -*-
+
+__id__ = "$Id: elf_file_loader.sd 1006 2009-04-09 13:39:06Z nipo $"
+__version__ = "$Revision: 1006 $"
+
+Module('common:elf_file_loader',
+	implementation_files = ['../src/elf_file_loader.cpp',
+			"../libelfpp/src/elfpp_access.cc",
+			"../libelfpp/src/elfpp_object.cc",
+			"../libelfpp/src/elfpp_reloc.cc",
+			"../libelfpp/src/elfpp_section.cc",
+			"../libelfpp/src/elfpp_symbol.cc",
+							],
+	header_files = [
+			"../libelfpp/include/elfpp.hh",
+	],
+	uses = [
+		Uses('common:exception'),
+		Uses('common:loader'),
+		Uses('common:dpp'),
+		],
+)

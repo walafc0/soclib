@@ -1,0 +1,33 @@
+
+# -*- python -*-
+
+__id__ = "$Id: arm.sd 2333 2013-05-27 14:05:09Z becoulet $"
+__version__ = "$Revision: 2333 $"
+
+Module('common:arm',
+	classname = 'soclib::common::ArmIss',
+	header_files = ["../include/arm.h",],
+	   uses = [
+	Uses('common:iss2'),
+	Uses('common:base_module'),
+	],
+	implementation_files = [
+    "../src/arm.cpp",
+    "../src/arm_alu.cpp",
+    "../src/arm_control.cpp",
+    "../src/arm_coproc.cpp",
+    "../src/arm_decoding_table.cpp",
+    "../src/arm_uncond_decoding_table.cpp",
+    "../src/thumb_decoding_table.cpp",
+    "../src/arm_instructions.cpp",
+    "../src/thumb_instructions.cpp",
+    "../src/arm_load_store.cpp",
+	],
+	   constants = {
+	'n_irq':2
+	},
+	  extensions = [
+	'dsx:cpu=arm'
+	],
+#   debug = True,
+)

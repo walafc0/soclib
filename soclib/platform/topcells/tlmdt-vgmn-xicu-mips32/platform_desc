@@ -1,0 +1,18 @@
+
+# -*- python -*-
+
+
+todo = Platform('tlmdt', 'top.cpp',
+                uses = [ Uses('tlmdt:vci_xcache_wrapper', iss_t = 'common:iss2_simhelper', simhelper_iss_t = 'common:mips32el'),
+                         Uses('tlmdt:vci_locks'),
+                         Uses('tlmdt:vci_ram'),
+                         Uses('tlmdt:vci_multi_tty'),
+                         Uses('tlmdt:vci_blackhole', socket_type = 'tlm_utils::simple_target_socket_tagged<soclib::tlmdt::FakeTlmSocketBase, 32, tlm::tlm_base_protocol_types>'),
+                         Uses('tlmdt:vci_blackhole', socket_type = 'tlm::tlm_initiator_socket<>'),
+                         Uses('tlmdt:vci_xicu'),
+                         Uses('tlmdt:vci_vgmn'),
+                         Uses('common:elf_file_loader'),
+                         ],
+                addr_t = 'uint32_t',
+                data_t = 'uint32_t',
+                )

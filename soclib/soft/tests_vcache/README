@@ -1,0 +1,47 @@
+This is a very basic framework for running regression tests against
+a mips32+vcache2 platform. Here's the layout of this directory:
+
+../../platform/mips32_mono_mmu
+	contains the soclib platform description and simulation executable.
+	It should be compiled before starting tests.
+	it uses the vci_simhelper component, used to stop the simulation
+	with an exit value.  The framework uses this exit status
+	(with other things, see below) to determine if a test
+	is successfull. The simulator will exit with a non-0 exit status
+	after 100000 cycles (and a message to stderr), so the tests are
+	expected to be simple.
+	The platform has a tty, which is redirected to a file along with
+	the simlulator's output. The test framework may search for specific
+	strings in this file to determine if a test was successfull.
+common/
+	Some common functions, ldscripts, etc ... used by the tests.
+	It has a subr.S which holds usefull subroutines, such as
+	print() and printx().
+Makefile.inc
+	included from the test's Makefiles. Basic stuff to compile a
+	mips32 ELF executable for a test. It expects a test.S,
+	add the subr.S from common and eventually additionnal object
+	files.
+test_*/
+	these directories holds the test themselves. They have a run
+	script which does what is needed to compile and run a test,
+	print "test failed" or "test passed" on stdout, and clean the
+	directory if it's successfull. A sample script will call
+	make, then run the simulator with srdout/stderr redirected
+	to a file. If the simulator exists with a 0 status, this
+	script search for some strings in the output (that the
+	test program would have printed). This is an additionnal way
+	to check that all worked properly.
+	Tests are written in assembly; as we're testing for very specific
+	conditions (such as an instruction in a branch's delay slot on
+	a page boundary), we don't want the compiler to optimise things
+	or otherwise reorder instructions.
+	If the test was successfull, the 'run' script cleanups the
+	directory. Otherwise the 'run.out' file is available to
+	start looking at what's wrong.
+run_tests
+	runs all the test_*/run scripts - the goal being that
+	all of them print "test passsed" :). Directories are explicitely
+	listed in the run_tests script (order does matter to have a readable
+	output)
+

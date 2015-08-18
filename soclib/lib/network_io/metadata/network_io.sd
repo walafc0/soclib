@@ -1,0 +1,28 @@
+
+# -*- python -*-
+
+__id__ = "$Id: network_io.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+Module('common:network_io',
+	classname = 'soclib::common::NetworkIo',
+	header_files = ['../include/network_io.h',],
+	implementation_files = ['../src/network_io.cpp',
+							'../src/network_packet.cpp',
+							'../src/network_packet_io_pcap.cpp',
+#							'../src/network_packet_io_tuntap.cpp',
+							'../src/network_packet_io_hex.cpp',
+							'../src/network_packet_io.cpp',
+							'../src/main.cc',
+							],
+	   instance_parameters = [
+	parameter.String('binary', auto = 'env:binary'),
+	],
+	uses = [
+		Uses('common:exception'),
+		],
+	   extensions = [
+	'dsx:configurator',
+	'dsx:noname'
+	]
+)

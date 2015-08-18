@@ -1,0 +1,74 @@
+/*
+
+   You need the device tree compiler to compile this file:
+   https://www.mutekh.org/www/tools/dtc-1.2.0.tar.gz
+
+   Compile with: dtc -O dtb platform.dts -o platform.dtb
+
+*/
+
+/dts-v1/;
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+        interrupt-parent = <&{/icu@0}>;
+
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		cpu@0 {
+                        compatible = "cpu:arm";
+			reg = <0>;
+                        interrupt-controller;
+			frequency = <1000000>;
+		};
+	};
+
+	tty@0 {
+                compatible = "soclib:vci_multi_tty";
+		reg = <0xd0200000 0x10>;
+		interrupts = <0>;
+
+                param-int-tty-count = <1>;
+	};
+
+	block@0 {
+	        compatible = "soclib:vci_block_device";
+		reg = <0xd1200000 0x20>;
+		interrupts = <1>;
+	};
+
+	timer@0 {
+                compatible = "soclib:vci_timer";
+		reg = <0xd3200000 0x20>;
+		interrupts = <2 3>;
+		frequency = <1000000 1500000>;
+		param-int-count = <2>;
+	};
+
+	icu@0 {
+	        compatible = "soclib:vci_icu";
+		reg = <0xd2200000 0x1000>;
+                interrupt-controller;
+
+		/* vci_icu output connected to irq 0 of cpu */
+		interrupt-parent = <&{/cpus/cpu@0}>;
+		interrupts = <0>;
+
+                param-int-nirq = <4>;
+	};
+
+	memory@0 {
+       		compatible = "soclib:vci_ram";
+		reg = <0x7f000000 0x01000000>;
+	};
+
+	aliases {
+		timer = "timer@0";
+		console = "tty@0[0]";
+	};
+
+};
+

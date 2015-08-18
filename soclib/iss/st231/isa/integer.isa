@@ -1,0 +1,1901 @@
+/* *****************************************************************************
+                                    BSD LICENSE
+********************************************************************************
+Copyright (c) 2006, INRIA
+Authors: Zheng LI (zheng.x.li@inria.fr)
+
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+ - Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+ - Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+ - Neither the name of the INRIA nor the names of its contributors may be
+   used to endorse or promote products derived from this software without
+   specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED.
+IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+***************************************************************************** */
+
+//************************************************************************
+// the register format operations
+//************************************************************************
+ op add(stop[1]:rsv[1]:0b00[2]:0b0000000[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op sub(stop[1]:rsv[1]:0b00[2]:0b0000001[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op rshl(stop[1]:rsv[1]:0b00[2]:0b0000010[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op rshr(stop[1]:rsv[1]:0b00[2]:0b0000011[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+// op shl(stop[1]:rsv[1]:0b00[2]:0b0000010[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+// op shr(stop[1]:rsv[1]:0b00[2]:0b0000011[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op shru(stop[1]:rsv[1]:0b00[2]:0b0000100[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op sh1add(stop[1]:rsv[1]:0b00[2]:0b0000101[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op sh2add(stop[1]:rsv[1]:0b00[2]:0b0000110[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op sh3add(stop[1]:rsv[1]:0b00[2]:0b0000111[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op sh4add(stop[1]:rsv[1]:0b00[2]:0b0001000[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op and(stop[1]:rsv[1]:0b00[2]:0b0001001[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op andc(stop[1]:rsv[1]:0b00[2]:0b0001010[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op or(stop[1]:rsv[1]:0b00[2]:0b0001011[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op orc(stop[1]:rsv[1]:0b00[2]:0b0001100[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op xor(stop[1]:rsv[1]:0b00[2]:0b0001101[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+
+ // this opcode isn't used
+ // op illegal(stop[1]:rsv[1]:0b00[2]:0b0001110[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ 
+ // multiply instruction: the destination register is "nldest"
+ op mullhus(stop[1]:rsv[1]:0b00[2]:0b0001111[7]:bdest[3]:nldest[6]:rsc2[6]:rsc1[6])
+
+ op max(stop[1]:rsv[1]:0b00[2]:0b0010000[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op maxu(stop[1]:rsv[1]:0b00[2]:0b0010001[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op min(stop[1]:rsv[1]:0b00[2]:0b0010010[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op minu(stop[1]:rsv[1]:0b00[2]:0b0010011[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+
+ // multiply instruction: the destination register is "nldest"
+ op mulhhs(stop[1]:rsv[1]:0b00[2]:0b0010100[7]:bdest[3]:nldest[6]:rsc2[6]:rsc1[6])
+ op mull(stop[1]:rsv[1]:0b00[2]:0b0010101[7]:bdest[3]:nldest[6]:rsc2[6]:rsc1[6])
+ op mullu(stop[1]:rsv[1]:0b00[2]:0b0010110[7]:bdest[3]:nldest[6]:rsc2[6]:rsc1[6])
+ op mulh(stop[1]:rsv[1]:0b00[2]:0b0010111[7]:bdest[3]:nldest[6]:rsc2[6]:rsc1[6])
+ op mulhu(stop[1]:rsv[1]:0b00[2]:0b0011000[7]:bdest[3]:nldest[6]:rsc2[6]:rsc1[6])
+ op mulll(stop[1]:rsv[1]:0b00[2]:0b0011001[7]:bdest[3]:nldest[6]:rsc2[6]:rsc1[6])
+ op mulllu(stop[1]:rsv[1]:0b00[2]:0b0011010[7]:bdest[3]:nldest[6]:rsc2[6]:rsc1[6])
+ op mullh(stop[1]:rsv[1]:0b00[2]:0b0011011[7]:bdest[3]:nldest[6]:rsc2[6]:rsc1[6])
+ op mullhu(stop[1]:rsv[1]:0b00[2]:0b0011100[7]:bdest[3]:nldest[6]:rsc2[6]:rsc1[6])
+ op mulhh(stop[1]:rsv[1]:0b00[2]:0b0011101[7]:bdest[3]:nldest[6]:rsc2[6]:rsc1[6])
+ op mulhhu(stop[1]:rsv[1]:0b00[2]:0b0011110[7]:bdest[3]:nldest[6]:rsc2[6]:rsc1[6])
+ op mulhs(stop[1]:rsv[1]:0b00[2]:0b0011111[7]:bdest[3]:nldest[6]:rsc2[6]:rsc1[6])
+
+ op cmpeq(stop[1]:rsv[1]:0b00[2]:0b0100000[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op cmpne(stop[1]:rsv[1]:0b00[2]:0b0100001[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op cmpge(stop[1]:rsv[1]:0b00[2]:0b0100010[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op cmpgeu(stop[1]:rsv[1]:0b00[2]:0b0100011[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op cmpgt(stop[1]:rsv[1]:0b00[2]:0b0100100[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op cmpgtu(stop[1]:rsv[1]:0b00[2]:0b0100101[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op cmple(stop[1]:rsv[1]:0b00[2]:0b0100110[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op cmpleu(stop[1]:rsv[1]:0b00[2]:0b0100111[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op cmplt(stop[1]:rsv[1]:0b00[2]:0b0101000[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op cmpltu(stop[1]:rsv[1]:0b00[2]:0b0101001[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op andl(stop[1]:rsv[1]:0b00[2]:0b0101010[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op nandl(stop[1]:rsv[1]:0b00[2]:0b0101011[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op orl(stop[1]:rsv[1]:0b00[2]:0b0101100[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op norl(stop[1]:rsv[1]:0b00[2]:0b0101101[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+
+ // new multiply instructions for ST231 : the destination register is "nldest"
+ op mul32(stop[1]:rsv[1]:0b00[2]:0b0101110[7]:bdest[3]:nldest[6]:rsc2[6]:rsc1[6])
+ op mul64h(stop[1]:rsv[1]:0b00[2]:0b0101111[7]:bdest[3]:nldest[6]:rsc2[6]:rsc1[6])
+
+ op bcmpeq(stop[1]:rsv[1]:0b00[2]:0b0110000[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op bcmpne(stop[1]:rsv[1]:0b00[2]:0b0110001[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op bcmpge(stop[1]:rsv[1]:0b00[2]:0b0110010[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op bcmpgeu(stop[1]:rsv[1]:0b00[2]:0b0110011[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op bcmpgt(stop[1]:rsv[1]:0b00[2]:0b0110100[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op bcmpgtu(stop[1]:rsv[1]:0b00[2]:0b0110101[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op bcmple(stop[1]:rsv[1]:0b00[2]:0b0110110[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op bcmpleu(stop[1]:rsv[1]:0b00[2]:0b0110111[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op bcmplt(stop[1]:rsv[1]:0b00[2]:0b0111000[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op bcmpltu(stop[1]:rsv[1]:0b00[2]:0b0111001[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op bandl(stop[1]:rsv[1]:0b00[2]:0b0111010[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op bnandl(stop[1]:rsv[1]:0b00[2]:0b0111011[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op borl(stop[1]:rsv[1]:0b00[2]:0b0111100[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+ op bnorl(stop[1]:rsv[1]:0b00[2]:0b0111101[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+
+ // new multiply instructions for ST231 : the destination register is "nldest"
+ op mul64hu(stop[1]:rsv[1]:0b00[2]:0b0111110[7]:bdest[3]:nldest[6]:rsc2[6]:rsc1[6])
+ op mulfrac(stop[1]:rsv[1]:0b00[2]:0b0111111[7]:bdest[3]:nldest[6]:rsc2[6]:rsc1[6])
+
+//************************************************************************
+// the immediate format operations
+//************************************************************************
+ op iadd(stop[1]:rsv[1]:0b00[2]:0b1000000[7]:isrc2[9]:idest[6]:rsc1[6])
+ op isub(stop[1]:rsv[1]:0b00[2]:0b1000001[7]:isrc2[9]:idest[6]:rsc1[6])
+ op ishl(stop[1]:rsv[1]:0b00[2]:0b1000010[7]:isrc2[9]:idest[6]:rsc1[6])
+ op ishr(stop[1]:rsv[1]:0b00[2]:0b1000011[7]:isrc2[9]:idest[6]:rsc1[6])
+ op ishru(stop[1]:rsv[1]:0b00[2]:0b1000100[7]:isrc2[9]:idest[6]:rsc1[6])
+ op ish1add(stop[1]:rsv[1]:0b00[2]:0b1000101[7]:isrc2[9]:idest[6]:rsc1[6])
+ op ish2add(stop[1]:rsv[1]:0b00[2]:0b1000110[7]:isrc2[9]:idest[6]:rsc1[6])
+ op ish3add(stop[1]:rsv[1]:0b00[2]:0b1000111[7]:isrc2[9]:idest[6]:rsc1[6])
+ op ish4add(stop[1]:rsv[1]:0b00[2]:0b1001000[7]:isrc2[9]:idest[6]:rsc1[6])
+ op iand(stop[1]:rsv[1]:0b00[2]:0b1001001[7]:isrc2[9]:idest[6]:rsc1[6])
+ op iandc(stop[1]:rsv[1]:0b00[2]:0b1001010[7]:isrc2[9]:idest[6]:rsc1[6])
+ op ior(stop[1]:rsv[1]:0b00[2]:0b1001011[7]:isrc2[9]:idest[6]:rsc1[6])
+ op iorc(stop[1]:rsv[1]:0b00[2]:0b1001100[7]:isrc2[9]:idest[6]:rsc1[6])
+ op ixor(stop[1]:rsv[1]:0b00[2]:0b1001101[7]:isrc2[9]:idest[6]:rsc1[6])
+ 
+ // monadic operations : there is 5 monadic operations (go to line ???)
+ // op monadic  (stop[1]:rsv[1]:0b00[2]:0b1001110[7]:exopcode[9]:idest[6]:rsc1[6])
+ 
+ // multiply instruction: the destination register is "nlidest"
+ op imullhus  (stop[1]:rsv[1]:0b00[2]:0b1001111[7]:isrc2[9]:nlidest[6]:rsc1[6])
+ 
+ op imax(stop[1]:rsv[1]:0b00[2]:0b1010000[7]:isrc2[9]:idest[6]:rsc1[6])
+ op imaxu(stop[1]:rsv[1]:0b00[2]:0b1010001[7]:isrc2[9]:idest[6]:rsc1[6])
+ op imin(stop[1]:rsv[1]:0b00[2]:0b1010010[7]:isrc2[9]:idest[6]:rsc1[6])
+ op iminu(stop[1]:rsv[1]:0b00[2]:0b1010011[7]:isrc2[9]:idest[6]:rsc1[6])
+ 
+ // imultiply instruction: the destination register is "nlidest"
+ op imulhhs(stop[1]:rsv[1]:0b00[2]:0b1010100[7]:isrc2[9]:nlidest[6]:rsc1[6])
+ op imull(stop[1]:rsv[1]:0b00[2]:0b1010101[7]:isrc2[9]:nlidest[6]:rsc1[6])
+ op imullu(stop[1]:rsv[1]:0b00[2]:0b1010110[7]:isrc2[9]:nlidest[6]:rsc1[6])
+ op imulh(stop[1]:rsv[1]:0b00[2]:0b1010111[7]:isrc2[9]:nlidest[6]:rsc1[6])
+ op imulhu(stop[1]:rsv[1]:0b00[2]:0b1011000[7]:isrc2[9]:nlidest[6]:rsc1[6])
+ op imulll(stop[1]:rsv[1]:0b00[2]:0b1011001[7]:isrc2[9]:nlidest[6]:rsc1[6])
+ op imulllu(stop[1]:rsv[1]:0b00[2]:0b1011010[7]:isrc2[9]:nlidest[6]:rsc1[6])
+ op imullh(stop[1]:rsv[1]:0b00[2]:0b1011011[7]:isrc2[9]:nlidest[6]:rsc1[6])
+ op imullhu(stop[1]:rsv[1]:0b00[2]:0b1011100[7]:isrc2[9]:nlidest[6]:rsc1[6])
+ op imulhh(stop[1]:rsv[1]:0b00[2]:0b1011101[7]:isrc2[9]:nlidest[6]:rsc1[6])
+ op imulhhu(stop[1]:rsv[1]:0b00[2]:0b1011110[7]:isrc2[9]:nlidest[6]:rsc1[6])
+ op imulhs(stop[1]:rsv[1]:0b00[2]:0b1011111[7]:isrc2[9]:nlidest[6]:rsc1[6])
+ 
+ op icmpeq(stop[1]:rsv[1]:0b00[2]:0b1100000[7]:isrc2[9]:idest[6]:rsc1[6])
+ op icmpne(stop[1]:rsv[1]:0b00[2]:0b1100001[7]:isrc2[9]:idest[6]:rsc1[6])
+ op icmpge(stop[1]:rsv[1]:0b00[2]:0b1100010[7]:isrc2[9]:idest[6]:rsc1[6])
+ op icmpgeu(stop[1]:rsv[1]:0b00[2]:0b1100011[7]:isrc2[9]:idest[6]:rsc1[6])
+ op icmpgt(stop[1]:rsv[1]:0b00[2]:0b1100100[7]:isrc2[9]:idest[6]:rsc1[6])
+ op icmpgtu(stop[1]:rsv[1]:0b00[2]:0b1100101[7]:isrc2[9]:idest[6]:rsc1[6])
+ op icmple(stop[1]:rsv[1]:0b00[2]:0b1100110[7]:isrc2[9]:idest[6]:rsc1[6])
+ op icmpleu(stop[1]:rsv[1]:0b00[2]:0b1100111[7]:isrc2[9]:idest[6]:rsc1[6])
+ op icmplt(stop[1]:rsv[1]:0b00[2]:0b1101000[7]:isrc2[9]:idest[6]:rsc1[6])
+ op icmpltu(stop[1]:rsv[1]:0b00[2]:0b1101001[7]:isrc2[9]:idest[6]:rsc1[6])
+ op iandl(stop[1]:rsv[1]:0b00[2]:0b1101010[7]:isrc2[9]:idest[6]:rsc1[6])
+ op inandl(stop[1]:rsv[1]:0b00[2]:0b1101011[7]:isrc2[9]:idest[6]:rsc1[6])
+ op iorl(stop[1]:rsv[1]:0b00[2]:0b1101100[7]:isrc2[9]:idest[6]:rsc1[6])
+ op inorl(stop[1]:rsv[1]:0b00[2]:0b1101101[7]:isrc2[9]:idest[6]:rsc1[6])
+ 
+ // inew multiply instructions for ST231 : the destination register is "nldest"
+ op imul32(stop[1]:rsv[1]:0b00[2]:0b1101110[7]:isrc2[9]:nlidest[6]:rsc1[6])
+ op imul64h(stop[1]:rsv[1]:0b00[2]:0b1101111[7]:isrc2[9]:nlidest[6]:rsc1[6])
+ 
+ // immediate format branch operations : destination register is "ibdest"
+ op ibcmpeq(stop[1]:rsv[1]:0b00[2]:0b1110000[7]:isrc2[9]:null[3]:ibdest[3]:rsc1[6])
+ op ibcmpne(stop[1]:rsv[1]:0b00[2]:0b1110001[7]:isrc2[9]:null[3]:ibdest[3]:rsc1[6])
+ op ibcmpge(stop[1]:rsv[1]:0b00[2]:0b1110010[7]:isrc2[9]:null[3]:ibdest[3]:rsc1[6])
+ op ibcmpgeu(stop[1]:rsv[1]:0b00[2]:0b1110011[7]:isrc2[9]:null[3]:ibdest[3]:rsc1[6])
+ op ibcmpgt(stop[1]:rsv[1]:0b00[2]:0b1110100[7]:isrc2[9]:null[3]:ibdest[3]:rsc1[6])
+ op ibcmpgtu(stop[1]:rsv[1]:0b00[2]:0b1110101[7]:isrc2[9]:null[3]:ibdest[3]:rsc1[6])
+ op ibcmple(stop[1]:rsv[1]:0b00[2]:0b1110110[7]:isrc2[9]:null[3]:ibdest[3]:rsc1[6])
+ op ibcmpleu(stop[1]:rsv[1]:0b00[2]:0b1110111[7]:isrc2[9]:null[3]:ibdest[3]:rsc1[6])
+ op ibcmplt(stop[1]:rsv[1]:0b00[2]:0b1111000[7]:isrc2[9]:null[3]:ibdest[3]:rsc1[6])
+ op ibcmpltu(stop[1]:rsv[1]:0b00[2]:0b1111001[7]:isrc2[9]:null[3]:ibdest[3]:rsc1[6])
+ op ibandl(stop[1]:rsv[1]:0b00[2]:0b1111010[7]:isrc2[9]:null[3]:ibdest[3]:rsc1[6])
+ op ibnandl(stop[1]:rsv[1]:0b00[2]:0b1111011[7]:isrc2[9]:null[3]:ibdest[3]:rsc1[6])
+ op iborl(stop[1]:rsv[1]:0b00[2]:0b1111100[7]:isrc2[9]:null[3]:ibdest[3]:rsc1[6])
+ op ibnorl(stop[1]:rsv[1]:0b00[2]:0b1111101[7]:isrc2[9]:null[3]:ibdest[3]:rsc1[6])
+ 
+ // inew multiply instructions for ST231 : the destination register is "nldest"
+ op imul64hu(stop[1]:rsv[1]:0b00[2]:0b1111110[7]:isrc2[9]:nlidest[6]:rsc1[6])
+ op imulfrac(stop[1]:rsv[1]:0b00[2]:0b1111111[7]:isrc2[9]:nlidest[6]:rsc1[6])
+
+
+//************************************************************************
+// the monadic format operations
+//************************************************************************
+ // monadic operations : there is 5 monadic operations (go to line ???)
+ op sxtb(stop[1]:rsv[1]:0b00[2]:0b1001110[7]:0b000000000[9]:idest[6]:rsc1[6])
+ op sxth(stop[1]:rsv[1]:0b00[2]:0b1001110[7]:0b000000001[9]:idest[6]:rsc1[6])
+ op bswap(stop[1]:rsv[1]:0b00[2]:0b1001110[7]:0b000000010[9]:idest[6]:rsc1[6])
+ op zxth(stop[1]:rsv[1]:0b00[2]:0b1001110[7]:0b000000011[9]:idest[6]:rsc1[6])
+ op clz(stop[1]:rsv[1]:0b00[2]:0b1001110[7]:0b000000100[9]:idest[6]:rsc1[6])
+
+
+// op add(stop[1]:rsv[1]:0b00[2]:0b0000000[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+add.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPR_N(dest, op1+op2);
+}
+
+add.disasm = {
+	os << "add $r" << dec << dest << " = $r" << rsc1 << ", $r" << rsc2 ;
+        #if DEBUG
+	os << "  //  " <<cpu->GetGPR_N(dest) << " = " << cpu->GetGPR_C(rsc1) << " + " << cpu-> GetGPR_C(rsc2) ;
+        #endif
+
+}
+
+
+// op sub(stop[1]:rsv[1]:0b00[2]:0b0000001[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+sub.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPR_N(dest, op2-op1);
+}
+
+sub.disasm = {
+	os << "sub $r" << dec << dest << " = $r" << rsc2 << ", $r" << rsc1 ;
+        #if DEBUG
+	os << "  //  " << cpu->GetGPR_N(dest) << " = " << cpu->GetGPR_C(rsc1) << " - " << cpu-> GetGPR_C(rsc2) ;
+        #endif
+}
+
+// op shl(stop[1]:rsv[1]:0b00[2]:0b0000010[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+// register shift left 
+rshl.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        uint8_t op2 = (uint8_t)cpu->GetGPR_C(rsc2);
+        if (op2>31)
+        	cpu->SetGPR_N(dest, 0);
+        else
+		cpu->SetGPR_N(dest, op1 << op2);
+}
+
+rshl.disasm = {
+	os << "shl $r" << dec << dest << " = $r" << rsc1 << ", $r" << rsc2 ;
+        #if DEBUG
+	os << "  //  " << hex << cpu->GetGPR_N(dest) << " = " << hex << cpu->GetGPR_C(rsc1) << " << " << dec << cpu->GetGPR_C(rsc2) ;
+        #endif
+}
+
+
+// op shr(stop[1]:rsv[1]:0b00[2]:0b0000011[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+// Arithmetic shift right
+rshr.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        uint8_t op2 = cpu->GetGPR_C(rsc2);
+        if (op2>31)
+		if(op1&0x80000000)
+        		cpu->SetGPR_N(dest, 0xffffffff);
+		else
+        		cpu->SetGPR_N(dest, 0);
+        else
+		cpu->SetGPR_N(dest, op1 << op2);
+}
+
+rshr.disasm = {
+	os << "shr $r" << dec << dest << " = $r" << rsc1 << ", $r" << rsc2 ;
+        #if DEBUG
+	os << "  //  " << hex << cpu->GetGPR_N(dest) << " = " << hex << cpu->GetGPR_C(rsc1) << " >> " << dec << cpu->GetGPR_C(rsc2) ;
+        #endif
+}
+
+
+// op shru(stop[1]:rsv[1]:0b00[2]:0b0000100[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+// Logical shift right
+shru.execute = {
+        uint32_t op1 = cpu->GetGPR_C(rsc1);
+        uint8_t op2 = cpu->GetGPR_C(rsc2);
+        if (op2>31)
+        	cpu->SetGPR_N(dest, 0);
+        else
+		cpu->SetGPR_N(dest, op1 << op2);
+
+}
+
+shru.disasm = {
+	os << "shru $r" << dest << " = $r" << rsc1 << ", $r" << rsc2 ;
+        #if DEBUG
+	os << "  //  " << hex << cpu->GetGPR_N(dest) << " = " << hex << cpu->GetGPR_C(rsc1) << " >> " << dec << cpu->GetGPR_C(rsc2) ;
+        #endif
+}
+
+// op sh1add(stop[1]:rsv[1]:0b00[2]:0b0000101[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6])
+sh1add.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPR_N(dest, (op1<<1) + op2 );
+}
+
+sh1add.disasm = {
+	os << "sh1add $r" << dest << " = $r" << rsc1 << ", $r" << rsc2 ;
+        #if DEBUG
+	os << " // " <<hex <<cpu->GetGPR_N(dest) <<" = " <<hex <<cpu->GetGPR_C(rsc1) <<" << 1 + " <<hex <<cpu->GetGPR_C(rsc2) <<dec ;
+        #endif
+}
+
+// op sh2add(stop[1]:rsv[1]:0b00[2]:0b0000110[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6]
+sh2add.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPR_N(dest, (op1<<2) + op2 );
+}
+
+sh2add.disasm = {
+	os << "sh2add $r" << dest << " = $r" << rsc1 << ", $r" << rsc2 ;
+        #if DEBUG
+	os << " // " <<hex <<cpu->GetGPR_N(dest) <<" = " <<hex <<cpu->GetGPR_C(rsc1) <<" << 2 + " <<hex <<cpu->GetGPR_C(rsc2) <<dec ;
+        #endif
+}
+
+
+// op sh3add(stop[1]:rsv[1]:0b00[2]:0b0000111[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6]
+sh3add.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPR_N(dest, (op1<<3) + op2 );
+}
+
+sh3add.disasm = {
+	os << "sh3add $r" << dest << " = $r" << rsc1 << ", $r" << rsc2 ;
+        #if DEBUG
+	os << " // " <<hex <<cpu->GetGPR_N(dest) <<" = " <<hex <<cpu->GetGPR_C(rsc1) <<" << 3 + " <<hex <<cpu->GetGPR_C(rsc2) <<dec ;
+        #endif
+}
+
+// op sh4add(stop[1]:rsv[1]:0b00[2]:0b0001000[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6]
+sh4add.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPR_N(dest, (op1<<4) + op2 );
+}
+
+sh4add.disasm = {
+	os << "sh4add $r" << dest << " = $r" << rsc1 << ", $r" << rsc2 ;
+        #if DEBUG
+	os << " // " <<hex <<cpu->GetGPR_N(dest) <<" = " <<hex <<cpu->GetGPR_C(rsc1) <<" << 4 + " <<hex <<cpu->GetGPR_C(rsc2) <<dec ;
+        #endif
+}
+
+
+// op and(stop[1]:rsv[1]:0b00[2]:0b0001001[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6]
+and.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPR_N(dest, op1 & op2);
+}
+
+and.disasm = {
+	os << "and $r" << dest << " = $r" << rsc1 << ", $r" << rsc2 ;
+        #if DEBUG
+	os << " // " <<hex <<cpu->GetGPR_N(dest) <<" = " <<hex <<cpu->GetGPR_C(rsc1) <<" & " <<hex <<cpu->GetGPR_C(rsc2) <<dec ;
+        #endif
+}
+
+// op andc(stop[1]:rsv[1]:0b00[2]:0b0001010[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6]
+andc.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPR_N(dest, (~op1) & op2);
+}
+
+andc.disasm = {
+	os << "andc $r" << dest << " = $r" << rsc1 << ", $r" << rsc2 ;
+        #if DEBUG
+	os << " // " <<hex <<cpu->GetGPR_N(dest) <<" = ~" <<hex <<cpu->GetGPR_C(rsc1) <<" & " <<hex <<cpu->GetGPR_C(rsc2) <<dec ;
+        #endif
+}
+
+// op or(stop[1]:rsv[1]:0b00[2]:0b0001011[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6]
+or.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPR_N(dest, op1 | op2);
+}
+
+or.disasm = {
+	os << "or $r" << dest << " = $r" << rsc1 << ", $r" << rsc2 ;
+        #if DEBUG
+	os << " // " <<hex <<cpu->GetGPR_N(dest) <<" = " <<hex <<cpu->GetGPR_C(rsc1) <<" | " <<hex <<cpu->GetGPR_C(rsc2) <<dec ;
+        #endif
+}
+
+// op orc(stop[1]:rsv[1]:0b00[2]:0b0001100[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6]
+orc.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPR_N(dest, (~op1) | op2);
+}
+
+orc.disasm = {
+	os << "orc $r" << dest << " = $r" << rsc1 << ", $r" << rsc2 ;
+        #if DEBUG
+	os << " // " <<hex <<cpu->GetGPR_N(dest) <<" = ~" <<hex <<cpu->GetGPR_C(rsc1) <<" | " <<hex <<cpu->GetGPR_C(rsc2) <<dec ;
+        #endif
+}
+
+// op xor(stop[1]:rsv[1]:0b00[2]:0b0001101[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6]
+xor.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPR_N(dest, op1 ^ op2);
+}
+
+xor.disasm = {
+	os << "xor $r" << dest << " = $r" << rsc1 << ", $r" << rsc2 ;
+        #if DEBUG
+	os << " // " <<hex <<cpu->GetGPR_N(dest) <<" = " <<hex <<cpu->GetGPR_C(rsc1) <<" ^ " <<hex <<cpu->GetGPR_C(rsc2) <<dec ;
+        #endif
+}
+
+
+// op max(stop[1]:rsv[1]:0b00[2]:0b0010000[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6]
+max.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        int32_t result = op1 > op2 ? op1 : op2;
+        cpu->SetGPR_N(dest, result);
+}
+
+max.disasm = {
+	os << "max $r" << dest << " = $r" << rsc1 << ", $r" << rsc2 ;
+        #if DEBUG
+	os << " // " <<cpu->GetGPR_N(dest) <<" = max(" <<cpu->GetGPR_C(rsc1) <<" , " <<cpu->GetGPR_C(rsc2) <<" )";
+        #endif
+}
+
+// op maxu(stop[1]:rsv[1]:0b00[2]:0b0010001[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6]
+maxu.execute = {
+        uint32_t op1 = cpu->GetGPR_C(rsc1);
+        uint32_t op2 = cpu->GetGPR_C(rsc2);
+        uint32_t result = op1 > op2 ? op1 : op2;
+        cpu->SetGPR_N(dest, result);
+}
+
+maxu.disasm = {
+	os << "maxu $r" << dest << " = $r" << rsc1 << ", $r" << rsc2 ;
+        #if DEBUG
+	os << " // " <<cpu->GetGPR_N(dest) <<" = umax(" <<cpu->GetGPR_C(rsc1) <<" , " <<cpu->GetGPR_C(rsc2) <<" )" ;
+        #endif
+}
+
+// op min(stop[1]:rsv[1]:0b00[2]:0b0010010[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6]
+min.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        int32_t result = op1 < op2 ? op1 : op2;
+        cpu->SetGPR_N(dest, result);
+}
+
+min.disasm = {
+	os << "min $r" << dest << " = $r" << rsc1 << ", $r" << rsc2 ;
+        #if DEBUG
+	os << " // " <<cpu->GetGPR_N(dest) <<" = min(" <<cpu->GetGPR_C(rsc1) <<" , " <<cpu->GetGPR_C(rsc2) <<" )" ;
+        #endif
+}
+
+// op minu(stop[1]:rsv[1]:0b00[2]:0b0010011[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6]
+minu.execute = {
+        uint32_t op1 = cpu->GetGPR_C(rsc1);
+        uint32_t op2 = cpu->GetGPR_C(rsc2);
+        uint32_t result = op1 < op2 ? op1 : op2;
+        cpu->SetGPR_N(dest, result);
+}
+
+minu.disasm = {
+	os << "minu $r" << dest << " = $r" << rsc1 << ", $r" << rsc2 ;
+        #if DEBUG
+	os << " // " <<cpu->GetGPR_N(dest) <<" = umin(" <<cpu->GetGPR_C(rsc1) <<" , " <<cpu->GetGPR_C(rsc2) <<" )" ;
+        #endif
+}
+
+
+
+// multiply instruction: the destination register is "nldest"
+// op mullhus(stop[1]:rsv[1]:0b00[2]:0b0001111[7]:bdest[3]:nldest[6]:rsc2[6]:rsc1[6]
+//Word by lower-half-word signed multiply, returns top 16 bits of 48 bit result,
+//sign extended.
+mullhus.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        uint16_t op2 = cpu->GetGPR_C(rsc2);
+        int64_t result = (int64_t)op1 *(int64_t)op2;
+
+        cpu->SetGPR_N(nldest, (result>>32));
+}
+
+mullhus.disasm = {
+	os << "mullhus $r" << nldest << " = $r" << rsc1 << ", $r" << rsc2 ;
+        #if DEBUG
+	os << " // " <<cpu->GetGPR_N(nldest) <<" = " <<cpu->GetGPR_C(rsc1) <<" * " <<((cpu->GetGPR_C(rsc2))&0xffff) <<" >>32" ;
+        #endif
+}
+
+// op mulhhs(stop[1]:rsv[1]:0b00[2]:0b0010100[7]:bdest[3]:nldest[6]:rsc2[6]:rsc1[6]
+// Word by upper-half-word signed multiply, returns top 32 bits of 48 bit result
+mulhhs.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        int64_t result = (int64_t)op1 * ((int64_t)(op2>>16));
+        cpu->SetGPR_N(nldest, (result >> 16));
+}
+
+mulhhs.disasm = {
+	os << "mulhhs $r" << nldest << " = $r" << rsc1 << ", $r" << rsc2 ;
+        #if DEBUG
+	os << " // " <<cpu->GetGPR_N(nldest) <<" = " <<cpu->GetGPR_C(rsc1) <<" * " <<((cpu->GetGPR_C(rsc2))>>16) <<" >>16" ;
+        #endif
+}
+
+// op mull(stop[1]:rsv[1]:0b00[2]:0b0010101[7]:bdest[3]:nldest[6]:rsc2[6]:rsc1[6]
+//Word by half-word signed multiply
+mull.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int16_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPR_N(nldest, op1*op2);
+}
+
+mull.disasm = {
+	os << "mull $r" << nldest << " = $r" << rsc1 << ", $r" << rsc2 ;
+        #if DEBUG
+	os << " // " <<cpu->GetGPR_N(nldest) <<" = " <<cpu->GetGPR_C(rsc1) <<" * " <<((int16_t)cpu->GetGPR_C(rsc2)) ;
+        #endif
+}
+
+// op mullu(stop[1]:rsv[1]:0b00[2]:0b0010110[7]:bdest[3]:nldest[6]:rsc2[6]:rsc1[6]
+//Word by half-word unsigned multiply
+mullu.execute = {
+        uint32_t op1 = cpu->GetGPR_C(rsc1);
+        uint16_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPR_N(nldest, op1 * op2);
+}
+
+mullu.disasm = {
+	os << "mullu $r" << nldest << " = $r" << rsc1 << ", $r" << rsc2 ;
+        #if DEBUG
+	os << " // " <<(uint32_t)cpu->GetGPR_N(nldest) <<" = " <<cpu->GetGPR_C(rsc1) <<" * " <<(uint16_t)cpu->GetGPR_C(rsc2) ;
+        #endif
+}
+
+// op mulh(stop[1]:rsv[1]:0b00[2]:0b0010111[7]:bdest[3]:nldest[6]:rsc2[6]:rsc1[6]
+// Half-word by upper-half-word signed multiply
+mulh.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPR_N(nldest, op1 * (op2>>16));
+}
+
+mulh.disasm = {
+	os << "mulh $r" << nldest << " = $r" << rsc1 << ", $r" << rsc2 ;
+        #if DEBUG
+	os << " // " <<cpu->GetGPR_N(nldest) <<" = " <<cpu->GetGPR_C(rsc1) <<" * " <<((cpu->GetGPR_C(rsc2))>>16) ;
+        #endif
+}
+
+// op mulhu(stop[1]:rsv[1]:0b00[2]:0b0011000[7]:bdest[3]:nldest[6]:rsc2[6]:rsc1[6]
+// Half-word by upper-half-word unsigned multiply
+mulhu.execute = {
+        uint32_t op1 = cpu->GetGPR_C(rsc1);
+        uint16_t op2 = ( (int32_t)(cpu->GetGPR_C(rsc2)) )>>16;
+        cpu->SetGPR_N(nldest, op1 * op2);
+}
+
+mulhu.disasm = {
+	os << "mulhu $r" << nldest << " = $r" << rsc1 << ", $r" << rsc2 ;
+        #if DEBUG
+	os << " // " <<(uint32_t)cpu->GetGPR_N(nldest) <<" = " <<(uint32_t)cpu->GetGPR_C(rsc1) <<" * " <<((cpu->GetGPR_C(rsc2))>>16) ;
+        #endif
+}
+
+// op mulll(stop[1]:rsv[1]:0b00[2]:0b0011001[7]:bdest[3]:nldest[6]:rsc2[6]:rsc1[6]
+mulll.execute = {
+        int16_t op1 = cpu->GetGPR_C(rsc1);
+        int16_t op2 = cpu->GetGPR_C(rsc2);
+        int32_t result = (int32_t)op1 * (int32_t)op2;
+        cpu->SetGPR_N(nldest, result);
+}
+
+mulll.disasm = {
+	os << "mulll $r" << nldest << " = $r" << rsc1 << ", $r" << rsc2 ;
+        #if DEBUG
+	os << " // " <<cpu->GetGPR_N(nldest) <<" = " <<(int16_t)cpu->GetGPR_C(rsc1) <<" * " <<(int16_t)cpu->GetGPR_C(rsc2) ;
+        #endif
+}
+
+// op mulllu(stop[1]:rsv[1]:0b00[2]:0b0011010[7]:bdest[3]:nldest[6]:rsc2[6]:rsc1[6]
+mulllu.execute = {
+        uint16_t op1 = cpu->GetGPR_C(rsc1);
+        uint16_t op2 = cpu->GetGPR_C(rsc2);
+        uint32_t result = (uint32_t)op1 * (uint32_t)op2;
+        cpu->SetGPR_N(nldest, result);
+}
+
+mulllu.disasm = {
+	os << "mulllu $r" << nldest << " = $r" << rsc1 << ", $r" << rsc2 ;
+        #if DEBUG
+	os << " // " <<(uint32_t)cpu->GetGPR_N(nldest) <<" = " <<(uint16_t)cpu->GetGPR_C(rsc1) <<" * " <<(uint16_t)cpu->GetGPR_C(rsc2) ;
+        #endif
+}
+
+
+// op mullh(stop[1]:rsv[1]:0b00[2]:0b0011011[7]:bdest[3]:nldest[6]:rsc2[6]:rsc1[6]
+//Half-word by upper-half-word signed multiply.
+mullh.execute = {
+        int16_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPR_N(nldest, op1 * (op2>>16));
+}
+
+mullh.disasm = {
+	os << "mullh $r" << nldest << " = $r" << rsc1 << ", $r" << rsc2 ;
+        #if DEBUG
+	os << " // " <<(int32_t)cpu->GetGPR_N(nldest) <<" = " <<(int16_t)(cpu->GetGPR_C(rsc1)) <<" * " <<(int16_t)((cpu->GetGPR_C(rsc2))>>16) ;
+        #endif
+}
+
+// op mullhu(stop[1]:rsv[1]:0b00[2]:0b0011100[7]:bdest[3]:nldest[6]:rsc2[6]:rsc1[6]
+mullhu.execute = {
+        uint16_t op1 = cpu->GetGPR_C(rsc1);
+        uint16_t op2 = ( (int32_t)(cpu->GetGPR_C(rsc2)) )>>16;
+        cpu->SetGPR_N(nldest, op1 * op2);
+}
+
+mullhu.disasm = {
+	os << "mullhu $r" << nldest << " = $r" << rsc1 << ", $r" << rsc2 ;
+        #if DEBUG
+	os << " // " <<(uint32_t)cpu->GetGPR_N(nldest) <<" = " <<(uint16_t)(cpu->GetGPR_C(rsc1)) <<" * " <<(uint16_t)((cpu->GetGPR_C(rsc2))>>16) ;
+        #endif
+}
+
+// op mulhh(stop[1]:rsv[1]:0b00[2]:0b0011101[7]:bdest[3]:nldest[6]:rsc2[6]:rsc1[6]
+mulhh.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPR_N(nldest, (op1>>16) * (op2>>16));
+}
+
+mulhh.disasm = {
+	os << "mulhh $r" << nldest << " = $r" << rsc1 << ", $r" << rsc2 ;
+        #if DEBUG
+	os << " // " <<(int32_t)cpu->GetGPR_N(nldest) <<" = " <<((cpu->GetGPR_C(rsc1))>>16) <<" * " <<((cpu->GetGPR_C(rsc2))>>16) ;
+        #endif
+}
+
+// op mulhhu(stop[1]:rsv[1]:0b00[2]:0b0011110[7]:bdest[3]:nldest[6]:rsc2[6]:rsc1[6]
+mulhhu.execute = {
+        uint32_t op1 = cpu->GetGPR_C(rsc1)>>16;
+        uint32_t op2 = cpu->GetGPR_C(rsc2)>>16;
+        cpu->SetGPR_N(nldest, op1 * op2);
+}
+
+mulhhu.disasm = {
+	os << "mulhhu $r" << nldest << " = $r" << rsc1 << ", $r" << rsc2 ;
+        #if DEBUG
+	os << " // " <<(uint32_t)cpu->GetGPR_N(nldest) <<" = " <<(uint16_t)((cpu->GetGPR_C(rsc1))>>16) <<" * " <<(uint16_t)((cpu->GetGPR_C(rsc2))>>16) ;
+        #endif
+}
+
+// op mulhs(stop[1]:rsv[1]:0b00[2]:0b0011111[7]:bdest[3]:nldest[6]:rsc2[6]:rsc1[6]
+mulhs.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        uint16_t op2 = (cpu->GetGPR_C(rsc2))>>16;
+        cpu->SetGPR_N(nldest, (op1 * op2)<<16);
+}
+
+mulhs.disasm = {
+	os << "mulhs $r" << nldest << " = $r" << rsc1 << ", $r" << rsc2 ;
+        #if DEBUG
+	os << " // " <<cpu->GetGPR_N(nldest) <<" = (" <<cpu->GetGPR_C(rsc1) <<" * " <<(uint16_t)((cpu->GetGPR_C(rsc2))>>16) <<") <<16"  ;
+        #endif
+}
+
+
+// op cmpeq(stop[1]:rsv[1]:0b00[2]:0b0100000[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6]
+cmpeq.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPR_N(dest, (op1 == op2) );
+}
+
+cmpeq.disasm = {
+	os << "cmpeq $r" << dest << " = $r" << rsc1 << ", $r" << rsc2 ;
+}
+
+// op cmpne(stop[1]:rsv[1]:0b00[2]:0b0100001[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6]
+cmpne.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPR_N(dest, (op1 != op2) );
+}
+
+cmpne.disasm = {
+	os << "cmpne $r" << dest << " = $r" << rsc1 << ", $r" << rsc2 ;
+}
+
+// op cmpge(stop[1]:rsv[1]:0b00[2]:0b0100010[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6]
+cmpge.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPR_N(dest, (op1 >= op2) );
+}
+
+cmpge.disasm = {
+	os << "cmpge $r" << dest << " = $r" << rsc1 << ", $r" << rsc2 ;
+}
+
+// op cmpgeu(stop[1]:rsv[1]:0b00[2]:0b0100011[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6]
+cmpgeu.execute = {
+        uint32_t op1 = cpu->GetGPR_C(rsc1);
+        uint32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPR_N(dest, (op1 >= op2) );
+}
+
+cmpgeu.disasm = {
+	os << "cmpgeu $r" << dest << " = $r" << rsc1 << ", $r" << rsc2 ;
+}
+
+// op cmpgt(stop[1]:rsv[1]:0b00[2]:0b0100100[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6]
+cmpgt.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPR_N(dest, (op1 > op2) );
+}
+
+cmpgt.disasm = {
+	os << "cmpgt $r" << dest << " = $r" << rsc1 << ", $r" << rsc2 ;
+}
+
+// op cmpgtu(stop[1]:rsv[1]:0b00[2]:0b0100101[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6]
+cmpgtu.execute = {
+        uint32_t op1 = cpu->GetGPR_C(rsc1);
+        uint32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPR_N(dest, (op1 > op2) );
+}
+
+cmpgtu.disasm = {
+	os << "cmpgtu $r" << dest << " = $r" << rsc1 << ", $r" << rsc2 ;
+}
+
+// op cmple(stop[1]:rsv[1]:0b00[2]:0b0100110[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6]
+cmple.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPR_N(dest, (op1 <= op2) );
+}
+
+cmple.disasm = {
+	os << "cmple $r" << dest << " = $r" << rsc1 << ", $r" << rsc2 ;
+}
+
+// op cmpleu(stop[1]:rsv[1]:0b00[2]:0b0100111[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6]
+cmpleu.execute = {
+        uint32_t op1 = cpu->GetGPR_C(rsc1);
+        uint32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPR_N(dest, (op1 <= op2) );
+}
+
+cmpleu.disasm = {
+	os << "cmpleu $r" << dest << " = $r" << rsc1 << ", $r" << rsc2 ;
+}
+
+// op cmplt(stop[1]:rsv[1]:0b00[2]:0b0101000[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6]
+cmplt.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPR_N(dest, (op1 < op2) );
+}
+
+cmplt.disasm = {
+	os << "cmplt $r" << dest << " = $r" << rsc1 << ", $r" << rsc2 ;
+}
+
+// op cmpltu(stop[1]:rsv[1]:0b00[2]:0b0101001[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6]
+cmpltu.execute = {
+        uint32_t op1 = cpu->GetGPR_C(rsc1);
+        uint32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPR_N(dest, (op1 < op2) );
+}
+
+cmpltu.disasm = {
+	os << "cmpltu $r" << dest << " = $r" << rsc1 << ", $r" << rsc2 ;
+}
+
+// op andl(stop[1]:rsv[1]:0b00[2]:0b0101010[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6]
+andl.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPR_N(dest, (op1 && op2) );
+}
+
+andl.disasm = {
+	os << "andl $r" << dest << " = $r" << rsc1 << ", $r" << rsc2 ;
+}
+
+// op nandl(stop[1]:rsv[1]:0b00[2]:0b0101011[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6]
+nandl.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPR_N(dest, (op1==0) || (op2==0) );
+}
+
+nandl.disasm = {
+	os << "nandl $r" << dest << " = $r" << rsc1 << ", $r" << rsc2 ;
+}
+
+// op orl(stop[1]:rsv[1]:0b00[2]:0b0101100[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6]
+orl.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPR_N(dest, (op1 || op2) );
+}
+
+orl.disasm = {
+	os << "orl $r" << dest << " = $r" << rsc1 << ", $r" << rsc2 ;
+}
+
+// op norl(stop[1]:rsv[1]:0b00[2]:0b0101101[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6]
+norl.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPR_N(dest, ((op1==0) && (op2==0)) );
+}
+
+norl.disasm = {
+	os << "norl $r" << dest << " = $r" << rsc1 << ", $r" << rsc2 ;
+}
+
+// // new multiply instructions for ST231 : the destination register is "nldest"
+// op mul32(stop[1]:rsv[1]:0b00[2]:0b0101110[7]:bdest[3]:nldest[6]:rsc2[6]:rsc1[6]
+mul32.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPR_N(nldest, op1 * op2 );
+}
+
+mul32.disasm = {
+	os << "mul32 $r" << nldest << " = $r" << rsc1 << ", $r" << rsc2 ;
+}
+
+// op mul64h(stop[1]:rsv[1]:0b00[2]:0b0101111[7]:bdest[3]:nldest[6]:rsc2[6]:rsc1[6]
+mul64h.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        int64_t result = op1 * op2;
+        cpu->SetGPR_N(nldest, result >> 32);
+}
+
+mul64h.disasm = {
+	os << "mul64h $r" << nldest << " = $r" << rsc1 << ", $r" << rsc2 ;
+}
+
+ 
+// op bcmpeq(stop[1]:rsv[1]:0b00[2]:0b0110000[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6]
+bcmpeq.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPB_N(bdest, (op1 == op2) );
+}
+
+bcmpeq.disasm = {
+	os << "cmpeq $b" << bdest << " = $r" << rsc1 << ", $r" << rsc2 ;
+}
+
+// op bcmpne(stop[1]:rsv[1]:0b00[2]:0b0110001[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6]
+bcmpne.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPB_N(bdest, (op1 != op2) );
+}
+
+bcmpne.disasm = {
+	os << "cmpne $b" << bdest << " = $r" << rsc1 << ", $r" << rsc2 ;
+}
+
+// op bcmpge(stop[1]:rsv[1]:0b00[2]:0b0110010[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6]
+bcmpge.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPB_N(bdest, (op1 >= op2) );
+}
+
+bcmpge.disasm = {
+	os << "cmpge $b" << bdest << " = $r" << rsc1 << ", $r" << rsc2 ;
+}
+
+// op bcmpgeu(stop[1]:rsv[1]:0b00[2]:0b0110011[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6]
+bcmpgeu.execute = {
+        uint32_t op1 = cpu->GetGPR_C(rsc1);
+        uint32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPB_N(bdest, (op1 >= op2) );
+}
+
+bcmpgeu.disasm = {
+	os << "cmpgeu $b" << bdest << " = $r" << rsc1 << ", $r" << rsc2 ;
+}
+
+// op bcmpgt(stop[1]:rsv[1]:0b00[2]:0b0110100[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6]
+bcmpgt.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPB_N(bdest, (op1 > op2) );
+}
+
+bcmpgt.disasm = {
+	os << "cmpgt $b" << bdest << " = $r" << rsc1 << ", $r" << rsc2 ;
+}
+
+// op bcmpgtu(stop[1]:rsv[1]:0b00[2]:0b0110101[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6]
+bcmpgtu.execute = {
+        uint32_t op1 = cpu->GetGPR_C(rsc1);
+        uint32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPB_N(bdest, (op1 > op2) );
+}
+
+bcmpgtu.disasm = {
+	os << "cmpgtu $b" << bdest << " = $r" << rsc1 << ", $r" << rsc2 ;
+}
+
+// op bcmple(stop[1]:rsv[1]:0b00[2]:0b0110110[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6]
+bcmple.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPB_N(bdest, (op1 <= op2) );
+}
+
+bcmple.disasm = {
+	os << "bcmple $b" << bdest << " = $r" << rsc1 << ", $r" << rsc2 ;
+}
+
+// op bcmpleu(stop[1]:rsv[1]:0b00[2]:0b0110111[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6]
+bcmpleu.execute = {
+        uint32_t op1 = cpu->GetGPR_C(rsc1);
+        uint32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPB_N(bdest, (op1 <= op2) );
+}
+
+bcmpleu.disasm = {
+	os << "bcmpleu $b" << bdest << " = $r" << rsc1 << ", $r" << rsc2 ;
+}
+
+// op bcmplt(stop[1]:rsv[1]:0b00[2]:0b0111000[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6]
+bcmplt.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPB_N(bdest, (op1 < op2) );
+}
+
+bcmplt.disasm = {
+	os << "cmplt $b" << bdest << " = $r" << rsc1 << ", $r" << rsc2 ;
+}
+
+// op bcmpltu(stop[1]:rsv[1]:0b00[2]:0b0111001[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6]
+bcmpltu.execute = {
+        uint32_t op1 = cpu->GetGPR_C(rsc1);
+        uint32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPB_N(bdest, (op1 < op2) );
+}
+
+bcmpltu.disasm = {
+	os << "cmpltu $b" << bdest << " = $r" << rsc1 << ", $r" << rsc2 ;
+}
+
+// op bandl(stop[1]:rsv[1]:0b00[2]:0b0111010[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6]
+bandl.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPB_N(bdest, (op1 && op2) );
+}
+
+bandl.disasm = {
+	os << "andl $b" << bdest << " = $r" << rsc1 << ", $r" << rsc2 ;
+}
+
+// op bnandl(stop[1]:rsv[1]:0b00[2]:0b0111011[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6]
+bnandl.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPB_N(bdest, (op1==0) || (op2==0) );
+}
+
+bnandl.disasm = {
+	os << "nandl $b" << bdest << " = $r" << rsc1 << ", $r" << rsc2 ;
+}
+
+// op borl(stop[1]:rsv[1]:0b00[2]:0b0111100[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6]
+borl.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPB_N(bdest, (op1 || op2) );
+}
+
+borl.disasm = {
+	os << "orl $b" << bdest << " = $r" << rsc1 << ", $r" << rsc2 ;
+}
+
+// op bnorl(stop[1]:rsv[1]:0b00[2]:0b0111101[7]:bdest[3]:dest[6]:rsc2[6]:rsc1[6]
+bnorl.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        cpu->SetGPB_N(bdest, ((op1==0) && (op2==0)) );
+}
+
+bnorl.disasm = {
+	os << "norl $b" << bdest << " = $r" << rsc1 << ", $r" << rsc2 ;
+}
+
+ 
+// // new multiply instructions for ST231 : the destination register is "nldest"
+// op mul64hu(stop[1]:rsv[1]:0b00[2]:0b0111110[7]:bdest[3]:nldest[6]:rsc2[6]:rsc1[6]
+mul64hu.execute = {
+        uint32_t op1 = cpu->GetGPR_C(rsc1);
+        uint32_t op2 = cpu->GetGPR_C(rsc2);
+        uint64_t result = op1* op2;
+        cpu->SetGPR_N(nldest, result >> 32 );
+}
+
+mul64hu.disasm = {
+	os << "mul64hu $r" << nldest << " = $r" << rsc1 << ", $r" << rsc2 ;
+}
+
+// op mulfrac(stop[1]:rsv[1]:0b00[2]:0b0111111[7]:bdest[3]:nldest[6]:rsc2[6]:rsc1[6]
+mulfrac.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        int32_t result;
+
+        if((-op1 == 0x80000000) && (-op2 == 0x80000000))
+        {   cpu->SetGPR_N(nldest, 0x7fffffff );
+        }
+
+        else
+        {   result = op1 * op2;
+            result = op1 + (1 << 30);
+            result = result >> 31;
+            cpu->SetGPR_N(nldest, result );
+        }
+}
+
+mulfrac.disasm = {
+	os << "mulfrac $r" << nldest << " = $r" << rsc1 << ", $r" << rsc2 ;
+}
+
+
+//************************************************************************
+// the immediate format operations
+//************************************************************************
+// op iadd(stop[1]:rsv[1]:0b00[2]:0b1000000[7]:isrc2[9]:idest[6]:rsc1[6])
+iadd.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPR_N(idest, op1 + op2 );
+}
+
+iadd.disasm = {
+        //int32_t op2 = SignEx9to32(isrc2);
+        int32_t op2 = cpu->Imm(isrc2);
+	os << "iadd $r" << idest << " = $r" << rsc1 << ", " << op2 ;
+        #if DEBUG
+	os << "  //  " << cpu->GetGPR_N(idest) << " = " << cpu->GetGPR_C(rsc1) << " + " << op2 ;
+        #endif
+}
+
+// op isub(stop[1]:rsv[1]:0b00[2]:0b1000001[7]:isrc2[9]:idest[6]:rsc1[6])
+isub.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPR_N(idest, op1 - op2 );
+}
+
+isub.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "sub $r" << idest << " = $r" << rsc1 << ", " << op2 ;
+}
+
+// op ishl(stop[1]:rsv[1]:0b00[2]:0b1000010[7]:isrc2[9]:idest[6]:rsc1[6])
+ishl.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        uint8_t op2 = (uint8_t)cpu->Imm(isrc2);
+        if(op2>31)
+          cpu->SetGPR_N(idest, 0 );
+        else  
+          cpu->SetGPR_N(idest, op1<<op2 );
+}
+
+ishl.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "shl $r" << idest << " = $r" << rsc1 << ", " << op2 ;
+}
+
+// op ishr(stop[1]:rsv[1]:0b00[2]:0b1000011[7]:isrc2[9]:idest[6]:rsc1[6])
+ishr.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        uint8_t op2 = (uint8_t)cpu->Imm(isrc2);
+        cpu->SetGPR_N(idest, op1>>op2 );
+}
+
+ishr.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "shr $r" << idest << " = $r" << rsc1 << ", " << op2 ;
+}
+
+// op ishru(stop[1]:rsv[1]:0b00[2]:0b1000100[7]:isrc2[9]:idest[6]:rsc1[6])
+ishru.execute = {
+        uint32_t op1 = cpu->GetGPR_C(rsc1);
+        uint8_t op2 = (uint8_t)cpu->Imm(isrc2);
+        cpu->SetGPR_N(idest, op1>>op2 );
+}
+
+ishru.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "shru $r" << idest << " = $r" << rsc1 << ", " << op2 ;
+}
+
+// op ish1add(stop[1]:rsv[1]:0b00[2]:0b1000101[7]:isrc2[9]:idest[6]:rsc1[6])
+ish1add.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPR_N(idest, (op1<<1)+op2 );
+}
+
+ish1add.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "sh1add $r" << idest << " = $r" << rsc1 << ", " << op2 ;
+}
+
+// op ish2add(stop[1]:rsv[1]:0b00[2]:0b1000110[7]:isrc2[9]:idest[6]:rsc1[6])
+ish2add.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPR_N(idest, (op1<<2)+op2 );
+}
+
+ish2add.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "sh2add $r" << idest << " = $r" << rsc1 << ", " << op2 ;
+}
+
+// op ish3add(stop[1]:rsv[1]:0b00[2]:0b1000111[7]:isrc2[9]:idest[6]:rsc1[6])
+ish3add.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPR_N(idest, (op1<<3)+op2 );
+}
+
+ish3add.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "sh3add $r" << idest << " = $r" << rsc1 << ", " << op2 ;
+}
+
+// op ish4add(stop[1]:rsv[1]:0b00[2]:0b1001000[7]:isrc2[9]:idest[6]:rsc1[6])
+ish4add.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPR_N(idest, (op1<<4)+op2 );
+}
+
+ish4add.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "sh4add $r" << idest << " = $r" << rsc1 << ", " << op2 ;
+}
+
+// op iand(stop[1]:rsv[1]:0b00[2]:0b1001001[7]:isrc2[9]:idest[6]:rsc1[6])
+iand.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPR_N(idest, op1 & op2);
+}
+
+iand.disasm = {
+	os << "and $r" << idest << " = $r" << rsc1 << ", " << isrc2 ;
+}
+
+// op iandc(stop[1]:rsv[1]:0b00[2]:0b1001010[7]:isrc2[9]:idest[6]:rsc1[6])
+iandc.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPR_N(idest, (~op1) & op2);
+}
+
+iandc.disasm = {
+	os << "andc $r" << idest << " = $r" << rsc1 << ", " << isrc2 ;
+}
+
+// op ior(stop[1]:rsv[1]:0b00[2]:0b1001011[7]:isrc2[9]:idest[6]:rsc1[6])
+ior.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPR_N(idest, op1 | op2);
+}
+
+ior.disasm = {
+	os << "or $r" << idest << " = $r" << rsc1 << ", " << isrc2 ;
+}
+
+// op iorc(stop[1]:rsv[1]:0b00[2]:0b1001100[7]:isrc2[9]:idest[6]:rsc1[6])
+iorc.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPR_N(idest, (~op1) | op2);
+}
+
+iorc.disasm = {
+	os << "orc $r" << idest << " = $r" << rsc1 << ", " << isrc2 ;
+}
+
+// op ixor(stop[1]:rsv[1]:0b00[2]:0b1001101[7]:isrc2[9]:idest[6]:rsc1[6])
+ixor.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPR_N(idest, op1 ^ op2);
+}
+
+ixor.disasm = {
+	os << "xor $r" << idest << " = $r" << rsc1 << ", " << isrc2 ;
+}
+
+ 
+// // multiply instruction: the destination register is "nlidest"
+// op imullhus  (stop[1]:rsv[1]:0b00[2]:0b1001111[7]:isrc2[9]:nlidest[6]:rsc1[6])
+imullhus.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        uint16_t op2 = (uint16_t)cpu->Imm(isrc2);
+        int64_t result = op1 * op2;
+        cpu->SetGPR_N(nlidest, result >> 32);
+}
+
+imullhus.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "mullhus $r" << nlidest << " = $r" << rsc1 << ", " << op2 ;
+}
+
+// op imax(stop[1]:rsv[1]:0b00[2]:0b1010000[7]:isrc2[9]:idest[6]:rsc1[6])
+imax.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        int32_t result = op1 > op2 ? op1 : op2;
+        cpu->SetGPR_N(idest, result);
+}
+
+imax.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "max $r" << idest << " = $r" << rsc1 << ", " << op2 ;
+}
+
+// op imaxu(stop[1]:rsv[1]:0b00[2]:0b1010001[7]:isrc2[9]:idest[6]:rsc1[6])
+imaxu.execute = {
+        uint32_t op1 = cpu->GetGPR_C(rsc1);
+        uint32_t op2 = cpu->Imm(isrc2);
+        int32_t result = op1 > op2 ? op1 : op2;
+        cpu->SetGPR_N(idest, result);
+}
+
+imaxu.disasm = {
+	os << "maxu $r" << idest << " = $r" << rsc1 << ", " << isrc2 ;
+}
+
+// op imin(stop[1]:rsv[1]:0b00[2]:0b1010010[7]:isrc2[9]:idest[6]:rsc1[6])
+imin.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm( isrc2);
+        int32_t result = op1 < op2 ? op1 : op2;
+        cpu->SetGPR_N(idest, result);
+}
+
+imin.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "min $r" << idest << " = $r" << rsc1 << ", " << op2 ;
+}
+
+// op iminu(stop[1]:rsv[1]:0b00[2]:0b1010011[7]:isrc2[9]:idest[6]:rsc1[6])
+iminu.execute = {
+        uint32_t op1 = cpu->GetGPR_C(rsc1);
+        uint32_t op2 = cpu->Imm(isrc2);
+        int32_t result = op1 < op2 ? op1 : op2;
+        cpu->SetGPR_N(idest, result);
+}
+
+iminu.disasm = {
+	os << "minu $r" << idest << " = $r" << rsc1 << ", " << isrc2 ;
+}
+ 
+// // imultiply instruction: the destination register is "nlidest"
+// op imulhhs(stop[1]:rsv[1]:0b00[2]:0b1010100[7]:isrc2[9]:nlidest[6]:rsc1[6])
+imulhhs.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPR_N(nlidest, (op1*(op2>>16)) >> 16);
+}
+
+imulhhs.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "mulhhs $r" << nlidest << " = $r" << rsc1 << ", " << op2 ;
+}
+
+// op imull(stop[1]:rsv[1]:0b00[2]:0b1010101[7]:isrc2[9]:nlidest[6]:rsc1[6])
+imull.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int16_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPR_N(nlidest, op1* op2 );
+}
+
+imull.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "mull $r" << nlidest << " = $r" << rsc1 << ", " << op2 ;
+}
+
+// op imullu(stop[1]:rsv[1]:0b00[2]:0b1010110[7]:isrc2[9]:nlidest[6]:rsc1[6])
+imullu.execute = {
+        uint32_t op1 = cpu->GetGPR_C(rsc1);
+        uint16_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPR_N(nlidest, op1* op2 );
+}
+
+imullu.disasm = {
+	os << "mullu $r" << nlidest << " = $r" << rsc1 << ", " << isrc2 ;
+}
+
+// op imulh(stop[1]:rsv[1]:0b00[2]:0b1010111[7]:isrc2[9]:nlidest[6]:rsc1[6])
+imulh.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPR_N(nlidest, op1* (op2>>16) );
+}
+
+imulh.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "mulh $r" << nlidest << " = $r" << rsc1 << ", " << op2 ;
+}
+
+// op imulhu(stop[1]:rsv[1]:0b00[2]:0b1011000[7]:isrc2[9]:nlidest[6]:rsc1[6])
+imulhu.execute = {
+        uint32_t op1 = cpu->GetGPR_C(rsc1);
+        uint16_t op2 = (cpu->Imm(isrc2))>>16;
+        cpu->SetGPR_N(nlidest, op1* op2 );
+}
+
+imulhu.disasm = {
+	os << "mulhu $r" << nlidest << " = $r" << rsc1 << ", " << isrc2 ;
+}
+
+// op imulll(stop[1]:rsv[1]:0b00[2]:0b1011001[7]:isrc2[9]:nlidest[6]:rsc1[6])
+imulll.execute = {
+        int16_t op1 = cpu->GetGPR_C(rsc1);
+        int16_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPR_N(nlidest, op1* op2 );
+}
+
+imulll.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "mulll $r" << nlidest << " = $r" << rsc1 << ", " << op2 ;
+}
+
+// op imulllu(stop[1]:rsv[1]:0b00[2]:0b1011010[7]:isrc2[9]:nlidest[6]:rsc1[6])
+imulllu.execute = {
+        uint16_t op1 = cpu->GetGPR_C(rsc1);
+        uint16_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPR_N(nlidest, op1* op2 );
+}
+
+imulllu.disasm = {
+	os << "mulllu $r" << nlidest << " = $r" << rsc1 << ", " << isrc2 ;
+}
+
+// op imullh(stop[1]:rsv[1]:0b00[2]:0b1011011[7]:isrc2[9]:nlidest[6]:rsc1[6])
+imullh.execute = {
+        int16_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPR_N(nlidest, op1* (op2>>16) );
+}
+
+imullh.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "mullh $r" << nlidest << " = $r" << rsc1 << ", " << op2 ;
+}
+
+// op imullhu(stop[1]:rsv[1]:0b00[2]:0b1011100[7]:isrc2[9]:nlidest[6]:rsc1[6])
+imullhu.execute = {
+        uint16_t op1 = cpu->GetGPR_C(rsc1);
+        uint16_t op2 = (uint16_t)(cpu->Imm(isrc2)>>16);
+        cpu->SetGPR_N(nlidest, op1* op2 );
+}
+
+imullhu.disasm = {
+	os << "mullhu $r" << nlidest << " = $r" << rsc1 << ", " << isrc2 ;
+}
+
+// op imulhh(stop[1]:rsv[1]:0b00[2]:0b1011101[7]:isrc2[9]:nlidest[6]:rsc1[6])
+imulhh.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPR_N(nlidest, (op1>>16) * (op2>>16) );
+}
+
+imulhh.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "mulhh $r" << nlidest << " = $r" << rsc1 << ", " << op2 ;
+}
+
+// op imulhhu(stop[1]:rsv[1]:0b00[2]:0b1011110[7]:isrc2[9]:nlidest[6]:rsc1[6])
+imulhhu.execute = {
+        uint16_t op1 = (uint16_t)cpu->GetGPR_C(rsc1)>>16;
+        uint16_t op2 = (uint16_t)cpu->Imm(isrc2)>>16;
+        cpu->SetGPR_N(nlidest, op1 * op2 );
+}
+
+imulhhu.disasm = {
+	os << "mulhhu $r" << nlidest << " = $r" << rsc1 << ", " << isrc2 ;
+}
+
+// op imulhs(stop[1]:rsv[1]:0b00[2]:0b1011111[7]:isrc2[9]:nlidest[6]:rsc1[6])
+imulhs.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        uint16_t op2 = ((int32_t)cpu->Imm(isrc2))>>16;
+        cpu->SetGPR_N(nlidest, (op1 * op2)<<16 );
+}
+
+imulhs.disasm = {
+	os << "mulhs $r" << nlidest << " = $r" << rsc1 << ", " << isrc2 ;
+}
+
+
+
+// op icmpeq(stop[1]:rsv[1]:0b00[2]:0b1100000[7]:isrc2[9]:idest[6]:rsc1[6])
+icmpeq.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPR_N(idest, (op1 == op2) );
+}
+
+icmpeq.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "cmpeq $r" << idest << " = $r" << rsc1 << ", " << op2 ;
+}
+
+// op icmpne(stop[1]:rsv[1]:0b00[2]:0b1100001[7]:isrc2[9]:idest[6]:rsc1[6])
+icmpne.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPR_N(idest, (op1 != op2) );
+}
+
+icmpne.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "cmpne $r" << idest << " = $r" << rsc1 << ", " << op2 ;
+}
+
+// op icmpge(stop[1]:rsv[1]:0b00[2]:0b1100010[7]:isrc2[9]:idest[6]:rsc1[6])
+icmpge.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPR_N(idest, (op1 >= op2) );
+}
+
+icmpge.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "cmpge $r" << idest << " = $r" << rsc1 << ", " << op2 ;
+}
+
+// op icmpgeu(stop[1]:rsv[1]:0b00[2]:0b1100011[7]:isrc2[9]:idest[6]:rsc1[6])
+icmpgeu.execute = {
+        uint32_t op1 = cpu->GetGPR_C(rsc1);
+        uint32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPR_N(idest, (op1 >= op2) );
+}
+
+icmpgeu.disasm = {
+	os << "cmpgeu $r" << idest << " = $r" << rsc1 << ", " << isrc2 ;
+}
+
+// op icmpgt(stop[1]:rsv[1]:0b00[2]:0b1100100[7]:isrc2[9]:idest[6]:rsc1[6])
+icmpgt.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPR_N(idest, (op1 > op2) );
+}
+
+icmpgt.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "cmpgt $r" << idest << " = $r" << rsc1 << ", " << op2 ;
+}
+
+// op icmpgtu(stop[1]:rsv[1]:0b00[2]:0b1100101[7]:isrc2[9]:idest[6]:rsc1[6])
+icmpgtu.execute = {
+        uint32_t op1 = cpu->GetGPR_C(rsc1);
+        uint32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPR_N(idest, (op1 > op2) );
+}
+
+icmpgtu.disasm = {
+	os << "cmpgtu $r" << idest << " = $r" << rsc1 << ", " << isrc2 ;
+}
+
+// op icmple(stop[1]:rsv[1]:0b00[2]:0b1100110[7]:isrc2[9]:idest[6]:rsc1[6])
+icmple.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPR_N(idest, (op1 <= op2) );
+}
+
+icmple.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "icmple $r" << idest << " = $r" << rsc1 << ", " << op2 ;
+}
+
+// op icmpleu(stop[1]:rsv[1]:0b00[2]:0b1100111[7]:isrc2[9]:idest[6]:rsc1[6])
+icmpleu.execute = {
+        uint32_t op1 = cpu->GetGPR_C(rsc1);
+        uint32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPR_N(idest, (op1 <= op2) );
+}
+
+icmpleu.disasm = {
+	os << "icmpgleu $r" << idest << " = $r" << rsc1 << ", " << isrc2 ;
+}
+
+// op icmplt(stop[1]:rsv[1]:0b00[2]:0b1101000[7]:isrc2[9]:idest[6]:rsc1[6])
+icmplt.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPR_N(idest, (op1 < op2) );
+}
+
+icmplt.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "icmple $r" << idest << " = $r" << rsc1 << ", " << op2 ;
+}
+
+// op icmpltu(stop[1]:rsv[1]:0b00[2]:0b1101001[7]:isrc2[9]:idest[6]:rsc1[6])
+icmpltu.execute = {
+        uint32_t op1 = cpu->GetGPR_C(rsc1);
+        uint32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPR_N(idest, (op1 < op2) );
+}
+
+icmpltu.disasm = {
+	os << "icmpgltu $r" << idest << " = $r" << rsc1 << ", " << isrc2 ;
+}
+
+// op iandl(stop[1]:rsv[1]:0b00[2]:0b1101010[7]:isrc2[9]:idest[6]:rsc1[6])
+iandl.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPR_N(idest, op1 && op2 );
+}
+
+iandl.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "andl $r" << idest << " = $r" << rsc1 << ", " << op2 ;
+}
+
+// op inandl(stop[1]:rsv[1]:0b00[2]:0b1101011[7]:isrc2[9]:idest[6]:rsc1[6])
+inandl.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPR_N(idest, ~(op1&&op2) );
+}
+
+inandl.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "nandl $r" << idest << " = $r" << rsc1 << ", " << op2 ;
+}
+
+// op iorl(stop[1]:rsv[1]:0b00[2]:0b1101100[7]:isrc2[9]:idest[6]:rsc1[6])
+iorl.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPR_N(idest, op1 || op2 );
+}
+
+iorl.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "orl $r" << idest << " = $r" << rsc1 << ", " << op2 ;
+}
+
+// op inorl(stop[1]:rsv[1]:0b00[2]:0b1101101[7]:isrc2[9]:idest[6]:rsc1[6])
+inorl.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPR_N(idest, ~(op1||op2) );
+}
+
+inorl.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "norl $r" << idest << " = $r" << rsc1 << ", " << op2 ;
+}
+ 
+// // inew multiply instructions for ST231 : the destination register is "nldest"
+// op imul32(stop[1]:rsv[1]:0b00[2]:0b1101110[7]:isrc2[9]:nlidest[6]:rsc1[6])
+imul32.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPR_N(nlidest, op1 * op2 );
+}
+
+imul32.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "mul32 $r" << nlidest << " = $r" << rsc1 << ", " << op2 ;
+}
+
+// op imul64h(stop[1]:rsv[1]:0b00[2]:0b1101111[7]:isrc2[9]:nlidest[6]:rsc1[6])
+imul64h.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        int64_t result = op1 * op2;
+        cpu->SetGPR_N(nlidest, result>>32 );
+}
+
+imul64h.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "mul64h $r" << nlidest << " = $r" << rsc1 << ", " << op2 ;
+}
+ 
+// // immediate format branch operations : destination register is "ibdest"
+// op ibcmpeq(stop[1]:rsv[1]:0b00[2]:0b1110000[7]:isrc2[9]:null[3]:ibdest[3]:rsc1[6])
+ibcmpeq.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPB_N(ibdest, (op1 == op2) );
+}
+
+ibcmpeq.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "cmpeq $b" << ibdest << " = $r" << rsc1 << ", " << op2 ;
+}
+
+// op ibcmpne(stop[1]:rsv[1]:0b00[2]:0b1110001[7]:isrc2[9]:null[3]:ibdest[3]:rsc1[6])
+ibcmpne.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPB_N(ibdest, (op1 != op2) );
+}
+
+ibcmpne.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "cmpne $b" << ibdest << " = $r" << rsc1 << ", " << op2 ;
+}
+
+// op ibcmpge(stop[1]:rsv[1]:0b00[2]:0b1110010[7]:isrc2[9]:null[3]:ibdest[3]:rsc1[6])
+ibcmpge.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPB_N(ibdest, (op1 >= op2) );
+}
+
+ibcmpge.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "cmpge $b" << ibdest << " = $r" << rsc1 << ", " << op2 ;
+}
+
+// op ibcmpgeu(stop[1]:rsv[1]:0b00[2]:0b1110011[7]:isrc2[9]:null[3]:ibdest[3]:rsc1[6])
+ibcmpgeu.execute = {
+        uint32_t op1 = cpu->GetGPR_C(rsc1);
+        uint32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPB_N(ibdest, (op1 >= op2) );
+}
+
+ibcmpgeu.disasm = {
+	os << "cmpgeu $b" << ibdest << " = $r" << rsc1 << ", " << isrc2 ;
+}
+
+// op ibcmpgt(stop[1]:rsv[1]:0b00[2]:0b1110100[7]:isrc2[9]:null[3]:ibdest[3]:rsc1[6])
+ibcmpgt.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPB_N(ibdest, op1 > op2 );
+}
+
+ibcmpgt.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "cmpgt $b" << ibdest << " = $r" << rsc1 << ", " << op2 ;
+}
+
+// op ibcmpgtu(stop[1]:rsv[1]:0b00[2]:0b1110101[7]:isrc2[9]:null[3]:ibdest[3]:rsc1[6])
+ibcmpgtu.execute = {
+        uint32_t op1 = cpu->GetGPR_C(rsc1);
+        uint32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPB_N(ibdest, op1 > op2 );
+}
+
+ibcmpgtu.disasm = {
+	os << "cmpgtu $b" << ibdest << " = $r" << rsc1 << ", " << isrc2 ;
+}
+
+// op ibcmple(stop[1]:rsv[1]:0b00[2]:0b1110110[7]:isrc2[9]:null[3]:ibdest[3]:rsc1[6])
+ibcmple.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPB_N(ibdest, (op1 <= op2) );
+}
+
+ibcmple.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "ibcmple $b" << ibdest << " = $r" << rsc1 << ", " << op2 ;
+}
+
+// op ibcmpleu(stop[1]:rsv[1]:0b00[2]:0b1110111[7]:isrc2[9]:null[3]:ibdest[3]:rsc1[6])
+ibcmpleu.execute = {
+        uint32_t op1 = cpu->GetGPR_C(rsc1);
+        uint32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPB_N(ibdest, (op1 <= op2) );
+}
+
+ibcmpleu.disasm = {
+	os << "ibcmpleu $b" << ibdest << " = $r" << rsc1 << ", " << isrc2 ;
+}
+
+// op ibcmplt(stop[1]:rsv[1]:0b00[2]:0b1111000[7]:isrc2[9]:null[3]:ibdest[3]:rsc1[6])
+ibcmplt.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPB_N(ibdest, op1 < op2 );
+}
+
+ibcmplt.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "cmplt $b" << ibdest << " = $r" << rsc1 << ", " << op2 ;
+}
+
+// op ibcmpltu(stop[1]:rsv[1]:0b00[2]:0b1111001[7]:isrc2[9]:null[3]:ibdest[3]:rsc1[6])
+ibcmpltu.execute = {
+        uint32_t op1 = cpu->GetGPR_C(rsc1);
+        uint32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPB_N(ibdest, op1 < op2 );
+}
+
+ibcmpltu.disasm = {
+	os << "cmpltu $b" << ibdest << " = $r" << rsc1 << ", " << isrc2 ;
+}
+
+// op ibandl(stop[1]:rsv[1]:0b00[2]:0b1111010[7]:isrc2[9]:null[3]:ibdest[3]:rsc1[6])
+ibandl.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPB_N(ibdest, op1 && op2 );
+}
+
+ibandl.disasm = {
+//        int32_t op2 = SignEx9to32(isrc2);
+	os << "andl $b" << ibdest << " = $r" << rsc1 << ", " << isrc2 ;
+}
+
+// op ibnandl(stop[1]:rsv[1]:0b00[2]:0b1111011[7]:isrc2[9]:null[3]:ibdest[3]:rsc1[6])
+ibnandl.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPB_N(ibdest, ~(op1 && op2) );
+}
+
+ibnandl.disasm = {
+//        int32_t op2 = SignEx9to32(isrc2);
+	os << "nandl $b" << ibdest << " = $r" << rsc1 << ", " << isrc2 ;
+}
+
+// op iborl(stop[1]:rsv[1]:0b00[2]:0b1111100[7]:isrc2[9]:null[3]:ibdest[3]:rsc1[6])
+iborl.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPB_N(ibdest, op1 || op2 );
+}
+
+iborl.disasm = {
+//        int32_t op2 = SignEx9to32(isrc2);
+	os << "orl $b" << ibdest << " = $r" << rsc1 << ", " << isrc2 ;
+}
+
+// op ibnorl(stop[1]:rsv[1]:0b00[2]:0b1111101[7]:isrc2[9]:null[3]:ibdest[3]:rsc1[6])
+ibnorl.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        cpu->SetGPB_N(ibdest, ~(op1||op2) );
+}
+
+ibnorl.disasm = {
+//        int32_t op2 = SignEx9to32(isrc2);
+	os << "norl $b" << ibdest << " = $r" << rsc1 << ", " << isrc2 ;
+}
+ 
+// // inew multiply instructions for ST231 : the destination register is "nldest"
+// op imul64hu(stop[1]:rsv[1]:0b00[2]:0b1111110[7]:isrc2[9]:nlidest[6]:rsc1[6])
+imul64hu.execute = {
+        uint32_t op1 = cpu->GetGPR_C(rsc1);
+        uint32_t op2 = cpu->Imm(isrc2);
+        uint64_t result = op1* op2;
+        cpu->SetGPR_N(nlidest, result >> 32 );
+}
+
+imul64hu.disasm = {
+	os << "mul64hu $r" << nlidest << " = $r" << rsc1 << ", " << isrc2 ;
+}
+
+// op imulfrac(stop[1]:rsv[1]:0b00[2]:0b1111111[7]:isrc2[9]:nlidest[6]:rsc1[6])
+imulfrac.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        int32_t result;
+
+        if((-op1 == 0x80000000) && (-op2 == 0x80000000))
+        {   cpu->SetGPR_N(nlidest, 0x7fffffff );
+        }
+
+        else
+        {   result = op1 * op2;
+            result = op1 + (1 << 30);
+            result = result >> 31;
+            cpu->SetGPR_N(nlidest, result );
+        }
+}
+
+imulfrac.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "imulfrac $r" << nlidest << " = $r" << rsc1 << ", " << op2 ;
+}
+
+//************************************************************************
+// the monadic format operations
+//************************************************************************
+// // monadic operations : there is 5 monadic operations 
+// op sxtb(stop[1]:rsv[1]:0b00[2]:0b1001110[7]:0b000000000[9]:idest[6]:rsc1[6])
+sxtb.execute = {
+        uint32_t op1 = cpu->GetGPR_C(rsc1);
+        if (op1 & (1<<7))
+          op1 |= 0xffffff00;
+        else
+          op1 &= 0x000000ff;
+
+        cpu->SetGPR_N(idest, op1 );
+}
+
+sxtb.disasm = {
+	os << "sxtb $r" << idest << " = $r" << rsc1 ;
+}
+
+// op sxth(stop[1]:rsv[1]:0b00[2]:0b1001110[7]:0b000000001[9]:idest[6]:rsc1[6])
+sxth.execute = {
+        uint32_t op1 = cpu->GetGPR_C(rsc1);
+        if (op1 & (1<<15))
+          op1 |= 0xffff0000;
+        else
+          op1 &= 0x0000ffff;
+
+        cpu->SetGPR_N(idest, op1 );
+}
+
+sxth.disasm = {
+	os << "sxth $r" << idest << " = $r" << rsc1 ;
+}
+
+// op bswap(stop[1]:rsv[1]:0b00[2]:0b1001110[7]:0b000000010[9]:idest[6]:rsc1[6])
+bswap.execute = {
+        uint32_t op1 = cpu->GetGPR_C(rsc1);
+        uint32_t op2 = ((op1&0x000000ff) <<24 ) | ((op1&0x0000ff00) <<8 ) | ((op1&0x00ff0000) >>8 ) | ((op1&0xff000000) >>24 );
+        cpu->SetGPR_N(idest, op2 );
+}
+
+bswap.disasm = {
+	os << "bswap $r" << idest << " = $r" << rsc1 ;
+}
+
+// op zxth(stop[1]:rsv[1]:0b00[2]:0b1001110[7]:0b000000011[9]:idest[6]:rsc1[6])
+zxth.execute = {
+        uint32_t op1 = cpu->GetGPR_C(rsc1) & 0x0000ffff;
+        cpu->SetGPR_N(idest, op1 );
+}
+
+zxth.disasm = {
+	os << "zxth $r" << idest << " = $r" << rsc1 ;
+}
+
+// op clz(stop[1]:rsv[1]:0b00[2]:0b1001110[7]:0b000000100[9]:idest[6]:rsc1[6])
+clz.execute = {
+	int32_t i;
+	uint32_t op1 = cpu->GetGPR_C(rsc1);
+
+	for(i=31;i>=0;i--) {
+	  if(op1&(1<<i)) break;
+	}
+
+        cpu->SetGPR_N(idest, 31-i );
+}
+
+clz.disasm = {
+	os << "clz $r" << idest << " = $r" << rsc1 ;
+}
+

@@ -1,0 +1,30 @@
+
+# -*- python -*-
+
+__id__ = "$Id: vci_snooper.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+Module('caba:vci_snooper',
+	classname = 'soclib::caba::VciSnooper',
+	tmpl_parameters = [
+	parameter.Module('vci_param',  default = 'caba:vci_param'),
+	],
+	header_files = ['../include/caba/vci/vci_snooper.h',],
+	implementation_files = ['../src/caba/vci/vci_snooper.cpp',],
+	ports = [
+	    Port('caba:vci_initiator', 'p_to_target'),
+	    Port('caba:vci_target', 'p_to_initiator'),
+		Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+		Port('caba:clock_in', 'p_clk', auto = 'clock'),
+	],
+	instance_parameters = [
+	],
+	uses = [
+		Uses('caba:base_module'),
+        Uses('caba:vci_buffers'),
+        Uses('caba:generic_fifo'),
+		],
+	   extensions = [
+	],
+#	   debug = True,
+)

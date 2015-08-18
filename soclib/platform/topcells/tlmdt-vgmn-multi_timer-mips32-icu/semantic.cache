@@ -1,0 +1,20 @@
+;; Object tlmdt-vgmn-multi_timer-mips32_icu/
+;; SEMANTICDB Tags save file
+(semanticdb-project-database-file "tlmdt-vgmn-multi_timer-mips32_icu/"
+  :tables (list 
+   (semanticdb-table "Makefile"
+    :major-mode 'makefile-gmake-mode
+    :tags '(("ARCH" variable (:default-value ("mips32el")) nil [1 15]) ("SIMULATION_ARGS" variable (:default-value ("100000")) nil [15 38]) ("$(SOCLIB)/soclib/platform/topcells/all.mk" include nil nil [89 139]))
+    :file "Makefile"
+    :pointmax 139
+    )
+   (semanticdb-table "segmentation.h"
+    :major-mode 'c-mode
+    :tags 'nil
+    :file "segmentation.h"
+    )
+   )
+  :file "semantic.cache"
+  :semantic-tag-version "2.0beta3"
+  :semanticdb-version "2.0beta3"
+  )

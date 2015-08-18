@@ -1,0 +1,25 @@
+
+# -*- python -*-
+
+__id__ = "$Id: segment.sd 2470 2013-11-12 14:48:34Z meunier $"
+__version__ = "$Revision: 2470 $"
+
+Module('common:segment',
+	classname = 'soclib::common::Segment',
+	header_files = ['../include/segment.h',],
+	uses = [
+		Uses('common:exception'),
+		Uses('common:int_tab'),
+		],
+	implementation_files = ['../src/segment.cpp',],
+	   instance_parameters = [
+	parameter.Int('address'),
+	parameter.Int('size'),
+	parameter.IntTab('ident'),
+	parameter.Bool('cacheable'),
+	parameter.Bool('initiator', default = False),
+		],
+	   extensions = [
+	'dsx:configurator=segment',
+	]
+)

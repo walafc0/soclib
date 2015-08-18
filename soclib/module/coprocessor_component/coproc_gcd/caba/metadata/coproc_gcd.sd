@@ -1,0 +1,23 @@
+
+# -*- python -*-
+
+Module('caba:coproc_gcd',
+
+	   classname = 'soclib::caba::CoprocGcd',
+
+	   header_files =         [ "../source/include/coproc_gcd.h" ],
+	   implementation_files = [ "../source/src/coproc_gcd.cpp" ],
+
+	   ports = [
+	       Port('caba:clock_in', 'p_clk', auto = 'clock' ),
+	       Port('caba:bit_in', 'p_resetn', auto = 'resetn' ),
+           Port('caba:to_coproc_input', 'p_opa', word_t = 'uint32_t', cmd_t = 'uint8_t' ),
+           Port('caba:to_coproc_input', 'p_opb', word_t = 'uint32_t', cmd_t = 'uint8_t' ),
+           Port('caba:from_coproc_output', 'p_res', word_t = 'uint32_t', cmd_t = 'uint8_t' ),
+           Port('caba:word_in', 'p_config', word_t = 'uint32_t' ),
+           ],
+
+	   uses = [
+   	       Uses('caba:base_module'),
+		   ],
+)

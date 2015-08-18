@@ -1,0 +1,5 @@
+# -*- python -*-
+Module('tlmdt:dynamic_buffer',
+	classname = 'tlmdt::DynamicBuffer',
+	header_files = ['../source/include/dynamicBuffer.h',],
+)

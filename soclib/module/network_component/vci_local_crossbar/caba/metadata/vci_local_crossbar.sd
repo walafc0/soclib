@@ -1,0 +1,49 @@
+
+# -*- python -*-
+
+__id__ = "$Id: vci_local_crossbar.sd 2582 2015-01-19 09:09:29Z meunier $"
+__version__ = "$Revision: 2582 $"
+
+Module('caba:vci_local_crossbar',
+	classname = 'soclib::caba::VciLocalCrossbar',
+	tmpl_parameters = [
+	    parameter.Module('vci_param',  default = 'caba:vci_param'),
+	],
+	header_files = [
+        '../source/include/vci_local_crossbar.h',
+    ],
+	implementation_files = [
+        '../source/src/vci_local_crossbar.cpp',
+    ],
+	ports = [
+	    Port('caba:vci_initiator', 'p_to_target', parameter.Reference('nb_attached_target')),
+	    Port('caba:vci_target', 'p_to_initiator', parameter.Reference('nb_attached_initiator')),
+	    Port('caba:vci_initiator', 'p_initiator_to_up'),
+	    Port('caba:vci_target', 'p_target_to_up'),
+		Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+		Port('caba:clock_in', 'p_clk', auto = 'clock'),
+	],
+	instance_parameters = [
+        parameter.Module('mt', typename = 'common:mapping_table'),
+        parameter.Int('cluster_id'),
+        parameter.Int('nb_attached_initiators'),
+        parameter.Int('nb_attached_targets'),
+        parameter.Int('default_target_id'),
+	],
+	uses = [
+		Uses('caba:base_module'),
+		Uses('common:mapping_table'),
+		Uses('caba:vci_buffers'),
+        Uses('common:address_decoding_table', input_t = 'uint64_t', output_t = 'size_t'),
+        Uses('common:address_decoding_table', input_t = 'uint64_t', output_t = 'bool'),
+        Uses('common:address_decoding_table', input_t = 'uint32_t', output_t = 'size_t'),
+        Uses('common:address_decoding_table', input_t = 'uint32_t', output_t = 'bool'),
+	],
+    extensions = [
+        'dsx:interconnect',
+	    'dsx:mapping_type=interconnect',
+        'dsx:get_ident=srcid:p_initiator_to_up:mt,tgtid:p_target_to_up:mt',
+	    'dsx:obtain_ident_method=port',
+        'dsx:interconnect_port_assoc=p_to_initiator:p_initiator_to_up,p_to_target:p_target_to_up'
+	],
+)

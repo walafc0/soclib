@@ -1,0 +1,299 @@
+SHELL					= /bin/bash
+
+ECHO					= echo
+MKDIR					= mkdir -p
+TEST					= test
+DATE					= date +%Y%m%d-%H%M%S
+CP					= cp
+LS					= ls
+RM					= rm -fr
+PWD					= `pwd`
+MAKE					= make -s
+BASENAME				= basename
+DIRNAME					= dirname
+GREP					= grep
+SED					= sed
+TR					= tr
+# Commands to generate all documents
+FIG2EPS					= fig2dev -L eps
+LATEX					= latex
+PDFLATEX				= pdflatex
+BIBTEX					= bibtex
+MAKEINDEX				= makeindex
+DVIPS					= dvips -Ppdf
+PS2PDF					= ps2pdf
+GNUPLOT					= gnuplot
+DOT					= dot
+
+# Commands to view the document
+VIEWDVI					= evince
+#VIEWPS					= gv -watch
+VIEWPS					= evince
+VIEWPDF					= evince
+VIEWPDF_FS				= evince -s
+
+#--------------------------------------------------------------------------------
+#-----[ Variable ]---------------------------------------------------------------
+#--------------------------------------------------------------------------------
+
+#--------------------------------------------------------------------------------
+#-----[ Directory ]--------------------------------------------------------------
+#--------------------------------------------------------------------------------
+
+# DIR_DOCUMENTATION must be set previously
+
+DIR_TOPLEVEL		= $(DIR_DOCUMENTATION)
+
+DIR_DOC   	        = .
+DIR_TEX   	        = ./tex
+DIR_SCHEMA              = ./fig
+DIR_GRAPH               = ./dot
+DIR_SCHEMA_EPS          = ./tmp
+
+ENV_LATEX		= export TEXINPUTS=$(DIR_SCHEMA_EPS):$$TEXINPUTS
+LATEX_WITH_ENV		= $(ENV_LATEX); $(LATEX)
+PDFLATEX_WITH_ENV	= $(ENV_LATEX); $(PDFLATEX)
+
+#--------------------------------------------------------------------------------
+#-----[ Files ]------------------------------------------------------------------
+#--------------------------------------------------------------------------------
+
+TEX_FILES               = $(wildcard $(DIR_DOC)/*.tex.sed)
+DVI_FILES               = $(patsubst $(DIR_DOC)/%.tex.sed,%.dvi,$(TEX_FILES))
+PS_FILES                = $(patsubst $(DIR_DOC)/%.tex.sed,%.ps ,$(TEX_FILES))
+PDF_FILES               = $(patsubst $(DIR_DOC)/%.tex.sed,%.pdf,$(TEX_FILES))
+EPS_FILES               = $(patsubst $(DIR_GRAPH)/%.dot,$(DIR_SCHEMA_EPS)/%.eps,$(wildcard $(DIR_GRAPH)/*.dot))       \
+                          $(patsubst $(DIR_GRAPH)/%.p,$(DIR_SCHEMA_EPS)/%.eps,$(wildcard $(DIR_GRAPH)/*.p))       \
+                          $(patsubst $(DIR_SCHEMA)/%.fig,$(DIR_SCHEMA_EPS)/%.eps,$(wildcard $(DIR_SCHEMA)/*.fig))     \
+			  $(patsubst $(DIR_SCHEMA)/%.eps,$(DIR_SCHEMA_EPS)/%.eps,$(wildcard $(DIR_SCHEMA)/*.eps))
+
+#--------------------------------------------------------------------------------
+#-----[ Rules ]------------------------------------------------------------------
+#--------------------------------------------------------------------------------
+
+#--------------------------------------------------------------------------------
+# The reset of this file shall not be editted
+#--------------------------------------------------------------------------------
+
+vpath	%.tex.sed	$(DIR_TEX)
+vpath	%.tex		$(DIR_TEX)
+vpath	%.dot		$(DIR_GRAPH)
+vpath	%.p		$(DIR_GRAPH)
+vpath	%.fig		$(DIR_SCHEMA)
+vpath	%.eps		$(DIR_SCHEMA)
+
+.PHONY 			: all view clean help
+.SECONDARY 		: $(DVI_FILES) $(PS_FILES) $(PDF_FILES) $(EPS_FILES) $(DIR_SCHEMA_EPS)
+
+all_documentation	: $(DIR_SCHEMA_EPS)
+			@\
+			$(MAKE) eps_files;
+
+eps_files		: $(EPS_FILES)
+			@\
+			$(MAKE) pdf_files;
+
+pdf_files		: $(PDF_FILES)
+
+#--------------------------------------------------------------------------------
+# Generation of the formatted text:
+# regular flow tex -> dvi -> ps -> pdf.
+#--------------------------------------------------------------------------------
+
+%.pdf  			: %.ps
+			@\
+			$(ECHO) "Generate   files     : $@";	\
+			$(PS2PDF) $< $@;
+
+%.ps 			: %.dvi
+			@\
+			$(ECHO) "Generate   files     : $@";         \
+			$(DVIPS) -o $@ $<;
+
+%.dvi 			: %.tex $(DIR_TEX)/*
+			@\
+			$(ECHO) "Generate   files     : $@";	\
+			$(LATEX_WITH_ENV) $<;				\
+			if $(TEST) $$? -eq 0; then			\
+				$(LATEX_WITH_ENV) $< > /dev/null;	\
+				citation=`$(GREP) "citation" $*.aux`; 	\
+	                	if $(TEST) -n "$$citation" ; then  	\
+					$(BIBTEX) $* ; 			\
+				fi;					\
+				$(LATEX_WITH_ENV) $< > /dev/null;	\
+				$(LATEX_WITH_ENV) $< > /dev/null;	\
+			fi;
+
+%.tex                   : %.tex.sed
+			@\
+			$(ECHO) "Generate   files     : $@";			\
+			path="";						\
+			cd $(DIR_TOPLEVEL);					\
+			path_toplevel=$${PWD};					\
+			cd -;							\
+			for i in `$(ECHO) "$${path_toplevel}" |$(TR) \/ ' '`; do	\
+				path="$${path}\\/$${i}";			\
+			done;							\
+			$(SED) s/@TOPLEVEL/$${path}/ $< > $@;
+                        
+
+#--------------------------------------------------------------------------------
+# The figures directory
+#--------------------------------------------------------------------------------
+
+$(DIR_SCHEMA_EPS)	:
+			@\
+			$(ECHO) "Make directory       : $@";		\
+			$(MKDIR) $@;
+
+$(DIR_SCHEMA_EPS)/%.eps	: %.eps
+			@\
+			$(ECHO) "Generate   files     : $@";	\
+			$(CP) $< $(DIR_SCHEMA_EPS);
+
+$(DIR_SCHEMA_EPS)/%.eps	: %.fig
+			@\
+			$(ECHO) "Generate   files     : $@";	\
+			$(FIG2EPS) $< $@;
+
+$(DIR_SCHEMA_EPS)/%.eps	: %.dot
+			@\
+			$(ECHO) "Generate   files     : $@";	\
+			$(DOT) -Tfig -o $(DIR_SCHEMA_EPS)/${*}.fig $<;	\
+			$(FIG2EPS) $(DIR_SCHEMA_EPS)/${*}.fig $@;	\
+			$(RM) $(DIR_SCHEMA_EPS)/${*}.fig;
+
+$(DIR_SCHEMA_EPS)/%.eps	: %.p
+			@\
+			$(ECHO) "Generate   files     : $@";	\
+			cd $$($(DIRNAME) $<); $(GNUPLOT) $$($(BASENAME) $<);
+			
+#--------------------------------------------------------------------------------
+# View
+#--------------------------------------------------------------------------------
+
+view    		: all
+			@\
+			declare    SELECT_FILE;							\
+			declare    SELECT_FORMAT;						\
+			declare    SELECT_VIEWER;						\
+												\
+												\
+			$(ECHO) "";								\
+			$(ECHO) "Choose a document  : (0 by default)";				\
+												\
+			declare -i CPT;								\
+			declare -i NUM_FILE;							\
+			declare -a FILES;							\
+												\
+			CPT=0;									\
+			for files in $(PDF_FILES); do						\
+				files=`$(BASENAME) $$files .pdf`;				\
+				$(ECHO) "$$CPT) $$files";  					\
+				FILES[$$CPT]=$$files;						\
+				CPT=$$(($$CPT+1));						\
+			done;									\
+												\
+			if $(TEST) "$$CPT" -eq "0"; then					\
+			   	$(ECHO) "None document found";					\
+				exit;								\
+			fi;									\
+												\
+			read NUM_FILE;								\
+												\
+			if $(TEST) "$$NUM_FILE" -ge "$$CPT"; then                               \
+				NUM_FILE=0;                                  		        \
+			fi;									\
+												\
+			SELECT_FILE=$${FILES[$$NUM_FILE]};					\
+												\
+												\
+			$(ECHO) "Document selected  : $$SELECT_FILE";                           \
+			$(ECHO) "";                                 		                \
+			$(ECHO) "Choose a format    : (0 by default)";	                        \
+												\
+			declare -i NUM_FORMAT;							\
+			declare -a FORMAT;      						\
+			declare -a VIEWER;      						\
+												\
+			PRINT=( "pdf"        "pdf (fullscreen)" "ps"        "dvi");	        \
+			FORMAT=("pdf"        "pdf"              "ps"        "dvi");	        \
+			VIEWER=("$(VIEWPDF)" "$(VIEWPDF_FS)"    "$(VIEWPS)" "$(VIEWDVI)");      \
+												\
+			CPT=0;						                        \
+			while [ $$CPT -lt $${#FORMAT[*]} ]; do		                        \
+			    $(ECHO) "$$CPT) $${PRINT[$$CPT]}";		                	\
+			    CPT=$$(($$CPT+1));				                        \
+			done;						                        \
+			read NUM_FORMAT;			    	                        \
+												\
+			if $(TEST) "$$NUM_FORMAT" -ge "$$CPT"; then                             \
+				NUM_FORMAT=0;	 			                        \
+			fi;						                        \
+												\
+			SELECT_FORMAT=$${FORMAT[$$NUM_FORMAT]};					\
+			SELECT_VIEWER=$${VIEWER[$$NUM_FORMAT]};					\
+			$(ECHO) "Format selected    : $$SELECT_FORMAT";                         \
+			$(ECHO) "";                                 		                \
+												\
+			$$SELECT_VIEWER "$$SELECT_FILE.$$SELECT_FORMAT" &                	\
+												\
+			$(ECHO) "";
+
+#--------------------------------------------------------------------------------
+# Cleaning
+#--------------------------------------------------------------------------------
+
+clean			: local_clean
+			@\
+			$(ECHO) "Delete     temporary files              "$(PWD); \
+			$(RM) $(DIR_SCHEMA_EPS); \
+			$(RM) $(DVI_FILES) $(PS_FILES) $(PDF_FILES); \
+			$(MAKE) clean_rec DIR_CLEAN=.;
+
+clean_all               : clean
+
+#Clean recursive
+clean_rec		:
+			@\
+			$(ECHO) "Delete     temporary files in directory $(DIR_CLEAN)"; \
+			$(RM)	$(DIR_CLEAN)/*~ 		\
+				$(DIR_CLEAN)/*.bak  		\
+				$(DIR_CLEAN)/*.aux  		\
+				$(DIR_CLEAN)/*.bbl  		\
+				$(DIR_CLEAN)/*.blg  		\
+				$(DIR_CLEAN)/*.bmt  		\
+				$(DIR_CLEAN)/*.log  		\
+				$(DIR_CLEAN)/*.lof  		\
+				$(DIR_CLEAN)/*.lot  		\
+				$(DIR_CLEAN)/*.mtc* 		\
+				$(DIR_CLEAN)/*.toc  		\
+				$(DIR_CLEAN)/*.idx  		\
+				$(DIR_CLEAN)/*.ilg  		\
+				$(DIR_CLEAN)/*.ind  		\
+				$(DIR_CLEAN)/*.out  		\
+				$(DIR_CLEAN)/*.nav  		\
+				$(DIR_CLEAN)/*.maf  		\
+				$(DIR_CLEAN)/*.snm  		\
+				$(DIR_CLEAN)/missfont.log;	\
+			for files in `$(LS) $(DIR_CLEAN)`; do                              	\
+				if $(TEST) -d $(DIR_CLEAN)/$$files;                         	\
+				then                                                        	\
+					$(MAKE) clean_rec DIR_CLEAN=$(DIR_CLEAN)/$$files;   	\
+				fi;                                                         	\
+			done;
+
+#--------------------------------------------------------------------------------
+# Help
+#--------------------------------------------------------------------------------
+
+help			:
+			@\
+			$(ECHO) " -----[ Documentation ]------------------------------";\
+			$(ECHO) "";							\
+			$(ECHO) " * all_documentation    : Generate all documents";	\
+			$(ECHO) " * clean                : Erase all generated files";	\
+			$(ECHO) " * clean_all            : cf clean";	                \
+			$(ECHO) " * help                 : Print this message";		\
+			$(ECHO) " * view                 : View local documents";	\
+			$(ECHO) "";

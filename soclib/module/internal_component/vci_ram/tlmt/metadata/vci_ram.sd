@@ -1,0 +1,58 @@
+# -*- mode: python; coding: utf-8 -*-
+#
+# SOCLIB_LGPL_HEADER_BEGIN
+# 
+# This file is part of SoCLib, GNU LGPLv2.1.
+# 
+# SoCLib is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published
+# by the Free Software Foundation; version 2.1 of the License.
+# 
+# SoCLib is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+# 
+# You should have received a copy of the GNU Lesser General Public
+# License along with SoCLib; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301 USA
+# 
+# SOCLIB_LGPL_HEADER_END
+#
+# Maintainers: fpecheux, nipo
+#
+# Copyright (c) UPMC / Lip6, 2008
+#     François Pêcheux <fancois.pecheux@lip6.fr>
+#     Nicolas Pouillon <nipo@ssji.net>
+
+__id__ = "$Id: vci_ram.sd 1698 2010-04-14 03:29:34Z nipo $"
+__version__ = "$Revision: 1698 $"
+
+Module('tlmt:vci_ram',
+	classname = 'soclib::tlmt::VciRam',
+	   tmpl_parameters = [
+	parameter.Module('vci_param',  default = 'tlmt:vci_param')
+	],
+	header_files = ['../source/include/vci_ram.h',],
+	implementation_files = ['../source/src/vci_ram.cpp',],
+			  ports = [
+	Port('tlmt:vci_target', 'p_vci'),
+	],
+	uses = [
+		Uses('tlmt:base_module'),
+		Uses('common:loader'),
+		Uses('common:linked_access_buffer', id_t = 'uint32_t'),
+		Uses('common:mapping_table'),
+		],
+	instance_parameters = [
+	parameter.IntTab('ident'),
+	parameter.Module('mt', 'common:mapping_table'),
+	parameter.Module('loader', 'common:loader', auto='env:loader'),
+	],
+       extensions = [
+    'dsx:addressable=ident',
+	'dsx:get_ident=ident:p_vci:mt',
+	'dsx:mapping_type=memory',
+   ],
+)

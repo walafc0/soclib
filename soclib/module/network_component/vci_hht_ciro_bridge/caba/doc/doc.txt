@@ -1,0 +1,16 @@
+VciHhtCiroBridge is one half of a VCI-Hypertransport bridge.
+It translates the transactions coming from HHT and aiming at VCI devices.
+From the point of view of a VCI platform, the Ciro bridge (Command In, Response Out) translates the incoming commands and the outgoing responses. Hence, it is a VCI initiator and an HHT target.
+
+Handled HHT transactions:
+0-4 byte Read
+1-16 words Read
+0-32 byte Write (posted or non-posted)
+1-16 words Write (posted non-posted)
+64bit Fetch & Add
+64bit Compare & Swap
+Flush (not translated into VCI request)
+
+Both byte and word Writes can be posted or non-posted.
+
+Ordering rules:

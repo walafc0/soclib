@@ -1,0 +1,36 @@
+\typeout{Fichier de style `common.sty'.}
+
+\usepackage{graphicx}
+\usepackage{\dirsty/lang_deps}
+
+\def\ExtensionFigure{eps}
+
+%% % file, Dimension, légende
+\newcommand{\printgraph}[3]
+ 	   {\begin{figure}[htbp]
+ 	       \centering
+ 	       \includegraphics#2{\dirschema/#1.\ExtensionFigure}
+ 	       \caption{#3}
+	       \label{#1}
+ 	     \end{figure}
+ 	   }
+
+%% % file, Dimension, légende
+\newcommand{\printgraphOneColumn}[3]
+ 	   {\begin{figure*}[htbp]
+ 	       \centering
+ 	       \includegraphics#2{\dirschema/#1.\ExtensionFigure}
+ 	       \caption{#3}
+	       \label{#1}
+ 	     \end{figure*}
+ 	   }
+
+%% % file, Dimension
+\newcommand{\printgraphOnly}[2]
+ 	   {\begin{figure}[htbp]
+ 	       \centering
+ 	       \includegraphics#2{\dirschema/#1.\ExtensionFigure}
+% 	       \caption{#3}
+	       \label{#1}
+ 	     \end{figure}
+ 	   }

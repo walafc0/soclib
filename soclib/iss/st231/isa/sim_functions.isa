@@ -1,0 +1,87 @@
+/* *****************************************************************************
+                                    BSD LICENSE
+********************************************************************************
+Copyright (c) 2006, INRIA
+Authors: Zheng LI (zheng.x.li@inria.fr)
+
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+ - Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+ - Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+ - Neither the name of the INRIA nor the names of its contributors may be
+   used to endorse or promote products derived from this software without
+   specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED.
+IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+***************************************************************************** */
+
+{
+typedef uint32_t function_t;
+
+#define FnInvalid              0x00000000
+#define FnNop                  0x00000001
+#define FnIntBasic             0x00000002
+#define FnIntExtended          0x00000004
+
+#define FnBranch               0x10000000
+#define FnConditionalBranch    0x10000001
+#define FnBranchLinkReg        0x10000002
+#define FnCondRegister         0x10000004
+#define FnBranchLink           0x10000008
+
+#define FnSysCall              0x20000000
+#define FnSysRegister          0x20000001
+#define FnMac                  0x20000002
+
+#define FnLoad                 0x40000000
+#define FnLoadByte             0x40000001
+#define FnStore                0x40000002
+#define FnStoreByte            0x40000004
+
+}
+
+/** Functions **/
+var function : {function_t}
+constructor action initialize_function() {
+  function = FnInvalid;
+}
+
+group_reg_simple_compute.initialize_function =	{ function = FnIntBasic; }
+group_imm_simple_compute.initialize_function =  { function = FnIntBasic; }
+group_reg_cond_compute.initialize_function   =  { function = FnIntBasic; }
+group_imm_cond_compute.initialize_function   =  { function = FnIntBasic; }
+group_monadic_compute.initialize_function    =  { function = FnIntBasic; }
+group_reg_select_compute.initialize_function =  { function = FnIntBasic; }
+group_imm_select_compute.initialize_function =  { function = FnIntBasic; }
+group_5oprands_compute.initialize_function   =  { function = FnIntBasic; }
+group_mono_reg_compute.initialize_function   =  { function = FnIntBasic; }
+group_psw_compute.initialize_function        =  { function = FnIntBasic; }
+group_no_dependencies_compute.initialize_function   =  { function = FnIntBasic; }
+
+group_reg_mul_compute.initialize_function =   { function = FnIntExtended; }
+group_imm_mul_compute.initialize_function =   { function = FnIntExtended; }
+
+group_load_word.initialize_function  =  { function = FnLoad; }
+group_load_bytes.initialize_function =  { function = FnLoad; }
+group_store.initialize_function      =  { function = FnStore; }
+
+group_branch.initialize_function          = { function = FnBranch; }
+group_pc_imm_jump.initialize_function     = { function = FnBranch; }
+group_pc_link_jump.initialize_function    = { function = FnBranchLink; }

@@ -1,0 +1,25 @@
+
+# -*- python -*-
+
+Module('caba:vci_fdt_rom',
+	classname = 'soclib::caba::VciFdtRom',
+	   tmpl_parameters = [
+	parameter.Module('vci_param',  default = 'caba:vci_param'),
+	],
+	header_files = ['../source/include/vci_fdt_rom.h',],
+	implementation_files = ['../source/src/vci_fdt_rom.cpp',],
+			  ports = [
+	Port('caba:vci_target', 'p_vci'),
+	Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+	Port('caba:clock_in', 'p_clk', auto = 'clock'),
+	],
+	uses = [
+		Uses('caba:base_module'),
+		Uses('caba:vci_target_fsm', default_target = 'true', support_llsc = 'true'),
+		],
+	instance_parameters = [
+	parameter.IntTab('ident'),
+	parameter.Module('mt', 'common:mapping_table'),
+	],
+       debug = False,
+)

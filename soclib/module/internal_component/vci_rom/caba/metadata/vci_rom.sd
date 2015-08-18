@@ -1,0 +1,36 @@
+
+# -*- python -*-
+
+__id__ = "$Id: vci_rom.sd 1698 2010-04-14 03:29:34Z nipo $"
+__version__ = "$Revision: 1698 $"
+
+Module('caba:vci_rom',
+	classname = 'soclib::caba::VciRom',
+	   tmpl_parameters = [
+	parameter.Module('vci_param',  default = 'caba:vci_param'),
+	],
+	header_files = ['../source/include/vci_rom.h',],
+	implementation_files = ['../source/src/vci_rom.cpp',],
+			  ports = [
+	Port('caba:vci_target', 'p_vci'),
+	Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+	Port('caba:clock_in', 'p_clk', auto = 'clock'),
+	],
+	uses = [
+		Uses('caba:base_module'),
+		Uses('caba:vci_target_fsm', default_target = 'true', support_llsc = 'true'),
+		Uses('common:loader'),
+		Uses('common:mapping_table'),
+		],
+	instance_parameters = [
+	parameter.IntTab('ident'),
+	parameter.Module('mt', 'common:mapping_table'),
+	parameter.Module('loader', 'common:loader', auto='env:loader'),
+	],
+       extensions = [
+    'dsx:addressable=ident',
+	'dsx:get_ident=ident:p_vci:mt',
+	'dsx:mapping_type=memory',
+   ],
+       debug = False,
+)

@@ -1,0 +1,35 @@
+
+# -*- python -*-
+
+__id__ = "$Id: vci_mwmr_stats.sd 1996 2010-11-22 15:48:32Z nipo $"
+__version__ = "$Revision: 1996 $"
+
+Module('caba:vci_mwmr_stats',
+	classname = 'soclib::caba::VciMwmrStats',
+	   tmpl_parameters = [
+	parameter.Module('vci_param',  default = 'caba:vci_param'),
+	],
+	header_files = ['../source/include/vci_mwmr_stats.h',],
+	implementation_files = ['../source/src/vci_mwmr_stats.cpp',],
+			  ports = [
+	Port('caba:vci_monitor', 'p_vci'),
+	Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+	Port('caba:clock_in', 'p_clk', auto = 'clock'),
+	],
+	uses = [
+		Uses('caba:base_module'),
+		Uses('common:mapping_table'),
+		Uses('common:loader'),
+		Uses('caba:vci_mwmr_controller'),
+		Uses('caba:vci_logger'),
+		],
+	instance_parameters = [
+	parameter.Module('mt', 'common:mapping_table'),
+	parameter.Module('loader', 'common:loader'),
+	parameter.String('log_name'),
+	parameter.StringArray('mwmr_name'),
+	],
+	   extensions = [
+    
+   ],
+)

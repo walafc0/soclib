@@ -1,0 +1,32 @@
+# -*- python -*-
+
+__id__ = "$Id: dspin.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+Signal('caba:dspin',
+	accepts = {'caba:dspin_output':1,
+		   'caba:dspin_input':1},
+	classname = 'soclib::caba::DspinSignals',
+	header_files = ['../source/include/dspin_interface.h'],
+	   tmpl_parameters = [
+	    parameter.Int('dspin_data_size'),
+	],
+      )
+
+PortDecl('caba:dspin_output',
+	classname = 'soclib::caba::DspinOutput',
+	signal = 'caba:dspin',
+	header_files = ['../source/include/dspin_interface.h'],
+	   tmpl_parameters = [
+	    parameter.Int('dspin_data_size'),
+	],
+	)
+
+PortDecl('caba:dspin_input',
+	classname = 'soclib::caba::DspinInput',
+	signal = 'caba:dspin',
+	header_files = ['../source/include/dspin_interface.h'],
+	   tmpl_parameters = [
+	    parameter.Int('dspin_data_size'),
+	],
+	)

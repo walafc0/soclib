@@ -1,0 +1,72 @@
+
+# -*- python -*-
+
+#########################  COPROC signals  #####################
+Signal('caba:coproc_signals',
+
+	   accepts = {'caba:to_coproc_output':1,
+				  'caba:to_coproc_input':1,
+				  'caba:from_coproc_output':1,
+				  'caba:from_coproc_input':1},
+
+	   tmpl_parameters = [ parameter.Type('data_t', default = 'uint32_t'),
+                           parameter.Type('cmd_t', default = 'uint8_t') ],
+
+	   classname = 'soclib::caba::CoprocSignals',
+
+	   header_files = ['../source/include/coproc_signals.h'],
+	   )
+
+######################### TO_COPROC ports  #####################
+PortDecl('caba:to_coproc_output',
+
+       classname = 'soclib::caba::ToCoprocOutput',
+
+	   tmpl_parameters = [ parameter.Type('data_t', default = 'uint32_t'),  
+                           parameter.Type('cmd_t', default = 'uint8_t') ],
+
+       signal = 'caba:coproc_signals',
+
+       header_files = ['../source/include/coproc_ports.h'],
+	   )
+
+PortDecl('caba:to_coproc_input',
+
+       classname = 'soclib::caba::ToCoprocInput',
+ 
+	   tmpl_parameters = [ parameter.Type('data_t', default = 'uint32_t'),  
+                           parameter.Type('cmd_t', default = 'uint8_t') ],
+
+       signal = 'caba:coproc_signals',
+
+       header_files = ['../source/include/coproc_ports.h'],
+	   )
+
+
+######################### FROM_COPROC ports ####################
+PortDecl('caba:from_coproc_output',
+
+       classname = 'soclib::caba::FromCoprocOutput',
+
+	   tmpl_parameters = [ parameter.Type('data_t', default = 'uint32_t'),  
+                           parameter.Type('cmd_t', default = 'uint8_t') ],
+
+       signal = 'caba:coproc_signals',
+
+       header_files = ['../source/include/coproc_ports.h'],
+	   )
+
+PortDecl('caba:from_coproc_input',
+
+       classname = 'soclib::caba::FromCoprocInput',
+ 
+	   tmpl_parameters = [ parameter.Type('data_t', default = 'uint32_t'),  
+                           parameter.Type('cmd_t', default = 'uint8_t') ],
+
+       signal = 'caba:coproc_signals',
+
+       header_files = ['../source/include/coproc_ports.h'],
+	   )
+
+
+

@@ -1,0 +1,50 @@
+
+# -*- python -*-
+
+
+Module('caba:vci_multi_tty',
+    classname = 'soclib::caba::VciMultiTty',
+
+    tmpl_parameters = [
+	    parameter.Module('vci_param',  default = 'caba:vci_param'),
+	],
+	   
+    header_files = [
+        '../source/include/vci_multi_tty.h',
+    ],
+    
+    interface_files = [
+        '../../include/soclib/tty.h'
+    ],
+
+    implementation_files = [
+        '../source/src/vci_multi_tty.cpp',
+    ],
+
+    ports = [
+	    Port('caba:vci_target', 'p_vci'),
+	    Port('caba:bit_in',     'p_resetn', auto = 'resetn'),
+	    Port('caba:bit_out',    'p_irq', parameter.Reference('names', 'len')),
+	    Port('caba:clock_in',   'p_clk', auto = 'clock'),
+	],
+
+    uses = [
+	    Uses('caba:base_module'),
+	    Uses('common:process_wrapper'),
+	    Uses('common:tty_wrapper') ,
+	    Uses('caba:vci_target_fsm', default_target = 'true', support_llsc = 'false'),
+	],
+
+	instance_parameters = [
+		parameter.IntTab('ident'),
+        parameter.Module('mt', typename = 'common:mapping_table'),
+        parameter.StringArray('names'),
+	],
+ 
+    extensions = [
+        'dsx:addressable=ident',
+        'dsx:get_ident=ident:p_vci:mt',
+        'dsx:max_segments=1',
+        'dsx:device=tty',
+   ],
+)

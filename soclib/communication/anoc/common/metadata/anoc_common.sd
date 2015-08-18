@@ -1,0 +1,24 @@
+# -*- python -*-
+
+__id__ = "$Id: anoc_common.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+Module('common:anoc_common',
+	classname = 'soclib::common::anoc_common',
+	header_files = [
+	'../source/include/res_path.h',
+	'../source/include/tlm_tac2.h',
+	'../source/include/anoc_common.h',
+	'../source/include/anoc_transaction.h',
+	'../source/include/types.h',
+	'../source/include/anoc_stopper.h',
+	],
+	implementation_files = [
+	'../source/src/res_path.cpp',
+	'../source/src/tlm_tac2.cpp',
+	'../source/src/anoc_common.cpp',
+	'../source/src/anoc_transaction.cpp',
+	'../source/src/anoc_stopper.cpp',
+	],
+)
+

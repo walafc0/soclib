@@ -1,0 +1,22 @@
+
+# -*- python -*-
+
+__id__ = "$Id: iss_boot_redirect.sd 1978 2010-10-21 10:30:29Z gut $"
+__version__ = "$Revision: 1978 $"
+
+Module('common:iss_boot_redirect',
+	classname = 'soclib::common::IssBootRedirect',
+	header_files = ["../source/include/iss_boot_redirect.h",],
+	implementation_files = [
+		"../source/src/iss_boot_redirect.cpp",
+		],
+	   tmpl_parameters = [
+	parameter.Module('boot_redirect_iss_t'),
+	],
+	   uses = [
+	Uses('common:iss2'),
+	],
+	   extensions = [
+	'dsx:cpu=wrapper:boot_redirect_iss_t',
+   ],
+)

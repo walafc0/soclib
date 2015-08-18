@@ -1,0 +1,38 @@
+# -*- python -*-
+
+Module('caba:dspin_local_crossbar',
+	classname = 'soclib::caba::DspinLocalCrossbar',
+
+	tmpl_parameters = [ parameter.Int('flit_width'), ],
+
+	header_files = ['../source/include/dspin_local_crossbar.h',],
+	implementation_files = ['../source/src/dspin_local_crossbar.cpp',],
+	ports = [
+		Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+		Port('caba:clock_in', 'p_clk', auto = 'clock'),
+		Port('caba:dspin_output', 'p_out', 5, 
+              dspin_data_size = parameter.Reference('flit_width')), 
+		Port('caba:dspin_input', 'p_in', 5, 
+              dspin_data_size = parameter.Reference('flit_width')),
+	],
+	instance_parameters = [
+                parameter.Module('mt', typename = 'common:mapping_table'),
+                parameter.Int('x'),
+                parameter.Int('y'),
+                parameter.Int('x_width'),
+                parameter.Int('y_width'),
+                parameter.Int('l_width'),
+                parameter.Int('nb_local_inputs'),
+                parameter.Int('nb_local_outputs'),
+                parameter.Int('in_fifo_depth'),
+                parameter.Int('out_fifo_depth'),
+                parameter.Bool('use_routing_table'),
+                parameter.Bool('broadcast_supported'),
+
+	],
+	uses = [
+		Uses('caba:base_module'),
+        Uses('common:mapping_table'),
+		Uses('caba:generic_fifo',),
+	],
+)

@@ -1,0 +1,10 @@
+# -*- python -*-
+
+__id__ = "$Id$"
+__version__ = "$Revision$"
+
+Module('caba:ring_signals_fast',
+	#classname = 'soclib::caba::RingSignalsFast',
+	header_files = ['../source/include/ring_signals_fast.h',],
+
+)

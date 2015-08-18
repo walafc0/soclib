@@ -1,0 +1,49 @@
+
+SECTIONS
+{
+   . = 0x80000000;
+   .excep : {
+		*(.excep)
+		*(.excep.*)
+   }
+
+   . = 0xbfc00000;
+   .reset : {
+		*(.reset)
+		*(.reset.*)
+   }
+
+   . = 0x80020000;
+   .text : {
+      *(.text)
+   }
+   . = ALIGN(4);
+   .rodata : {
+      *(.rodata)
+      *(.rodata.*)
+      . = ALIGN(4);
+   }
+   .data  : {
+      *(.data)
+   }
+   .sdata : {
+      *(.lit8)
+      *(.lit4)
+      *(.sdata)
+   }
+   _gp = .;
+   . = ALIGN(4);
+   _edata = .;
+   .sbss  : {
+      *(.sbss)
+      *(.scommon)
+   }
+   .bss   : {
+      *(.bss)
+      *(COMMON)
+   }
+   . = ALIGN(4);
+   _end = .;
+   _heap = .;
+   _stack = 0x10100000-16;
+}

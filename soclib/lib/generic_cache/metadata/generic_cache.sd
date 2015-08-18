@@ -1,0 +1,16 @@
+
+# -*- python -*-
+
+__id__ = "$Id: generic_cache.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+Module('caba:generic_cache',
+	classname = 'soclib::GenericCache',
+	header_files = ['../include/generic_cache.h',],
+	   tmpl_parameters = [
+	parameter.Type('addr_t'),
+	],
+	uses = [Uses('common:mapping_table'),
+			Uses('common:address_masking_table',
+				 data_t = parameter.Reference('addr_t')),],
+)

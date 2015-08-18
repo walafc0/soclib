@@ -1,0 +1,25 @@
+
+Purpose
+-------
+
+This platform is the illustration of the MutekH tutorial for SoCLib
+users, accessible at
+https://www.mutekh.org/trac/mutekh/wiki/QuickStartSoclib
+
+Intended audience
+-----------------
+
+This tutorial targets SoCLib users interested in integration of
+standart kernel running a custom application on a custom platform.
+
+Platform description
+--------------------
+
+This platform uses:
+
+ * 4 ARM-v6k processors with their caches,
+ * a Rom,
+ * a Ram,
+ * an Xicu (interrupt controler unit concentrating Hardware
+   interrupts, software interrupts and timers),
+ * a DMA.

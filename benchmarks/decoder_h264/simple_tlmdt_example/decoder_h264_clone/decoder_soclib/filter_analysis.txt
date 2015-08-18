@@ -1,0 +1,19 @@
+Analyse pour la mise en IP du deblocking filter
+-----------------------------------------------
+
+Xilinx hhas developped an IPCore of the H264 deblocking filtrer. It might be possible to use this core instead of creating a core with our sources. However, it is necessary to register to the website in order to download the core: is it free or not? This has to be discussed with our xilinx sales representative.
+
+
+
+Paramètres d'entrée:
+--------------------
+- Slice Header
+- Sequence parameter set
+- Picture parameter set
+- Mode prediction information
+
+
+Functions:
+----------
+
+filter_vertical_L

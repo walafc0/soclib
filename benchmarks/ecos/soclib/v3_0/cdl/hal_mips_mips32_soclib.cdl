@@ -1,0 +1,189 @@
+# ====================================================================
+#
+#      hal_mips_mips32_soclib.cdl
+#
+#      SOCLIB board HAL package configuration data
+#
+# ====================================================================
+#####ECOSGPLCOPYRIGHTBEGIN####                                            
+# -------------------------------------------                              
+# This file is part of eCos, the Embedded Configurable Operating System.   
+# Copyright (C) 1998, 1999, 2000, 2001, 2002 Free Software Foundation, Inc.
+#
+# eCos is free software; you can redistribute it and/or modify it under    
+# the terms of the GNU General Public License as published by the Free     
+# Software Foundation; either version 2 or (at your option) any later      
+# version.                                                                 
+#
+# eCos is distributed in the hope that it will be useful, but WITHOUT      
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License    
+# for more details.                                                        
+#
+# You should have received a copy of the GNU General Public License        
+# along with eCos; if not, write to the Free Software Foundation, Inc.,    
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.            
+#
+# As a special exception, if other files instantiate templates or use      
+# macros or inline functions from this file, or you compile this file      
+# and link it with other works to produce a work based on this file,       
+# this file does not by itself cause the resulting work to be covered by   
+# the GNU General Public License. However the source code for this file    
+# must still be made available in accordance with section (3) of the GNU   
+# General Public License v2.                                               
+#
+# This exception does not invalidate any other reasons why a work based    
+# on this file might be covered by the GNU General Public License.         
+## -------------------------------------------                              
+######ECOSGPLCOPYRIGHTEND####                                              
+# ====================================================================
+######DESCRIPTIONBEGIN####
+#
+# Author(s):      Alexandre Becoulet
+# Original data:  jskov bartv
+# Contributors:
+# Date:           2010-17-02
+#
+#####DESCRIPTIONEND####
+#
+# ====================================================================
+
+cdl_package CYGPKG_HAL_MIPS_MIPS32_SOCLIB {
+    display  "SOCLIB mips simulator"
+    parent        CYGPKG_HAL_MIPS
+    requires      { (CYGHWR_HAL_MIPS_MIPS32_CORE == "4Kc" && CYGPKG_HAL_MIPS_MIPS32) }
+    define_header hal_mips_mips32_soclib.h
+    include_dir   cyg/hal
+    description   "
+           The SOCLIB mips HAL package should be used when targetting the
+           SoCLib hardware simulator."
+
+    compile       platform.S plf_misc.c hal_diag.c
+
+    cdl_option CYGBLD_HAL_TARGET_H {
+        display       "Variant header"
+        flavor        data
+	no_define
+	calculated { "<pkgconf/hal_mips_mips32.h>" }
+	define -file system.h CYGBLD_HAL_TARGET_H
+        description   "Variant header."
+
+        define_proc {
+            puts $::cdl_system_header "#define CYGBLD_HAL_PLATFORM_H <pkgconf/hal_mips_mips32_soclib.h>"
+            puts $::cdl_system_header ""
+            puts $::cdl_system_header "/* Make sure we get the CORE type definitions for HAL_PLATFORM_CPU */"
+            puts $::cdl_system_header "#include CYGBLD_HAL_TARGET_H"
+	    puts $::cdl_system_header "#define HAL_PLATFORM_BOARD    \"SoCLib\""
+	    puts $::cdl_system_header "#define HAL_PLATFORM_EXTRA    \"\""
+	    puts $::cdl_system_header "#define HAL_PLATFORM_CPU    \"MIPS32 4Kc\""
+	    puts $::cdl_system_header ""
+        }
+    }
+
+    cdl_component CYG_HAL_STARTUP {
+        display       "Startup type"
+        flavor        data
+        legal_values  {"RAM" "ROM"}
+        default_value {"ROM"}
+	no_define
+	define -file system.h CYG_HAL_STARTUP
+        description   "
+           When targetting the SOCLIB board it is possible to build
+           the system for either RAM bootstrap, ROM bootstrap, or STUB
+           bootstrap. RAM bootstrap generally requires that the board
+           is equipped with ROMs containing a suitable ROM monitor or
+           equivalent software that allows GDB to download the eCos
+           application on to the board. The ROM bootstrap typically
+           requires that the eCos application be blown into EPROMs or
+           equivalent technology."
+    }
+
+    # Real-time clock/counter specifics
+    cdl_component CYGNUM_HAL_RTC_CONSTANTS {
+        display       "Real-time clock constants."
+        flavor        none
+    
+        cdl_option CYGNUM_HAL_RTC_NUMERATOR {
+            display       "Real-time clock numerator"
+            flavor        data
+            default_value 1000000000
+        }
+        cdl_option CYGNUM_HAL_RTC_DENOMINATOR {
+            display       "Real-time clock denominator"
+            flavor        data
+            default_value 100
+        }
+        # Isn't a nice way to handle freq requirement!
+        cdl_option CYGNUM_HAL_RTC_PERIOD {
+            display       "Real-time clock period"
+            flavor        data
+            default_value { 40000000 / CYGNUM_HAL_RTC_DENOMINATOR }
+            description   "
+                The count and compare registers of the Xicu are used
+                to drive the eCos kernel RTC. The count register
+                increments at the system clock speed."
+        }
+    }
+
+    cdl_component CYGHWR_MEMORY_LAYOUT {
+        display "Memory layout"
+        flavor data
+        no_define
+        calculated { CYG_HAL_STARTUP == "RAM" ? "mips_soclib_ram" : \
+                                                "mips_soclib_rom" }
+
+        cdl_option CYGHWR_MEMORY_LAYOUT_LDI {
+            display "Memory layout linker script fragment"
+            flavor data
+            no_define
+            define -file system.h CYGHWR_MEMORY_LAYOUT_LDI
+            calculated { CYG_HAL_STARTUP == "RAM" ? "<pkgconf/mlt_mips_mips32_soclib_ram.ldi>" : \
+                                                    "<pkgconf/mlt_mips_mips32_soclib_rom.ldi>" }
+        }
+
+        cdl_option CYGHWR_MEMORY_LAYOUT_H {
+            display "Memory layout header file"
+            flavor data
+            no_define
+            define -file system.h CYGHWR_MEMORY_LAYOUT_H
+            calculated { CYG_HAL_STARTUP == "RAM" ? "<pkgconf/mlt_mips_mips32_soclib_ram.h>" : \
+                                                    "<pkgconf/mlt_mips_mips32_soclib_rom.h>" }
+        }
+    }
+
+    cdl_option CYGSEM_HAL_USE_ROM_MONITOR {
+        display       "Work with a ROM monitor"
+        flavor        booldata
+        legal_values  { "Generic" "CygMon" "GDB_stubs" }
+        default_value { CYG_HAL_STARTUP == "RAM" ? "CygMon" : 0 }
+        parent        CYGPKG_HAL_ROM_MONITOR
+        requires      { CYG_HAL_STARTUP == "RAM" }
+        description   "
+            Support can be enabled for three different varieties of ROM monitor.
+            This support changes various eCos semantics such as the encoding
+            of diagnostic output, or the overriding of hardware interrupt
+            vectors.
+            Firstly there is \"Generic\" support which prevents the HAL
+            from overriding the hardware vectors that it does not use, to
+            instead allow an installed ROM monitor to handle them. This is
+            the most basic support which is likely to be common to most
+            implementations of ROM monitor.
+            \"CygMon\" provides support for the Cygnus ROM Monitor.
+            And finally, \"GDB_stubs\" provides support when GDB stubs are
+            included in the ROM monitor or boot ROM."
+    }
+
+    cdl_option CYGSEM_HAL_ROM_MONITOR {
+        display       "Behave as a ROM monitor"
+        flavor        bool
+        default_value 0
+        parent        CYGPKG_HAL_ROM_MONITOR
+        requires      { CYG_HAL_STARTUP == "ROM" }
+        description   "
+            Enable this option if this program is to be used as a ROM monitor,
+            i.e. applications will be loaded into RAM on the board, and this
+            ROM monitor may process exceptions or interrupts generated from the
+            application. This enables features such as utilizing a separate
+            interrupt stack when exceptions are generated."
+    }
+}

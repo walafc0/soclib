@@ -1,0 +1,15 @@
+
+# -*- python -*-
+
+__id__ = "$Id: linked_access_buffer.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+Module('common:linked_access_buffer',
+	classname = 'soclib::common::LinkedAccessBuffer',
+	header_files = ['../include/linked_access_buffer.h',],
+	implementation_files = ['../src/linked_access_buffer.cpp',],
+	tmpl_parameters = [
+	parameter.Type('addr_t'),
+	parameter.Type('id_t'),
+	],
+)

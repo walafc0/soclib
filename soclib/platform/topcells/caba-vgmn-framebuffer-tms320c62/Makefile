@@ -1,0 +1,3 @@
+ARCH=tms320c62
+SIMULATION_ARGS=1000000
+include ../all.mk

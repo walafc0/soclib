@@ -1,0 +1,487 @@
+/* -*- c++ -*-
+
+   Copy on write wrapper for the std::map container
+
+   This file is part of the dpp library of C++ template classes
+
+   doc: http://diaxen.ssji.net/dpp/index.html
+   repo: https://www.ssji.net/svn/projets/trunk/libdpp
+
+   This program is free software: you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public License
+   as published by the Free Software Foundation, either version 3 of
+   the License, or (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with this program.  If not, see
+   <http://www.gnu.org/licenses/>.
+
+   (c) 2013 Alexandre Becoulet <alexandre.becoulet@free.fr>
+
+*/
+
+#ifndef DPP_COW_MAP_HH_
+#define DPP_COW_MAP_HH_
+
+#include <map>
+
+/** @file @module{Cow containers} */
+
+namespace dpp {
+
+#if __GNUC__ >= 4
+# define _DPP_COW_MAP_REF_ADD(x, n) __sync_add_and_fetch(&(x), (n))
+# define _DPP_COW_MAP_REF_GET(x) __sync_add_and_fetch(&(x), 0)
+# define _DPP_COW_MAP_REF_DELETE(o) destroy(o)
+#else
+# warning No GNU C atomic operations available, dpp::cow_map is not thread-safe
+# define _DPP_COW_MAP_REF_ADD(x, n) ((x) += (n))
+# define _DPP_COW_MAP_REF_GET(x) (x)
+# define _DPP_COW_MAP_REF_DELETE(o) std::abort()
+#endif
+
+  /**
+     @short Copy on write wrapper for std::map
+     @header dpp/cow_map
+
+     This class is a wrapper for the @ref std::map container with copy
+     on write behavior. Copies of @ref cow_map objects contain a
+     shared pointer to the actual container until it is modified by
+     calling a non-const member function.
+   */
+  template <typename K, typename V, typename Cmp = std::less<K>,
+	    typename Allocator = std::allocator<std::pair<const K, V> > >
+  class cow_map
+  {
+  public:
+    typedef std::map<K, V, Cmp, Allocator> map_type;
+
+    typedef typename map_type::iterator iterator;
+    typedef typename map_type::const_iterator const_iterator;
+    typedef typename map_type::reverse_iterator reverse_iterator;
+    typedef typename map_type::const_reverse_iterator const_reverse_iterator;
+
+    typedef typename map_type::size_type size_type;
+    typedef typename map_type::difference_type difference_type;
+
+    typedef typename map_type::pointer pointer;
+    typedef typename map_type::const_pointer const_pointer;
+    typedef typename map_type::reference reference;
+    typedef typename map_type::const_reference const_reference;
+
+    typedef typename map_type::key_type key_type;
+    typedef typename map_type::mapped_type mapped_type;
+    typedef typename map_type::value_type value_type;
+    typedef typename map_type::key_compare key_compare;
+    typedef typename map_type::value_compare value_compare;
+    typedef typename map_type::allocator_type allocator_type;
+
+  private:
+
+    struct ref_map : public map_type
+    {
+      mutable int _refs;
+
+      ref_map() {}
+
+      template <typename arg1>
+      ref_map(const arg1 &a1)
+	: map_type(a1) {}
+
+      template <typename arg1, typename arg2>
+      ref_map(const arg1 &a1, const arg2 &a2)
+	: map_type(a1, a2) {}
+
+      template <typename arg1, typename arg2,
+		typename arg3, typename arg4>
+      ref_map(const arg1 &a1, const arg2 &a2,
+	      const arg1 &a3, const arg2 &a4)
+	: map_type(a1, a2, a3, a4) {}
+    };
+
+    typedef typename Allocator::template rebind<ref_map>::other ref_map_allocator;
+
+    struct ref_map_ptr : public ref_map_allocator
+    {
+      ref_map_ptr()
+      {
+      }
+
+      ref_map_ptr(Allocator a)
+	: ref_map_allocator(a)
+      {
+      }
+
+      const ref_map *_map;
+    };
+
+    ref_map_ptr _ptr;
+
+    ref_map * cow()
+    {
+      if (_DPP_COW_MAP_REF_GET(_ptr._map->_refs) > 1)
+	{
+	  ref_map *m = _ptr.allocate(1);
+	  try {
+	    new (m) ref_map(*_ptr._map);
+	  } catch (...) {
+	    _ptr.deallocate(m, 1);
+	    throw;
+	  }
+	  m->_refs = 1;
+	  if (_DPP_COW_MAP_REF_ADD(_ptr._map->_refs, -1) == 0)
+	    _DPP_COW_MAP_REF_DELETE(const_cast<ref_map*>(_ptr._map));
+	  _ptr._map = m;
+	}
+      return const_cast<ref_map*>(_ptr._map);
+    }
+
+    void destroy(ref_map *m)
+    {
+      m->~ref_map();
+      _ptr.deallocate(m, 1);      
+    }
+
+    void drop()
+    {
+      if (_DPP_COW_MAP_REF_ADD(_ptr._map->_refs, -1) == 0)
+	destroy(const_cast<ref_map*>(_ptr._map));
+    }
+
+  public:
+
+    cow_map()
+    {
+      ref_map *m = _ptr.allocate(1);
+      try {
+	new (m) ref_map();
+      } catch (...) {
+	_ptr.deallocate(m, 1);
+	throw;
+      }
+      _ptr._map = m;
+      _ptr._map->_refs = 1;
+    }
+
+    explicit cow_map(const Cmp &cmp, const Allocator &a)
+      : _ptr(a)
+    {
+      ref_map *m = _ptr.allocate(1);
+      try {
+	new (m) ref_map(cmp, a);
+      } catch (...) {
+	_ptr.deallocate(m, 1);
+	throw;
+      }
+      _ptr._map = m;
+      _ptr._map->_refs = 1;
+    }
+
+    cow_map(const cow_map &m)
+    {
+      _ptr._map = m._ptr._map;
+      _DPP_COW_MAP_REF_ADD(_ptr._map->_refs, 1);
+    }
+
+#if __cplusplus >= 201103
+    cow_map(cow_map &&m)
+    {
+      _ptr._map = m._ptr._map;
+      m._ptr._map = 0;
+    }
+#endif
+
+    template <typename iter>
+    cow_map(const iter &first, const iter &last)
+    {
+      ref_map *m = _ptr.allocate(1);
+      try {
+	new (m) ref_map(first, last);
+      } catch (...) {
+	_ptr.deallocate(m, 1);
+	throw;
+      }
+      _ptr._map = m;
+      _ptr._map->_refs = 1;
+    }
+
+    template <typename iter>
+    cow_map(const iter &first, const iter &last,
+	    const Cmp &cmp, const Allocator &a)
+      : _ptr(a)
+    {
+      ref_map *m = _ptr.allocate(1);
+      try {
+	new (m) ref_map(first, last, cmp, a);
+      } catch (...) {
+	_ptr.deallocate(m, 1);
+	throw;
+      }
+      _ptr._map = m;
+      _ptr._map->_refs = 1;
+    }
+
+    ~cow_map()
+    {
+#if __cplusplus >= 201103
+      if (_ptr._map)
+#endif
+	drop();
+    }
+
+    cow_map & operator=(const cow_map &m)
+    {
+      drop();
+      _ptr._map = m._ptr._map;
+      _DPP_COW_MAP_REF_ADD(_ptr._map->_refs, 1);      
+      return *this;
+    }
+
+#if __cplusplus >= 201103
+    cow_map & operator=(cow_map &&m)
+    {
+      drop();
+      _ptr._map = m._ptr._map;
+      m._ptr._map = 0;
+      return *this;
+    }
+#endif
+
+    allocator_type get_allocator() const
+    {
+      return _ptr._map->get_allocator();
+    }
+
+    iterator begin()
+    {
+      return cow()->begin();
+    }
+
+    const_iterator begin() const
+    {
+      return _ptr._map->begin();
+    }
+
+    const_iterator cbegin() const
+    {
+      return _ptr._map->begin();
+    }
+
+    reverse_iterator rbegin()
+    {
+      return cow()->rbegin();
+    }
+
+    const_reverse_iterator rbegin() const
+    {
+      return _ptr._map->rbegin();
+    }
+
+    const_reverse_iterator crbegin() const
+    {
+      return _ptr._map->rbegin();
+    }
+
+    iterator end()
+    {
+      return cow()->end();
+    }
+
+    const_iterator end() const
+    {
+      return _ptr._map->end();
+    }
+
+    const_iterator cend() const
+    {
+      return _ptr._map->end();
+    }
+
+    reverse_iterator rend()
+    {
+      return cow()->rend();
+    }
+
+    const_reverse_iterator rend() const
+    {
+      return _ptr._map->rend();
+    }
+
+    const_reverse_iterator crend() const
+    {
+      return _ptr._map->rend();
+    }
+
+    bool empty() const
+    {
+      return _ptr._map->empty();
+    }
+
+    size_type size() const
+    {
+      return _ptr._map->size();
+    }
+
+    size_type max_size() const
+    {
+      return _ptr._map->max_size();
+    }
+
+    mapped_type & operator[](const key_type &k)
+    {
+      return (*cow())[k];
+    }
+
+#if __cplusplus >= 201103
+    mapped_type & operator[](key_type &&k)
+    {
+      return (*cow())[k];
+    }
+#endif
+
+    mapped_type & at(const key_type &k)
+    {
+      return cow()->at(k);
+    }
+
+    const mapped_type & at(const key_type &k) const
+    {
+      return _ptr._map->at(k);
+    }
+
+    std::pair<iterator, bool> insert(const value_type &x)
+    {
+      return cow()->insert(x);
+    }
+
+    iterator insert(iterator pos, const value_type &x)
+    {
+      return cow()->insert(pos, x);
+    }
+
+    template<typename iter>
+    void insert(iter first, iter last)
+    {
+      return cow()->insert(first, last);
+    }
+
+    void erase(iterator pos)
+    {
+      cow()->erase(pos);
+    }
+
+    void erase(iterator first, iterator last)
+    {
+      cow()->erase(first, last);
+    }
+
+    size_type erase(const key_type &k)
+    {
+      return cow()->erase(k);
+    }
+
+    void swap(cow_map &m)
+    {
+      const ref_map *t = _ptr._map;
+      _ptr._map = m._ptr._map;
+      m._ptr._map = t;
+    }
+
+    void clear()
+    {
+      cow()->clear();
+    }
+
+    key_compare key_comp() const
+    {
+      return _ptr._map->key_comp();
+    }
+
+    value_compare value_comp() const
+    {
+      return _ptr._map->value_comp();
+    }
+
+    iterator find(const key_type &k)
+    {
+      return cow()->find(k);
+    }
+
+    const_iterator find(const key_type &k) const
+    {
+      return _ptr._map->find(k);
+    }
+
+    size_type count(const key_type &k) const
+    {
+      return _ptr._map->count(k);
+    }
+
+    iterator lower_bound(const key_type &k)
+    {
+      return cow()->lower_bound(k);
+    }
+
+    const_iterator lower_bound(const key_type &k) const
+    {
+      return _ptr._map->lower_bound(k);
+    }
+
+    iterator upper_bound(const key_type &k)
+    {
+      return cow()->upper_bound(k);
+    }
+
+    const_iterator upper_bound(const key_type &k) const
+    {
+      return _ptr._map->upper_bound(k);
+    }
+
+    std::pair<iterator, iterator> equal_range(const key_type &k)
+    {
+      return cow()->equal_range(k);
+    }
+
+    std::pair<const_iterator, const_iterator> equal_range(const key_type &k) const
+    {
+      return _ptr._map->equal_range(k);
+    }
+
+    bool operator==(const cow_map &map) const
+    {
+      return *_ptr._map == *map._ptr._map;
+    }
+
+    bool operator<(const cow_map &map) const
+    {
+      return *_ptr._map < *map._ptr._map;
+    }
+
+    /** @This returns a modifiable reference to the internal @ref std::map object.
+	@This triggers a copy on write operation if the internal object is currently shared. */
+    map_type & to_map_ref()
+    {
+      return *cow();
+    }
+
+    /** @This returns a const reference to the internal @ref std::map object. */
+    const map_type & to_map() const
+    {
+      return *_ptr._map;
+    }
+
+    bool contain(const key_type &k) const
+    {
+      return _ptr._map->find(k) != _ptr._map->end();
+    }
+  };
+
+}
+
+#endif
+

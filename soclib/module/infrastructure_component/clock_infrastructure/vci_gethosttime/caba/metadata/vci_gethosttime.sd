@@ -1,0 +1,36 @@
+
+# -*- python -*-
+
+__id__ = "$Id: vci_gethosttime.sd 1698 2013-12-12 15:19:00Z $"
+__version__ = "$Revision: N/A $"
+
+Module('caba:vci_gethosttime',
+	classname = 'soclib::caba::VciGetHostTime',
+	   tmpl_parameters = [
+	parameter.Module('vci_param',  default = 'caba:vci_param'),
+	],
+	header_files = ['../source/include/vci_gethosttime.h',
+					],
+	interface_files = [
+					'../../include/soclib/gethosttime.h',
+		],
+	implementation_files = ['../source/src/vci_gethosttime.cpp',],
+			  ports = [
+	Port('caba:vci_target', 'p_vci'),
+	Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+	Port('caba:clock_in', 'p_clk', auto = 'clock'),
+	],
+	uses = [
+		Uses('caba:base_module'),
+		Uses('caba:vci_target_fsm', default_target = 'true', support_llsc = 'false'),
+		],
+	instance_parameters = [
+	parameter.IntTab('ident'),
+	parameter.Module('mt', 'common:mapping_table'),
+	],
+	   extensions = [
+	'dsx:addressable=ident',
+	'dsx:max_segments=1',
+	'dsx:get_ident=ident:p_vci:mt',
+   ],
+)

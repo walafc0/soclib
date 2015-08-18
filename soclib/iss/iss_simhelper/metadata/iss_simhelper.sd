@@ -1,0 +1,22 @@
+
+# -*- python -*-
+
+__id__ = "$Id: iss_simhelper.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+Module('common:iss_simhelper',
+	classname = 'soclib::common::IssSimhelper',
+	header_files = ["../include/iss_simhelper.h",],
+	implementation_files = [
+		"../src/iss_simhelper.cpp",
+		],
+	   tmpl_parameters = [
+	parameter.Module('simhelper_iss_t'),
+	],
+	   uses = [
+	Uses('common:iss'),
+	],
+	   extensions = [
+	'dsx:cpu=wrapper:simhelper_iss_t',
+   ],
+)

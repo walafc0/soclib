@@ -1,0 +1,146 @@
+
+isr.o:     file format elf32-littlemips
+
+
+Disassembly of section .reginfo:
+
+00000000 <.reginfo>:
+   0:	b00000f0 	0xb00000f0
+	...
+
+Disassembly of section .isr:
+
+00000000 <_isr_dma>:
+   0:	3c040000 	lui	a0,0x0
+   4:	24840000 	addiu	a0,a0,0
+   8:	8c850008 	lw	a1,8(a0)
+   c:	3c060000 	lui	a2,0x0
+  10:	24c60000 	addiu	a2,a2,0
+  14:	acc50000 	sw	a1,0(a2)
+  18:	3c060000 	lui	a2,0x0
+  1c:	24c60000 	addiu	a2,a2,0
+  20:	acc00000 	sw	zero,0(a2)
+  24:	03e00008 	jr	ra
+  28:	ac80000c 	sw	zero,12(a0)
+
+0000002c <_isr_ioc>:
+  2c:	3c040000 	lui	a0,0x0
+  30:	24840000 	addiu	a0,a0,0
+  34:	8c850010 	lw	a1,16(a0)
+  38:	3c060000 	lui	a2,0x0
+  3c:	24c60000 	addiu	a2,a2,0
+  40:	acc50000 	sw	a1,0(a2)
+  44:	3c060000 	lui	a2,0x0
+  48:	24c60000 	addiu	a2,a2,0
+  4c:	03e00008 	jr	ra
+  50:	acc00000 	sw	zero,0(a2)
+
+00000054 <_isr_timer>:
+  54:	27bdffec 	addiu	sp,sp,-20
+  58:	afbf0010 	sw	ra,16(sp)
+  5c:	40047801 	mfc0	a0,$15,1
+  60:	30840007 	andi	a0,a0,0x7
+  64:	00042900 	sll	a1,a0,0x4
+  68:	3c060000 	lui	a2,0x0
+  6c:	24c60000 	addiu	a2,a2,0
+  70:	00c53020 	add	a2,a2,a1
+  74:	acc0000c 	sw	zero,12(a2)
+  78:	3c040000 	lui	a0,0x0
+  7c:	248400c8 	addiu	a0,a0,200
+  80:	0c000000 	jal	0 <_isr_dma>
+  84:	24050028 	li	a1,40
+  88:	40044800 	mfc0	a0,c0_count
+  8c:	3c050000 	lui	a1,0x0
+  90:	24a500f2 	addiu	a1,a1,242
+  94:	0c000000 	jal	0 <_isr_dma>
+  98:	00000000 	nop
+  9c:	3c040000 	lui	a0,0x0
+  a0:	248400f2 	addiu	a0,a0,242
+  a4:	0c000000 	jal	0 <_isr_dma>
+  a8:	2405000a 	li	a1,10
+  ac:	3c040000 	lui	a0,0x0
+  b0:	248400f0 	addiu	a0,a0,240
+  b4:	0c000000 	jal	0 <_isr_dma>
+  b8:	24050002 	li	a1,2
+  bc:	8fbf0010 	lw	ra,16(sp)
+  c0:	03e00008 	jr	ra
+  c4:	27bd0014 	addiu	sp,sp,20
+
+000000c8 <message_timer_begin>:
+  c8:	2121210a 	addi	at,t1,8458
+  cc:	746e6920 	jalx	1b9a480 <_isr_switch+0x1b9a2fc>
+  d0:	75727265 	jalx	5c9c994 <_isr_switch+0x5c9c810>
+  d4:	74207470 	jalx	81d1c0 <_isr_switch+0x81d03c>
+  d8:	72656d69 	0x72656d69
+  dc:	63657220 	0x63657220
+  e0:	65766965 	0x65766965
+  e4:	74612064 	jalx	1848190 <_isr_switch+0x184800c>
+  e8:	63796320 	0x63796320
+  ec:	203a656c 	addi	k0,at,25964
+
+000000f0 <message_timer_end>:
+  f0:	30300a0a 	andi	s0,at,0xa0a
+
+000000f2 <isr_timer_buffer>:
+  f2:	30303030 	andi	s0,at,0x3030
+  f6:	30303030 	andi	s0,at,0x3030
+  fa:	00463030 	tge	v0,a2,0xc0
+
+000000fc <_isr_tty_get_task0>:
+  fc:	08000046 	j	118 <tty_get_start>
+ 100:	24040000 	li	a0,0
+
+00000104 <_isr_tty_get_task1>:
+ 104:	08000046 	j	118 <tty_get_start>
+ 108:	24040001 	li	a0,1
+
+0000010c <_isr_tty_get_task2>:
+ 10c:	08000046 	j	118 <tty_get_start>
+ 110:	24040002 	li	a0,2
+
+00000114 <_isr_tty_get_task3>:
+ 114:	24040003 	li	a0,3
+
+00000118 <tty_get_start>:
+ 118:	40057801 	mfc0	a1,$15,1
+ 11c:	30a50007 	andi	a1,a1,0x7
+ 120:	3c061000 	lui	a2,0x1000
+ 124:	00a60018 	mult	a1,a2
+ 128:	00003812 	mflo	a3
+ 12c:	00043100 	sll	a2,a0,0x4
+ 130:	00e63021 	addu	a2,a3,a2
+ 134:	3c070000 	lui	a3,0x0
+ 138:	24e70000 	addiu	a3,a3,0
+ 13c:	00a70018 	mult	a1,a3
+ 140:	00003812 	mflo	a3
+ 144:	00873821 	addu	a3,a0,a3
+ 148:	3c040000 	lui	a0,0x0
+ 14c:	24840000 	addiu	a0,a0,0
+ 150:	00863021 	addu	a2,a0,a2
+ 154:	80c50008 	lb	a1,8(a2)
+ 158:	3c040000 	lui	a0,0x0
+ 15c:	24840000 	addiu	a0,a0,0
+ 160:	00073080 	sll	a2,a3,0x2
+ 164:	00863021 	addu	a2,a0,a2
+ 168:	24040001 	li	a0,1
+ 16c:	acc40000 	sw	a0,0(a2)
+ 170:	3c040000 	lui	a0,0x0
+ 174:	24840000 	addiu	a0,a0,0
+ 178:	00873021 	addu	a2,a0,a3
+ 17c:	03e00008 	jr	ra
+ 180:	a0c50000 	sb	a1,0(a2)
+
+00000184 <_isr_switch>:
+ 184:	27bdfffc 	addiu	sp,sp,-4
+ 188:	afbf0000 	sw	ra,0(sp)
+ 18c:	40047801 	mfc0	a0,$15,1
+ 190:	30840007 	andi	a0,a0,0x7
+ 194:	00042900 	sll	a1,a0,0x4
+ 198:	3c060000 	lui	a2,0x0
+ 19c:	24c60000 	addiu	a2,a2,0
+ 1a0:	00c53020 	add	a2,a2,a1
+ 1a4:	0c000000 	jal	0 <_isr_dma>
+ 1a8:	acc0000c 	sw	zero,12(a2)
+ 1ac:	8fbf0000 	lw	ra,0(sp)
+ 1b0:	03e00008 	jr	ra
+ 1b4:	27bd0004 	addiu	sp,sp,4

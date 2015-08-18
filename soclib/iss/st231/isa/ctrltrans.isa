@@ -1,0 +1,136 @@
+/* *****************************************************************************
+                                    BSD LICENSE
+********************************************************************************
+Copyright (c) 2006, INRIA
+Authors: Zheng LI (zheng.x.li@inria.fr)
+
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+ - Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+ - Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+ - Neither the name of the INRIA nor the names of its contributors may be
+   used to endorse or promote products derived from this software without
+   specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED.
+IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+***************************************************************************** */
+
+//*********************************************************************************
+// the control transfer operations : branch, call, rfi, goto 
+//*********************************************************************************
+ op icall(stop[1]:rsv[1]:0b11[2]:0b00000[5]:btarg[23])
+ op call(stop[1]:rsv[1]:0b11[2]:0b00001[5]:0b00000000000000000000000[23])
+ op igoto(stop[1]:rsv[1]:0b11[2]:0b00010[5]:btarg[23])
+ op goto(stop[1]:rsv[1]:0b11[2]:0b00011[5]:0b00000000000000000000000[23])
+ op rfi(stop[1]:rsv[1]:0b11[2]:0b00100[5]:0b00000000000000000000000[23])
+
+ op br(stop[1]:rsv[1]:0b1110[4]:bcond[3]:btarg[23])
+ op brf(stop[1]:rsv[1]:0b1111[4]:bcond[3]:btarg[23])
+
+// op call(stop[1]:rsv[1]:0b11[2]:0b00000[5]:btarg[23])
+icall.execute = {
+        int32_t op1 = (SignEx23to32(btarg))<<2;
+
+        cpu->SetGPR_N(63, cpu->GetNia());
+        cpu->SetNia(op1 + cpu->GetCia());
+}
+
+icall.disasm = {
+        //int32_t op1 = SignEx23to32(btarg);
+	os << "icall " << hex << cpu->GetNia() <<dec;
+}
+
+// op call(stop[1]:rsv[1]:0b11[2]:0b00001[5]:0b00000000000000000000000[23])
+call.execute = {
+        cpu->SetGPR_N(63, cpu->GetNia());
+        cpu->SetNia( cpu->GetGPR_C(63));
+}
+
+call.disasm = {
+	os << "call $r63 = " << hex << cpu->GetGPR_C(63) <<dec;
+}
+
+// op igoto(stop[1]:rsv[1]:0b11[2]:0b00010[5]:btarg[23])
+igoto.execute = {
+        int32_t op1 = (SignEx23to32(btarg))<<2;
+        cpu->SetNia(op1 + cpu->GetCia());
+}
+
+igoto.disasm = {
+        int32_t op1 = (SignEx23to32(btarg))<<2;
+	os << "igoto " << hex << (op1 + cpu->GetCia()) <<dec;
+}
+
+
+// op goto(stop[1]:rsv[1]:0b11[2]:0b00011[5]:0b00000000000000000000000[23])
+goto.execute = {
+        cpu->SetNia( cpu->GetGPR_C(63));
+}
+
+goto.disasm = {
+	os << "goto $r63 = " << hex << cpu->GetGPR_C(63) <<dec;
+}
+
+// op rfi(stop[1]:rsv[1]:0b11[2]:  /* Possible super/user transition  */
+rfi.execute = {
+
+  cpu->invalidate_last_tlb_cache();
+  if(PSW_USER_MODE) {
+    cpu->ThrowIllInst();
+  }
+
+  cpu->SetNia(cpu->ReadMemory32(SAVED_PC));
+  cpu->WriteMemory32(PSW,cpu->ReadMemory32(SAVED_PSW));
+
+  cpu->WriteMemory32(SAVED_PC,cpu->ReadMemory32(SAVED_SAVED_PC));
+  cpu->WriteMemory32(SAVED_PSW,cpu->ReadMemory32(SAVED_SAVED_PSW));
+}
+
+rfi.disasm = {
+	os << "rfi " ;
+}
+
+// op br(stop[1]:rsv[1]:0b1110[4]:bcond[3]:btarg[23])
+br.execute = {
+        uint8_t op1 = cpu->GetGPB_C(bcond);
+        uint32_t op2 = (SignEx23to32(btarg))<<2;
+
+        if(op1)
+            cpu->SetNia(op2 + cpu->GetCia());
+}
+
+br.disasm = {
+        os <<"br $b" <<bcond <<", "<<hex<< btarg << "  : bcond = "<< dec<< (int)cpu->GetGPB_C(bcond);
+}
+
+// op brf(stop[1]:rsv[1]:0b1111[4]:bcond[3]:btarg[23])
+brf.execute = {
+        uint8_t op1 = cpu->GetGPB_C(bcond);
+        uint32_t op2 = (SignEx23to32(btarg))<<2;
+
+        if(op1 == 0)
+            cpu->SetNia(op2 + cpu->GetCia());
+
+}
+
+brf.disasm = {
+        os <<"brf $b" <<bcond <<", "<< btarg;
+}
+

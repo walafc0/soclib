@@ -1,0 +1,31 @@
+# -*- python -*-
+
+__id__ = "$Id$"
+__version__ = "$Revision$"
+
+
+todo = Platform('caba', 'top.cpp',
+				uses = [
+	Uses('caba:vci_cori_config_initiator'),
+	Uses('caba:vci_ciro_config_initiator'),
+	Uses('caba:vci_hht_cori_bridge'),
+	Uses('caba:vci_hht_ciro_bridge'),
+	Uses('caba:vci_xcache_wrapper', iss_t = 'common:mips32el'),
+	Uses('caba:vci_ram'),
+	Uses('caba:vci_multi_tty'),
+	Uses('caba:vci_vgmn'),
+	Uses('common:elf_file_loader'),
+	],
+	cell_size = 4,
+	plen_size = 6,
+	addr_size = 32,
+	rerror_size = 1,
+	clen_size = 1,
+	rflag_size = 1,
+	srcid_size = 8,
+	pktid_size = 1,
+	trdid_size = 1,
+	wrplen_size = 1,
+	ctrl_size=64,
+	data_size=32
+)

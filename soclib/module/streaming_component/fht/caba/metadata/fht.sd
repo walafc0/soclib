@@ -1,0 +1,34 @@
+# -*- python -*-
+
+__id__ = "$Id: fht.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+Module('caba:fht',
+	classname = 'soclib::caba::fht',
+	header_files = [
+	'../../common/source/include/fht_core_config.h',
+	'../../common/source/include/fht_core.h',
+	'../source/include/fht.h',      
+	],
+	implementation_files = [
+	'../../common/source/src/fht_core_config.cpp',
+	'../../common/source/src/fht_core.cpp',
+	'../source/src/fht.cpp',      
+	],
+	ports = [
+	Port('caba:fifo_input', 'p_from_MWMR', 2),
+	Port('caba:fifo_output', 'p_to_MWMR', 2),
+	Port('caba:fifo_input', 'p_core_config'),
+	Port('caba:word_out', 'p_config', 6, word_t = 'uint32_t'),
+	Port('caba:word_in', 'p_status', 6, word_t = 'uint32_t'),
+	Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+	Port('caba:clock_in', 'p_clk', auto = 'clock'),
+	],
+	uses = [
+		Uses('caba:base_module'),
+		Uses('caba:anoc_copro_wrapper'),
+	],
+	instance_parameters = [
+        	parameter.Int('clk_period_'),
+	],
+)

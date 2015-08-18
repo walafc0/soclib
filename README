@@ -1,0 +1,482 @@
+
+			     -= SOCLIB =-
+
+	       Plate-forme de prototypage virtuel pour
+	     Applications logicielles embarquées sur puce
+
+		       Règles de structuration
+		       SOCLIB/XXXX/RAPPORT/D2.2
+
+		    Date de soumission 15/11/2007
+
+Table des matières
+==================
+
+1 Introduction
+2 Règles et recommandation de codage de modèle SystemC SOCLIB
+2.1 Module
+2.2 Template et constructeur
+2.3 Interface
+2.4 Définition des fichiers à inclure dans le top
+2.5 Netlist SystemC générée
+3 Structure de répertoire pour modèle SystemC Soclib
+
+1 Introduction
+==============
+
+Ce document a pour but de définir des règles et des recommandations de
+structuration des modèles SystemC  SOCLIB qui permettront de faciliter
+la génération de documentations  ou de façon plus large l’exploitation
+des métas données par des générateurs de code, tels que des netlisters
+ainsi que la  génération automatique de ces méta  données à partir des
+modèles  SystemC existants.  Ce  document définit  en particulier  les
+règles de codage  d’un modèle SystemC de la  librairie SOCLIB, afin de
+pouvoir  le  packager  correctement   en  SPIRIT  IP-XACT  (créer  une
+documentation XML référençant  les modèles)d’une part, l’instancier et
+pouvoir générer  une netlist SystemC facilement d’autre  part à partir
+des  ces descriptions  SPIRIT. Il  impose également  une  structure de
+répertoire pour stocker les fichiers sources des modèles.
+
+Ce document propose des règles et des recommandations:
+
+  * Une règle (Rn) devra être respectée absolument afin d’éviter les
+erreurs liées à l’intégration et l’utilisation d’un composant.
+
+  * Une recommandation (ou proposition Pn) permet de pointer sur des
+problèmes de packaging ou d’utilisation liés à un codage à priori non
+interdit.
+
+Avertissement: la  rédaction de  ce document et  des règles  de codage
+qu’il contient  a été  faite en alignement  avec les  autres livrables
+décrivant  les  règles d’écriture  CABA  et  TLMT  (D2.1, D2.3,  D2.5,
+D2.6).   Des   évolutions  seront   possibles   selon  des   résultats
+d’expérience ou  des alignement  nécessaires avec des  changements sur
+les règles  de modélisation  issues des documents  que nous  venons de
+citer.  La rédaction de ce document  a été faite en gardant à l’esprit
+de faciliter  le packaging, la  réutilisation et la  documentation des
+composants  de  la  bibliothèque  SOCLIB. Un  livrable  supplémentaire
+(D6.7) sera  disponible à T0+24  (et probablement avant en  version de
+travail) pour  guider et illustrer  au travers d’exemples  concrets le
+packaging des composants de la bibliothèque SOCLIB.
+
+
+
+2  Règles et recommandation de codage de modèle SystemC SOCLIB
+==============================================================
+
+2.1 Module
+----------
+
+Règle 2.1.1 : Déclaration d’un module SystemC
+---------------------------------------------
+
+Libellé : Il faut déclarer le module SystemC comme une classe héritant
+de  sc_module
+
+Justification : Le  fait que les  données membres d’une  classe soient
+privées (mot clé  private en C) par défaut  permet d’assurer une bonne
+encapsulation des données  ce qui n’est pas forcément  le cas avec une
+struct dans laquelle les données sont publiques par défaut.
+
+Règle 2.1.2 : Fichiers SystemC
+------------------------------
+
+Libellé : Deux  fichiers (ou plus) doivent être  présents pour définir
+un  modèle :  [module].h  dans   lequel  sont  faites  uniquement  les
+déclarations  et  [module].cpp dans  lequel  se  trouvent définis  les
+constructeurs et toutes les méthodes.
+
+Justification : Evite  la présence  de code d’implémentation  dans les
+fichiers en-tête
+
+Proposition 2.1.3 : Fichiers template
+-------------------------------------
+
+Libellé  : Il  est conseillée  l'utilisation de  fichiers [module].tcc
+pour  écrire les méthodes  des classes  templatés, ainsi  les fichiers
+[module].h contiennent simplement les déclaration.
+
+Justification  : Facilite  la lecture  des fichiers  d'en-tête. Permet
+plus facilement la compilation séparée des templates.
+
+Proposition 2.1.4 : Espace de nom « soclib »
+--------------------------------------------
+
+Libellé : Utiliser le namespace « soclib »
+
+Justification : permet d'éviter les  préfixes « soclib_ » et simplifie
+les noms de fichiers et de fonctions.
+
+Proposition 2.1.5 : Espaces de nom pour catégories de composants
+----------------------------------------------------------------
+
+Libellé : Utiliser  les namespaces suivants pour  définir la catégorie
+d’un composant. Ces namespaces  respectent les noms dans la struccture
+de répertoires définie en R3.3.
+
+network_component		bridges, tunnels, adapters, buses, ...
+connectivity_component		off-chip interface: UART, USB, I2C, GPIO, 
+streaming_component		video data processor, ...
+infrastructure_component	clock and reset generator, interrupt controller
+clock_infrastructure		clock generator
+reset_infrastructure		reset generator
+interrupt_infrastructure	interrupt controller
+dma_infrastructure		DMA controller
+configuration_infrastructure	configuration register
+power_infrastructure		power switch controller
+event_infrastructure		event controller
+trigger_infrastructure		cross-trigger matrix
+pad_mux_infrastructure		IC pad multiplexer
+undefined_infrastructure	Other cases
+processor_component		CPU, DSP: ARM, MIPS, TriMedia, …
+internal_component		peripheral without off-chip interface, e.g.mem.
+test_controlComponent		dedicated DfT component
+stub_component	  		testbench component connected to off-chip interface
+verification_component  	verification monitor, or other testbench component
+undefined_component		to capture all other components
+
+Justification : Permet d'éviter les  préfixes et simplifie les noms de
+fichiers et de fonctions. Ces  labels sont les mêmes que ceux utilisés
+dans SPIRIT (extension en cours).
+
+2.2 Template et constructeur
+----------------------------
+
+Proposition 2.2.1 : Paramètres de contructeur
+---------------------------------------------
+
+Libellé : Utiliser  le plus  possible des paramètres  de constructeurs
+plutôt que des paramètres de template (sauf cas cités en P2.2.2), afin
+d'éviter d'avoir  à décrire du comportement dans  le fichier d’en-tête
+(.h)  (voir P2.1.3  pour  gestion de  fichiers  séparés contenant  les
+résolutions de template)
+
+Justification : Pour éviter  des problèmes liés à la  compilation et à
+la fourniture de librairies
+
+Proposition 2.2.2 : Parmètres de template
+-----------------------------------------
+
+Libellé :  Utiliser au  maximum les  paramètres de  template  pour des
+tailles  (de  données,  tableaux   internes,  etc.),  plutôt  que  des
+paramètres de constructeur
+
+Justification :  Pour  faciliter,  en  plus du  packaging  SPIRIT,  la
+compilation, car  la précision des  messages gcc d’erreur  est moindre
+avec les paramètres de constructeur
+
+Remarque : utiliser les templates  que pour tailles variables dans les
+types
+
+Règle 2.2.3 : Position du paramètre nom dans le constructeur
+------------------------------------------------------------
+
+Libellé :  Le   paramètre  de  construction   « sc_module_name »  doit
+apparaître en première position
+
+Justification :  Facilite  l’échange  et  la  réutilisation  Exemple :
+
+SC_MODULE(adder){
+  sc_in<bool> clk;
+  sc_in<sc_uint<8> >  input;
+  sc_out<sc_uint<8> > output;
+
+  void add();
+  SC_HAS_PROCESS(add);
+
+  adder(sc_module_name name_, int addval_) : sc_module(name_), addval(addval_){
+    SC_THREAD(add); sensitive wwclk.pos();
+  }
+
+private:
+  int addval;
+}
+
+Règle 2.2.4 : Valeur par défaut pour les paramètres de constructeur ou de template
+----------------------------------------------------------------------------------
+
+Libellé :  Il  faut définir  des  valeurs  par  défaut pour  tous  les
+paramètres de  construction ou de  template. Excepté le nom  du module
+(qui  doit   recevoir  une   valeur  spécifique  à   chaque  instance)
+
+Justification : Facilite  la génération de  la netlist et  empêche les
+erreurs de compilation dues aux paramètres manquants
+
+Proposition 2.2.5 : Un seul constructeur par module
+---------------------------------------------------
+
+Libellé :  Eviter de  définir  plusieurs constructeurs  par module  et
+préférer l’utilisation de deux modules séparés.
+
+Justification : Facilite le packaging et la netlist
+
+Proposition 2.2.6 : Utilisation conditionnelle de paramètres de constructeur
+----------------------------------------------------------------------------
+
+Libellé :  Eviter l’utilisation de  #IFDEF pour  rendre conditionnelle
+certains paramètres de constructeur
+
+Justification :  Pas   encore  standardisé  SPIRIT   et  difficilement
+packageable : il faut alors soit  faire appel à un configurateur, soit
+packager  les  différents  constructeurs  sous la  forme  d’autant  de
+components SPIRIT (pouvant éventuellement  pointer sur le même fichier
+source)
+
+2.3 Interface
+-------------
+
+Règle 2.3.1 : Casse des noms de port
+------------------------------------
+
+Libellé :  Tous les  ports  doivent  être déclarés  avec  des noms  en
+minuscule.
+
+Justification : Homogénéisation  et évite les  erreurs dans le  cas de
+sensibilité à la casse.
+
+Règle 2.3.2 : Nom des ports clock et reset
+------------------------------------------
+
+Libellé :  Le(les) port(s)  clock d’un  module  doit(doivent) toujours
+être  préfixé(s)  par « clk » ;  le(les)  port(s) reset  doit(doivent)
+toujours être préfixé(s) par « reset », ou « resetn » dans le cas d’un
+reset sur front descendant.
+
+Justification : Homogénéisation et facilité de packaging.
+
+Règle 2.3.3 : Utilisation du type sc_in_clk
+-------------------------------------------
+
+Libellé : Les ports clock doivent être déclarés de type sc_in_clk.
+
+Justification : Exploite la distinction des ports horloge proposée par SystemC et éventuellement exploitée par un simulateur.
+
+Règle 2.3.4 : Utilisation des pointeurs pour la déclaration des ports 
+---------------------------------------------------------------------
+
+Libellé : Tous les ports doivent être déclaré avec un pointeur.
+
+Justification : L’initialisation par tableau  de variable de classe ne
+permet pas  de nommer chaque port  (ce qui pose  un problème d’analyse
+d’erreur  si le  port n’a  pas été  connecté car  dans ce  cas SystemC
+reporte  uniquement  la  référence  interne  du port,  son  numéro  de
+position  dans  la  déclaration  des  ports, ce  qui  n’est  pas  très
+explicite) .
+
+Proposition 2.3.5 : Type de ports et interface à privilégier
+------------------------------------------------------------
+
+Libellé :  Les  types  suivants   sont  à  privilégier  car  supportés
+directement par le schéma IP-XACT.
+
+  * sc_in/sc_out/sc_inout
+
+  * sc_export<protocol<ADDR,DATA> > (ici ADDR et DATA ne sont pas des
+    templates)  
+
+  * sc_port<protocol<ADDR,DATA> > (ici ADDR et DATA ne sont pas des
+    templates)  
+
+  * type  de port  utilisateur :  supporté avec  une utilisation  dans
+    IP-XACT d’une vendor extension
+
+  * tableaux de ports 
+
+Justification : Facilitent le packaging IP-XACT.
+
+Proposition 2.3.6 : Type de ports et interface à éviter
+-------------------------------------------------------
+
+Libellé : Les types suivants sont à éviter:
+
+  * sc_port<protocol<ADDR,DATA> > utilisant des templates de templates
+    car cela devient assez lourd à décrire en SPIRIT (ici ADDR et DATA
+    sont des templates)
+
+  * Matrices de ports : assez difficilement supportées sauf avec un
+    configurateur donc à éviter
+
+  * Eviter la définition conditionnelle de port (P2.2.6)
+
+Justification :  Compliquent le  packaging IP-XACT  et  nécessitent le
+recours à  des configurateurs.  Néanmoins, le contournement  peut être
+d’utiliser autant de « component »  SPIRIT que de configurations et de
+faire pointer ceux-ci vers le même fichier source SystemC
+
+2.4 Définition des fichiers à inclure dans le top
+-------------------------------------------------
+
+Règle 2.4.1 : Emplacement des fichiers d’inclusion 
+--------------------------------------------------
+
+Libellé :  Dans  le fichier  XML  IP-XACT  d’un  module, ses  fichiers
+d’inclusion devront  être définis par  leur chemin d’accès.  Ce chemin
+d’accès sera indiqué en relatif par rapport à l’emplacement du fichier
+IP-XACT
+
+Justification :  Dans  le top  généré :  utiliser #include  "module.h"
+(sans répertoire par exemple), ce  qui signifie que la connaissance de
+la  structure  est  reportée  dans  les  Makefiles  utilisés  pour  la
+compilation.
+
+2.5 Netlist SystemC générée
+---------------------------
+
+Règle 2.5.1 : Instanciation statique des composants
+---------------------------------------------------
+
+Libellé : Chaque module doit  pouvoir être instancié statiquement dans
+un top.
+
+Justification : Eviter  la gestion des deux  types d’instanciation par
+les netlisters et d’alourdir le packaging.
+
+Règle 2.5.1 : Appel de fonctions d’initialisation
+-------------------------------------------------
+
+Libellé :  Le  recours  à  l’appel de  fonction  d’initialisation  est
+interdit et l’on doit passer par l’utilisation du constructeur.
+
+Justification : Facilite le packaging et l’instanciation de composants
+dans une netlist 3 Structure de répertoire pour modèle SystemC SOCLIB
+
+
+
+3 Structure de répertoire pour modèle SystemC Soclib
+====================================================
+
+Règle 3.0 : Casse des noms de répertoires et fichiers
+-----------------------------------------------------
+
+Libellé :  L’utilisation des  majuscules  est interdite,  de même  que
+l’usage   des  espaces,   dans   les  noms   de   répertoires  et   de
+fichiers. Utiliser  « _ » (underscore) pour  les transitions minuscule
+vers majuscule.
+
+Règle 3.1 : Répertoire racine
+-----------------------------
+
+Libellé : Le  répertoire racine s'appelle « soclib »,  il contient les
+répertoires suivants  distinguant les familles  d’éléments hardware de
+la bibliothèque:
+
+  * communication : Ce répertoire contient les éléments SystemC
+    permettant la définition des interfaces des modules.
+  * module : Ce répertoire contient tous les modules de la
+    bibliothèque.
+  * platform : Ce répertoire contient des exemples de plate-formes
+    utilisant les éléments de la bibliothèque.
+  * lib : Ce répertoire contient les librairies de fonctions pouvant
+    être utilisées en commun par certains modules.
+
+Remarque : Ce répertoire racine, concernant uniquement les composants
+hard de la bibliothèque, prendra sa place dans un autre répertoire, au
+même niveau que des répertoires contenant des éléments soft (OS,
+drivers, outils, etc.). Un document décrivant cette partie de la
+structure de la bibliothèque SOCLIB sera élaboré ultérieurement
+
+Règle 3.2 : Répertoire des définitions d’interface (communication)
+------------------------------------------------------------------
+
+Libellé : Ce  répertoire contient  les éléments SystemC  permettant la
+définition  des  interfaces  des   modules  (pour  la  définition  des
+ensembles de signaux spécifiques Soclib, vci, cache, et fifo à l'heure
+actuelle).  Leur  utilisation  homogène  dans les  modules  assure  le
+respect  des définitions  d’interfaces  standardisées. Chaque  élément
+doit respecter la structure suivante :
+
+  * nom_element
+  * variante
+  * tlmt
+  * doc
+  * source
+  * include
+  * src
+  * metadata (fichier XML IP-XACT : busdef)
+  * caba
+  * doc
+  * source
+  * include
+  * src
+  * metadata (fichier XML IP-XACT : busdef)
+
+Règle 3.3 : Répertoire contenant les composants (module)
+--------------------------------------------------------
+
+Libellé : Ce répertoire contient  tous les modules de la bibliothèque,
+qui sont classés  dans des répertoires par catégories,  et portant les
+noms suivants :
+
+network_component		bridges, tunnels, adapters, buses, …
+connectivity_component		off-chip interface: UART, USB, I2C, GPIO, 
+streaming_component		video data processor, …
+infrastructure component	clock and reset generator, interrupt controller, 
+clock_infrastructure		clock generator
+reset_infrastructure		reset generator
+interrupt_infrastructure	interrupt controller
+dma_infrastructure		DMA controller
+configuration_infrastructure	configuration register
+power_infrastructure		power switch controller
+event_infrastructure		event controller
+trigger_infrastructure		cross-trigger matrix
+pad_mux_infrastructure		IC pad multiplexer
+undefined_infrastructure	Other cases
+processor_component		CPU, DSP: ARM, MIPS, TriMedia, …
+internal_component		peripheral without off-chip interface, e.g.mem.
+test_control_component		dedicated DfT component
+stub_component	  		testbench component connected to off-chip interface
+verification_component  	verification monitor, or other testbench component
+undefined_component		to capture all other components
+
+Remarque: ces répertoires correspondent aux définitions de namespace
+décrits en P2.1.5
+
+Règle 3.4 : Répertoires par catégories, contenant les éléments de la bibliothèque
+---------------------------------------------------------------------------------
+
+Libellé :  Ces  répertoires  (dont   la  liste  est  donnée  en  R3.3)
+contiennent  les éléments  de la  bibliothèque. A  chaque  élément est
+associé un répertoire avec la structure suivante :
+
+  * nom_element
+  * variante
+  * tlmt
+  * doc
+  * source
+  * include
+  * src
+  * metadata (fichier XML IP-XACT : component)
+  * caba
+  * doc
+  * source
+  * include
+  * src
+  * metadata (fichier XML IP-XACT : component)
+
+Règle 3.5 : Répertoire contenant des plateformes (platform)
+-----------------------------------------------------------
+
+Libellé :  Ce   répertoire  contient  des   exemples  de  plate-formes
+utilisant les éléments de  la bibliothèque. Sa structure hiérarchique,
+simplifiée au maximum  ici, devra être décidée dans  un autre document
+(cf remarque de l’introduction) : • nom_element
+
+Règle 3.6 : Répertoire « build »
+---------------------------------
+
+Libellé :  Aucun  répertoire  build  ne  doit  être  présent  dans  la
+bibliothèque.
+
+Justification : Le répertoire build cible est spécifié au moment de la
+compilation.
+
+Règle 3.7 : Gestion des versions des éléments
+---------------------------------------------
+
+Libellé : La gestion des différentes  versions d’un même élément de la
+bibliothèque sera assurée par un outil de gestion de version (ex CVS).
+
+Justification :  Evite de  faire apparaître  toutes les  versions d’un
+élément dans l’arborescence SOCLIB et permet de conserver l’historique
+des modifications.
+

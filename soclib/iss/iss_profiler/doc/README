@@ -1,0 +1,78 @@
+
+ISS Profiler
+============
+
+Presentation
+------------
+
+This tool is an ISS instrumentation wrapper which can be put between
+the ISS and the simulation wrapper. It is independant of ISS and
+independant of simulation abstraction level (caba, tlmt, ...)
+
+ +---------------+           +---------------+
+ |               |           |               |
+ |               |           | +-----------+ |
+ |               |           | |           | |
+ |     +---+     |           | |   +---+   | |
+ |     |ISS|     |           | |   |ISS|   | |
+ |     |   |     |  ----->   | |   |   |   | |
+ |     +---+     |           | |   +---+   | |
+ |               |           | |IssProfiler| |
+ |               |           | +-----------+ |
+ |IssWrapper     |           |IssWrapper     |
+ +---------------+           +---------------+
+
+Code
+----
+
+replace your current wrapped iss declaration:
+
+IssWrapper<MipsElIss>
+
+with
+
+IssWrapper<IssProfiler<MipsElIss> >
+
+This code example is with mipsel ISS, but any ISS may be used, with
+any endianness.
+
+Under DSX, replace
+
+iss_t = 'common:mipsel'
+
+with
+
+iss_t = 'common:iss_profiler',
+profiler_iss_t = 'common:mipsel',
+
+
+Output
+------
+
+This tool traces all instructions asked and executed by the ISS and
+writes a log file based from the iss cpu id. This log file contains a
+line every cycle containing:
+
+R + 0x12345678
+| | |
+| | \- Requested address
+| |
+| \--- +: ISS asked for an instruction this cycle
+|      -: ISS did not ask for an instruction this cycle
+|
+\----- R: Running (ISS executed an instruction this cycle)
+       F: Frozen (ISS executed nothing)
+
+Interpretation
+--------------
+
+There is a script using DSX's elf file parsing helpers which may
+output the top most used functions looking up addresses.
+
+Usage:
+
+  python iss_profiler2profile.py arch binary.elf < log
+
+Example:
+
+  python iss_profiler2profile.py mipsel bin.soft < iss_profiler_0.log

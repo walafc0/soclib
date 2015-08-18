@@ -1,0 +1,28 @@
+#!/bin/sh 
+
+. ../common/common.sh
+
+check_output()
+{
+	egrep "^hello world 0x1234ABCD$" run.out > /dev/null
+	if [ $? -eq 0 ]; then
+		return 0;
+	fi
+	echo "couldn't find string in output - mtty not working ?" >> run.out
+	return 1
+}
+
+make --quiet || exit 1
+${SIMUL} > run.out 2>&1 
+if [ $? -eq 0 ]; then
+	if check_output; then
+		echo "test passsed";
+		make --quiet clean
+		exit 0;
+	fi
+	echo "test FAILED"
+	exit 1
+fi
+echo "test FAILED"
+exit 1
+

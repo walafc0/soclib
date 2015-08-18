@@ -1,0 +1,26 @@
+# -*- python -*-
+
+#from soclib.hwtask import HwTask, MwmrCoproc
+from soclib.hwtask import SyntheticTask
+
+#hw_fifo_tg = MwmrCoproc(
+#	module = 'caba:fifo_reader',
+#	from_coproc = [ 'output:fifo' ],
+#	to_coproc = [],
+#	config = [],
+#	status = [],
+#	binary = 'bash',
+#	argv = [ 'bash', '-c', 'while cat %(FILE_NAME)s ; do true ; done' ],
+#	word_t = 'uint32_t' )
+
+TaskModel(
+	'tg',
+	ports = {'output':MwmrOutput(32)},
+	impls = [ SwTask( 'tg',
+                          bootstrap = 'bootstrap',
+                          stack_size = 4096,
+                          sources = [ 'tg.c' ],
+                          defines = [ 'FILE_NAME' ] ),
+                  SyntheticTask( defines = {'FILE_NAME':'\"plan.jpg\"'} )
+                  #HwTask( hw_fifo_tg ),
+                  ] )

@@ -1,0 +1,21 @@
+# -*- python -*-
+
+__id__ = "$Id: tc4200.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+Module('caba:demodulator',
+	classname = 'soclib::caba::Demodulator',
+	header_files = ['../demodulator.h',],
+	implementation_files = ['../demodulator.cpp',],
+	ports = [
+		Port('caba:clock_in', 'p_clk', auto = 'clock'),
+	],
+	uses = [
+	      	Uses('caba:vci_xcache_wrapper', iss_t= 'common:mips32el'),
+          Uses('caba:vci_ram'),
+          Uses('caba:vci_multi_tty'),
+          Uses('caba:vci_vgmn'),
+          Uses('caba:tc4200'),
+          Uses('common:elf_file_loader'),
+        ]
+)

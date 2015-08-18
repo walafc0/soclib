@@ -1,0 +1,14 @@
+#!/bin/sh 
+
+. ../common/common.sh
+
+make --quiet || exit 1
+${SIMUL} > run.out 2>&1 
+if [ $? -eq 0 ]; then
+	echo "test passsed";
+	make --quiet clean
+	exit 0;
+fi
+echo "test failed"
+exit 1
+

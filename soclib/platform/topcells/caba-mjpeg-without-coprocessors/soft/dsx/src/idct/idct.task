@@ -1,0 +1,12 @@
+# -*- python -*-
+
+TaskModel('idct',
+          ports = {'input':MwmrInput(64*4),
+                   'output':MwmrOutput(64),
+                   },
+          impls = [ SwTask( 'idct',
+                            stack_size = 4096,
+                            sources = [ 'idct.c' ],
+                            defines = [ 'WIDTH', 'HEIGHT' ] ),
+                    ]
+          )

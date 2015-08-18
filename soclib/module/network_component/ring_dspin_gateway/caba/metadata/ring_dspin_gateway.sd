@@ -1,0 +1,36 @@
+
+# -*- python -*-
+
+Module('caba:ring_dspin_gateway',
+	classname = 'soclib::caba::RingDspinGateway',
+	tmpl_parameters = [
+            parameter.Int('cmd_width'),    
+            parameter.Int('rsp_width'),    
+        ],
+	header_files = ['../source/include/ring_dspin_gateway.h',],
+	implementation_files = ['../source/src/ring_dspin_gateway.cpp',],
+	ports = [
+	    Port('caba:clock_in', 'p_clk', auto = 'clock'),
+            Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+	    Port('caba:ring_in', 'p_ring_in'),
+	    Port('caba:ring_out', 'p_ring_out'),
+            Port('caba:dspin_input', 'p_gate_cmd_in', dspin_data_size = parameter.Reference('cmd_width')),
+            Port('caba:dspin_output', 'p_gate_cmd_out', dspin_data_size = parameter.Reference('cmd_width')),
+            Port('caba:dspin_input', 'p_gate_rsp_in', dspin_data_size = parameter.Reference('rsp_width')),
+            Port('caba:dspin_output', 'p_gate_rsp_out', dspin_data_size = parameter.Reference('rsp_width')),
+	],
+	instance_parameters = [
+            parameter.Module('mt', 'common:mapping_table'),
+            parameter.IntTab('ringid'),
+            parameter.Bool('alloc_init'),
+            parameter.Bool('alloc_target'),
+	    parameter.Bool('local'),
+            parameter.Int('fifo_depth'),
+	],
+	uses = [
+	    Uses('caba:base_module'),
+            Uses('common:mapping_table'),
+            Uses('caba:ring_dspin_half_gateway_target'),
+            Uses('caba:ring_dspin_half_gateway_initiator'),
+	],
+)

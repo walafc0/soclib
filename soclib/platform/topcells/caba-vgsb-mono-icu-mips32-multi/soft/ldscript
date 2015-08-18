@@ -1,0 +1,87 @@
+/**********************************************************
+	File : ldscript 
+	Author : Alain Greiner
+	Date : October 2009
+**********************************************************/
+
+/* definition of the base address for all segments 
+The peripherals base addresses are referenced by the
+software drivers and must be defined, even if the 
+peripherals are not present in the architecture */
+
+seg_reset_base  = 0xBFC00000;
+seg_kernel_base = 0x80000000;
+seg_kdata_base  = 0x81000000;
+seg_ksave_base  = 0x82000000;
+seg_data_base   = 0x10000000;
+seg_code_base   = 0x00400000;
+seg_stack_base  = 0x20000000;
+
+seg_icu_base    = 0xF0000000;
+seg_tty_base    = 0x90000000;
+seg_timer_base  = 0x91000000;
+seg_ioc_base    = 0x92000000;
+seg_dma_base    = 0x93000000;
+seg_locks_base  = 0x94000000;
+seg_gcd_base    = 0x95000000;
+seg_fb_base     = 0xA0000000;
+
+/* definition of various hardware parameters.
+These variables are referenced in the syscalls.c file,
+and must be defined, even if the corresponding
+peripherals are not present in the architecture */
+
+NB_LOCKS		= 1;
+NB_TTYS			= 1;
+NB_TIMERS		= 1;
+NB_PROCS		= 1;
+
+/* Maximum number of tasks per processor 
+This variable is referenced in the syscalls.c file to compute
+the global TTY index = proc_id*NB_TASKS + task_id */
+
+NB_TASKS    		= 1;
+
+/* Grouping sections into segments */
+
+SECTIONS
+{
+   . = seg_kernel_base;
+   seg_kernel : {
+      *(.giet)
+      *(.switch)
+      *(.syscalls)
+      *(.isr)
+   } 
+   . = seg_kdata_base;
+   seg_kdata : {
+      *(.kdata)
+   } 
+   . = seg_ksave_base;
+   seg_ksave : {
+      *(.ksave)
+   } 
+   . = seg_code_base;
+   seg_code : {
+      *(.text)
+   } 
+   . = seg_reset_base;
+   seg_reset : {
+      *(.reset)
+   } 
+   . = seg_data_base;
+   seg_data : {
+      *(.rodata)
+      . = ALIGN(4);
+      *(.rodata.*)
+      . = ALIGN(4);
+      *(.data)
+      . = ALIGN(4);
+      *(.sdata)
+      . = ALIGN(4);
+      *(.bss)
+      *(COMMON)
+      *(.sbss)
+   } 
+}
+

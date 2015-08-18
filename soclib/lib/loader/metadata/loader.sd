@@ -1,0 +1,29 @@
+
+# -*- python -*-
+
+__id__ = "$Id: loader.sd 1696 2010-04-12 14:04:19Z nipo $"
+__version__ = "$Revision: 1696 $"
+
+Module('common:loader',
+	classname = 'soclib::common::Loader',
+	header_files = ['../include/loader.h',],
+	implementation_files = ['../src/loader.cpp',
+							],
+	   instance_parameters = [
+	parameter.String('binary', auto = 'env:binary'),
+	parameter.String('binary2', default = ""),
+	parameter.String('binary3', default = ""),
+	parameter.String('binary4', default = ""),
+	parameter.String('binary5', default = ""),
+	parameter.String('binary6', default = ""),
+	],
+	uses = [
+		Uses('common:exception'),
+		Uses('common:binary_file_section'),
+		Uses('common:binary_file_symbol'),
+		],
+	   extensions = [
+	'dsx:configurator',
+	'dsx:noname'
+	]
+)

@@ -1,0 +1,44 @@
+#!/bin/sh 
+
+. ../common/common.sh
+
+check_output()
+{
+	egrep "^end 0x0000BEEF 0x00000001$" run.out > /dev/null
+	if [ $? -ne 0 ]; then
+		echo "couldn't find string 1 in output - mtty not working ?" >> run.out
+		return 1
+	fi
+	egrep "^status 0x00400403 cause 0x00000018 pc 0x80000000 badva 0x00000000 xicu 0x00000000$" run.out > /dev/null
+	if [ $? -ne 0 ]; then
+		echo "couldn't find string 2 in output - mtty not working ?" >> run.out
+		return 1
+	fi
+	egrep "^status 0x00400403 cause 0x00000400 pc 0x80000000 badva 0x00000000 xicu 0x00000001$" run.out > /dev/null
+	if [ $? -ne 0 ]; then
+		echo "couldn't find string 3 in output - mtty not working ?" >> run.out
+		return 1
+	fi
+	return 0;
+}
+echo 
+i=1180
+while true; do
+	echo -n "    DELAY=$i: "
+	make INTERRUPT_DELAY=$i --quiet || exit 1
+	${SIMUL} > run.out 2>&1 
+	if [ $? -eq 0 ]; then
+		if check_output; then
+			echo "test passsed";
+			make --quiet clean
+		else
+			echo "test FAILED"
+			exit 1
+		fi
+	else 
+		echo "test FAILED"
+		exit 1
+	fi
+	i=$((i+1))
+done
+

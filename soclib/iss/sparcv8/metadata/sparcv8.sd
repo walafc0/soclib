@@ -1,0 +1,26 @@
+
+# -*- python -*-
+
+Module('common:sparcv8',
+       classname = 'soclib::common::Sparcv8Iss',
+       header_files = ["../include/sparcv8.h",
+                       ],
+       uses = [Uses('common:iss2'),
+               Uses('common:base_module'),
+               ],
+       implementation_files = ["../src/sparcv8.cpp",
+                               "../src/sparcv8_traps.cpp",
+                               "../src/sparcv8_run.cpp",
+                               "../src/sparcv8_branch.cpp",
+                               "../src/sparcv8_debug.cpp",
+                               "../src/sparcv8_load_store.cpp",
+                               "../src/sparcv8_logical.cpp",
+                               "../src/sparcv8_fp.cpp",
+                               "../src/sparcv8_cp.cpp",
+                               ],
+       constants = {'n_irq':4,
+                    },
+       tmpl_parameters = [parameter.Int('NWIN', default='8'),
+						  ],
+# debug = True,
+)

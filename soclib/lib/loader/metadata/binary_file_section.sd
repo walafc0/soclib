@@ -1,0 +1,12 @@
+
+# -*- python -*-
+
+__id__ = "$Id: binary_file_section.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+Module('common:binary_file_section',
+	classname = 'soclib::common::BinaryFileSection',
+	header_files = ['../include/binary_file_section.h',],
+	implementation_files = ['../src/binary_file_section.cpp',
+							],
+)

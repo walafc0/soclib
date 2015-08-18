@@ -1,0 +1,39 @@
+# -*- python -*-
+
+__id__ = "$Id: vci_dspin_network.sd 1698 2010-04-14 03:29:34Z nipo $"
+__version__ = "$Revision: 1698 $"
+
+Module('caba:vci_dspin_network',
+	classname = 'soclib::caba::VciDspinNetwork',
+	tmpl_parameters = [
+	    parameter.Module('vci_param', default = 'caba:vci_param'),
+	    parameter.Int('dspin_fifo_size'),
+	    parameter.Int('dspin_yx_size'),
+	],
+	header_files = ['../source/include/vci_dspin_network.h',],
+	implementation_files = ['../source/src/vci_dspin_network.cpp',],
+	ports = [
+	    Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+	    Port('caba:clock_in', 'p_clk', auto = 'clock'),
+		Port('caba:vci_initiator', 'p_to_target',
+			[ parameter.Reference('height_network'), parameter.Reference('width_network') ]),
+		Port('caba:vci_target', 'p_to_initiator',
+			[ parameter.Reference('height_network'), parameter.Reference('width_network') ]),
+	],
+	instance_parameters = [
+ 	    parameter.Module('mt', 'common:mapping_table'),
+	    parameter.Int('width_network'),
+	    parameter.Int('height_network'),
+	],
+	uses = [
+	    Uses('caba:base_module'),
+	    Uses('common:mapping_table'),
+	    Uses('caba:dspin_router', dspin_data_size = 38),
+	    Uses('caba:dspin_router', dspin_data_size = 34),
+	    Uses('caba:vci_dspin_initiator_wrapper', dspin_yx_size = 4),
+	    Uses('caba:vci_dspin_target_wrapper', dspin_yx_size = 4),
+	],
+	extensions = [
+		'dsx:interconnect=root'
+	],
+)

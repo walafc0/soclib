@@ -1,0 +1,33 @@
+RTEMS Board support package for SoCLib with MIPS processor
+original author: Alexandre Becoulet <alexandre.becoulet@free.fr>
+
+1) Install the RTEMS kernel and GNU tool chain as explained here:
+
+   http://www.rtems.com/onlinedocs/releases/rtemsdocs-4.9.2/share/rtems/html/started/index.html
+
+ GNU compiler can be configured with:
+
+   --target=mips-rtems4.9 --with-gnu-as --with-gnu-ld \
+   --with-newlib --verbose --enable-threads --enable-languages=c,c++
+
+2) Apply the rtems-4.9.2.diff patch to the RTEMS source tree to adjust build system files
+
+3) Checkout or copy the provided soclib/ BSP directory in rtems-4.9.2/c/src/lib/libbsp/mips
+
+4) Cd to the new rtems-4.9.2/c/src/lib/libbsp/mips/soclib directory and run:
+
+   path_to_rtems/rtems-4.9.2/bootstrap -p
+   path_to_rtems/rtems-4.9.2/bootstrap
+
+5) Cd to a separate build directory, configure and build RTEMS:
+
+   ../rtems-4.9.2/configure --target=mips-rtems4.9 --prefix=/tmp/rtems \
+   --enable-rtemsbsp=soclib --enable-posix --disable-itron --disable-networking \
+   make
+
+   The --enable-multiprocessing option may be passed to the configure script.
+
+6) Some sample applications binaires are compiled along with RTEMS and can be found in 
+   mips-rtems4.9/c/soclib/testsuites/samples/. These samples can be executed using
+   the caba-vgmn-rtems-mips soclib platform.
+

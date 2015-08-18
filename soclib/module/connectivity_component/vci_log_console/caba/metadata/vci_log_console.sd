@@ -1,0 +1,34 @@
+
+# -*- python -*-
+
+__id__ = "$Id: vci_log_console.sd 1699 2010-04-14 03:30:30Z nipo $"
+__version__ = "$Revision: 1699 $"
+
+Module('caba:vci_log_console',
+	   classname = 'soclib::caba::VciLogConsole',
+	   tmpl_parameters = [
+	parameter.Module('vci_param',  default = 'caba:vci_param'),
+	],
+	   header_files = ['../source/include/vci_log_console.h',
+					   ],
+	   implementation_files = ['../source/src/vci_log_console.cpp',],
+	   ports = [
+	Port('caba:vci_target', 'p_vci'),
+	Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+	Port('caba:clock_in', 'p_clk', auto = 'clock'),
+	],
+	   uses = [
+	Uses('caba:base_module'),
+	Uses('caba:vci_target_fsm', default_target = 'true', support_llsc = 'false'),
+	],
+	instance_parameters = [
+		parameter.IntTab('ident'),
+        parameter.Module('mt', typename = 'common:mapping_table'),
+	],
+	   extensions = [
+	'dsx:addressable=ident',
+	'dsx:get_ident=ident:p_vci:mt',
+	'dsx:max_segments=1',
+	'dsx:device=log_console',
+   ],
+)

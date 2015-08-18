@@ -1,0 +1,23 @@
+
+# -*- python -*-
+
+__id__ = "$Id: vci_avalon_initiator_wrapper.sd 1195 2009-07-08 12:37:56Z abdelmalek.si-merabet@lip6.fr $"
+__version__ = "$Revision: 1195 $"
+
+Module('caba:vci_avalon_initiator_wrapper',
+	classname = 'soclib::caba::VciAvalonInitiatorWrapper',
+	   tmpl_parameters = [
+	parameter.Module('vci_param',  default = 'caba:vci_param'),
+	parameter.Module('avalon_param',  default = 'caba:avalon_param'),
+	],
+	header_files = ['../source/include/vci_avalon_initiator_wrapper.h',],
+	implementation_files = ['../source/src/vci_avalon_initiator_wrapper.cpp',],
+			  ports = [
+	Port('caba:vci_target', 'p_vci'),
+	Port('caba:avalonbus_master', 'p_avalon'),
+	],
+	uses = [
+		Uses('caba:base_module'),
+		Uses('caba:avalonbus'),
+		],
+)

@@ -1,0 +1,114 @@
+/*
+ *
+ * SOCLIB_GPL_HEADER_BEGIN
+ * 
+ * This file is part of SoCLib, GNU GPLv2.
+ * 
+ * SoCLib is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; version 2 of the License.
+ * 
+ * SoCLib is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with SoCLib; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA.
+ * 
+ * SOCLIB_GPL_HEADER_END
+ *
+ * Copyright (c) UPMC, Lip6, SoC
+ *         Nicolas Pouillon <nipo@ssji.net>, 2006-2007
+ *
+ * Maintainers: nipo
+ */
+
+SECTIONS
+{
+	special_base = 0x00500000;
+	. = special_base;
+    .ppc_special : {
+		. = 0x100;
+		*(.ppc_special.critical_input)
+		. = 0x200;
+		*(.ppc_special.machine_check)
+		. = 0x300;
+		*(.ppc_special.data_storage)
+		. = 0x400;
+		*(.ppc_special.instruction_storage)
+		. = 0x500;
+		*(.ppc_special.external)
+		. = 0x600;
+		*(.ppc_special.alignment)
+		. = 0x700;
+		*(.ppc_special.program)
+		. = 0xc00;
+		*(.ppc_special.syscall)
+		. = 0x1000;
+		*(.ppc_special.programmable_interval_timer)
+		. = 0x1010;
+		*(.ppc_special.fixed_interval_timer)
+		. = 0x1020;
+		*(.ppc_special.watchdog)
+		. = 0x1100;
+		*(.ppc_special.data_tlb_miss)
+		. = 0x1200;
+		*(.ppc_special.instruction_tlb_miss)
+		. = 0x2000;
+		*(.ppc_special.debug)
+    }
+
+    . = 0xfffffffc;
+    .ppc_boot : {
+		*(.ppc_boot)
+		*(.ppc_boot.*)
+    }
+
+   . = 0x80000000;
+   .excep : {
+		*(.excep)
+		*(.excep.*)
+   }
+
+   . = 0xbfc00000;
+   .reset : {
+		*(.reset)
+		*(.reset.*)
+   }
+
+   . = 0x00400000;
+   .text : {
+      *(.text)
+   }
+   . = 0x10000000;
+   .rodata : {
+      *(.rodata)
+      . = ALIGN(4);
+   }
+   .data  : {
+      *(.data)
+   }
+   .sdata : {
+      *(.lit8)
+      *(.lit4)
+      *(.sdata)
+   }
+   _gp = .;
+   . = ALIGN(4);
+   _edata = .;
+   .sbss  : {
+      *(.sbss)
+      *(.scommon)
+   }
+   .bss   : {
+      *(.bss)
+      *(COMMON)
+   }
+   . = ALIGN(4);
+   _end = .;
+   _heap = .;
+   _stack = 0x10060000-16;
+}

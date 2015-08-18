@@ -1,0 +1,58 @@
+
+# -*- python -*-
+
+__id__ = "$Id: vci_vcache_wrapper_multi.sd 1246 2009-09-10 22:18:38Z yang $"
+__version__ = "$Revision: 1246 $"
+
+Module('caba:vci_vcache_wrapper_multi',
+	classname = 'soclib::caba::VciVCacheWrapperMulti',
+	   tmpl_parameters = [
+	parameter.Module('vci_param', default = 'caba:vci_param'),
+	parameter.Module('iss_t'),
+	],
+	header_files = [
+	'../source/include/vci_vcache_wrapper_multi.h',
+	],
+	implementation_files = [
+	'../source/src/vci_vcache_wrapper_multi.cpp',
+	],
+	uses = [
+	Uses('caba:base_module'),
+	Uses('caba:multi_write_buffer'),
+	Uses('caba:generic_tlb', addr_t = parameter.StringExt('sc_dt::sc_uint<%d> ', parameter.Reference('addr_size'))),
+	Uses('caba:generic_cache', addr_t = parameter.StringExt('sc_dt::sc_uint<%d> ', parameter.Reference('addr_size'))),
+	Uses('common:address_masking_table', data_t = parameter.StringExt('sc_dt::sc_uint<%d> ', parameter.Reference('addr_size'))),
+	Uses('common:iss2'),
+	Uses('common:mapping_table'),
+	],
+	ports = [
+	Port('caba:vci_initiator', 'p_vci'),
+	Port('caba:bit_in','p_irq', parameter.Constant('n_irq')),
+	Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+	Port('caba:clock_in', 'p_clk', auto = 'clock'),
+	],
+	instance_parameters = [
+	parameter.Int('proc_id'),
+	parameter.Module('mt', 'common:mapping_table'),
+	parameter.IntTab('index'),
+    	parameter.Int('itlb_ways'),
+    	parameter.Int('itlb_sets'),
+    	parameter.Int('dtlb_ways'),
+    	parameter.Int('dtlb_sets'),
+    	parameter.Int('icache_ways'),
+    	parameter.Int('icache_sets'),
+    	parameter.Int('icache_words'),
+    	parameter.Int('dcache_ways'),
+    	parameter.Int('dcache_sets'),
+    	parameter.Int('dcache_words'),
+    	parameter.Int('wbuf_nwords'),
+    	parameter.Int('wbuf_nlines'),
+	],
+	   extensions = [
+	'dsx:get_ident=ident:p_vci:mt',
+	'dsx:cpu=wrapper:iss_t',
+	'dsx:mapping_type=processor:proc_id',
+   ],
+)
+
+

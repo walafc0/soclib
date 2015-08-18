@@ -1,0 +1,28 @@
+#!/bin/sh 
+
+. ../common/common.sh
+
+check_output()
+{
+	egrep "^status 0x0040CC03 cause 0x00000400 pc 0xBFC00088 badva 0x00000000 xicu 0x[01][0-9A-F][01][0-9A-F]0001$" run.out > /dev/null
+	if [ $? -ne 0 ]; then
+		echo "couldn't find string in output - mtty not working ?" >> run.out
+		return 1
+	fi
+	return 0;
+}
+
+make --quiet || exit 1
+${SIMUL} > run.out 2>&1 
+if [ $? -eq 0 ]; then
+	if check_output; then
+		echo "test passsed";
+		make --quiet clean
+		exit 0;
+	fi
+	echo "test FAILED"
+	exit 1
+fi
+echo "test FAILED"
+exit 1
+

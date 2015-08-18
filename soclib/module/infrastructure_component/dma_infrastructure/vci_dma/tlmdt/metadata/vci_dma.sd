@@ -1,0 +1,13 @@
+# -*- python -*-
+
+Module('tlmdt:vci_dma',
+       classname = 'soclib::tlmdt::VciDma',
+       tmpl_parameters = [ parameter.Module('vci_param',  default = 'tlmdt:vci_param') ],
+       header_files = ['../source/include/vci_dma.h' ],
+       interface_files = [  '../../include/soclib/dma.h' ],
+       implementation_files = ['../source/src/vci_dma.cpp' ],
+       uses = [	Uses('common:tlmdt'),
+		Uses('common:mapping_table'),
+		],
+       #debug = True,
+       )

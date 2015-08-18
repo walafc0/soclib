@@ -1,0 +1,21 @@
+# -*- python -*-
+
+__id__ = "$Id: vloader.sd 1 2012-05-19 15:29:00Z moka $"
+__version__ = "$Revision: 1 $"
+
+Module('common:vloader',
+	classname = 'soclib::common::VLoader',
+	header_files = ['../include/vloader.h',],
+	implementation_files = ['../src/vloader.cpp',
+							],
+	uses = [
+		Uses('common:exception'),
+		Uses('common:loader'),
+        Uses('common:plain_file_loader'),
+		Uses('common:pseg_handler'),
+		],
+	extensions = [              #?
+	    'dsx:configurator',
+    	'dsx:noname'
+	]
+)

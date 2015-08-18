@@ -1,0 +1,22 @@
+
+# -*- python -*-
+
+__id__ = "$Id: bvci_assert.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+Module('caba:bvci_assert',
+	classname = 'soclib::caba::BasicVciAssert',
+	tmpl_parameters = [
+		parameter.Module('vci_param',  default = 'caba:vci_param'),
+	],
+	header_files = ['../source/include/bvci_assert.h',],
+	implementation_files = ['../source/src/bvci_assert.cpp',],
+	ports = [
+		Port('caba:vci_monitor', 'p_vci'),
+		Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+		Port('caba:clock_in', 'p_clk', auto = 'clock'),
+	],
+	uses = [
+		Uses('caba:base_module'),
+	],
+)

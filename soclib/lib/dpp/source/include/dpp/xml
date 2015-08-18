@@ -1,0 +1,2114 @@
+/* -*- c++ -*-
+
+   C++ xml parser template classes
+
+   This file is part of the dpp library of C++ template classes
+
+   doc: http://diaxen.ssji.net/dpp/index.html
+   repo: https://www.ssji.net/svn/projets/trunk/libdpp
+
+   This program is free software: you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public License
+   as published by the Free Software Foundation, either version 3 of
+   the License, or (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with this program.  If not, see
+   <http://www.gnu.org/licenses/>.
+
+   (c) 2011 Alexandre Becoulet <alexandre.becoulet@free.fr>
+
+*/
+
+#ifndef DPP_XML_HH_
+#define DPP_XML_HH_
+
+/** @file @module{XML} */
+
+#include <map>
+#include <vector>
+#include <string>
+#include <sstream>
+#include <iostream>
+#include <exception>
+#include <cassert>
+#include <cctype>
+#include <cstring>
+
+#if !defined(_DPP_OVERRIDE)
+# if __cplusplus >= 201103
+#  define _DPP_OVERRIDE override
+# else
+#  define _DPP_OVERRIDE
+# endif
+#endif
+
+namespace dpp {
+
+  /** Specify XML parser options and language extensions. */
+  enum xml_options
+    {
+      XML_OPT_NONE                     = 0x0000,
+      /** This makes the XML dom parser merge contiguous CDATA
+	  sections. This is useful when split CDATA sections are
+	  emitted from a single CDATA DOM node to escape the ]]>
+	  sequence. */
+      XML_OPT_MERGE_CDATA              = 0x0004,
+
+      /** This makes the XML scanner class accept document with
+	  multiple root elements. Processing won't stop after the
+	  first element when used. */
+      XML_EXT_MULTIPLE_ROOTS           = 0x0001,
+      /** This makes the XML scanner class accept documents with
+	  content outside root node. */
+      XML_EXT_CONTENT_OUTSIDE_ROOT     = 0x0002,
+    };
+
+  /** @internal */
+  static inline xml_options operator|(xml_options a, xml_options b)
+  {
+    return (xml_options)(a | b);
+  }
+
+  enum xml_content_type
+    {
+      XML_CONTENT_TEXT,
+      XML_CONTENT_CDATA
+    };
+
+  /** @internal */
+  struct empty
+  {
+  };
+
+  template <typename Char, xml_options ext = XML_OPT_NONE> class xml_scanner_ns;
+  template <typename Char, xml_options ext = XML_OPT_NONE> class xml_scanner;
+
+  template <typename Char> class xml_event_handlers;
+  template <typename Char, class Node = empty,
+	    xml_options ext = XML_OPT_NONE> class xml_event_parser;
+
+  template <typename Char> class xml_dom_node;
+  template <typename Char> class xml_dom_parent_node;
+  template <typename Char> class xml_dom_attr_node;
+  template <typename Char> class xml_dom_doc;
+  template <typename Char> class xml_dom_element;
+  template <typename Char> class xml_dom_content;
+  template <typename Char, xml_options ext = XML_OPT_NONE> class xml_dom_parser;
+  template <class DomNode, bool forward> class xml_dom_iterator;
+
+  /**
+     @short XML error class
+     @module {XML}
+     @header dpp/xml
+   */
+  class xml_error : public std::exception
+  {
+    std::string _what;
+
+  public:
+
+    const char* what() const throw()
+    {
+      return _what.c_str();
+    }
+
+    xml_error(const char *msg, unsigned int line)
+    {
+      std::ostringstream s;
+      s << "XML:" << msg << " at line " << line;
+      _what = s.str();
+    }
+
+    ~xml_error() throw()
+    {
+    }
+  };
+
+  //////////////////////////////////////////////////////////////////////
+  //	XML scanner
+  //////////////////////////////////////////////////////////////////////
+
+  /** @internal */
+  template <typename Char, xml_options ext>
+  class xml_scanner_base
+  {
+    template <class, xml_options> friend class xml_scanner_ns;
+    template <class, xml_options> friend class xml_scanner;
+
+  public:
+    typedef std::basic_string<Char> string;
+    typedef std::basic_istream<Char> istream;
+
+    /** @This starts XML document scanning. */
+    void scan() throw(xml_error)
+    {
+      process_root();
+    }
+
+  protected:
+    /** @internal */
+    xml_scanner_base(istream &i)
+      : _i(&i),
+	_depth(0),
+	_line(1)
+    {
+    }
+
+    /** @This is called on proper document end */
+    virtual void scan_end_doc()
+    {
+    }
+
+    /** @This is called on document start */
+    virtual void scan_start_doc()
+    {
+    }
+
+    /** @This is called for each XML header attribute found */
+    virtual void scan_header_value(const string &name, const string &value)
+    {
+    }
+
+    /** @This is called when a @tt CDATA section has been scand */
+    virtual void scan_cdata(const string &cdata)
+    {
+    }
+
+    /** @This is called when a comment has been scand */
+    virtual void scan_comment(const string &comment)
+    {
+    }
+
+    /** @This is called when a @tt{<! >} directive has been scand */
+    virtual void scan_directive(const string &dir)
+    {
+    }
+
+    /** @This is called when a @tt{<? ?>} instruction has been scand */
+    virtual void scan_instruction(const string &ins)
+    {
+    }
+
+    /** @This is called with content found before the next start/end tag */
+    virtual void scan_content(const string &content)
+    {
+    }
+
+    /** @This is called to substitute entity reference strings. The
+	default implementation handles predefined entities (@em amp,
+	@em apos, @em lt, @em gt and @em quot). */
+    virtual void scan_get_reference(string &ref)
+    {
+      switch (ref.size())
+	{
+	case 2:
+	  if (ref[0] == 'g' && ref[1] == 't')
+	    {
+	      ref = string(1, '>');
+	      return;
+	    }
+	  else if (ref[0] == 'l' && ref[1] == 't')
+	    {
+	      ref = string(1, '<');
+	      return;
+	    }
+	  break;
+
+	case 3:
+	  if (ref[0] == 'a' && ref[1] == 'm' && ref[2] == 'p')
+	    {
+	      ref = string(1, '&');
+	      return;
+	    }
+	  break;
+
+	case 4:
+	  if (ref[0] == 'a' && ref[1] == 'p' && ref[2] == 'o' && ref[3] == 's')
+	    {
+	      ref = string(1, '\'');
+	      return;
+	    }
+	  else if (ref[0] == 'q' && ref[1] == 'u' && ref[2] == 'o' && ref[3] == 't')
+	    {
+	      ref = string(1, '"');
+	      return;
+	    }
+	  break;
+	}
+
+      ref = string();
+    }
+
+    /** @This returns current tags nesting level. */
+    unsigned int depth()
+    {
+      return _depth;
+    }
+
+    /** @This returns current line number. */
+    unsigned int line()
+    {
+      return _line;
+    }
+
+    /** @internal throw */
+    void error(const char *msg)
+    {
+      throw xml_error(msg, _line);
+    }
+
+  private:
+    int getc_eof(bool &eof)
+    {
+      Char c;
+
+      _i->get(c);
+
+      if ((eof = _i->eof()))
+	return 0;
+
+      if (!_i->good())
+	error("io error reading xml stream");
+
+      if (c == '\n')
+	_line++;
+
+      return c;
+    }
+
+    int getc()
+    {
+      bool eof;
+      int c = getc_eof(eof);
+
+      if (eof)
+	error("unexpected end of xml stream");
+
+      return c;
+    }
+
+    void putc(string &str, int c)
+    {
+      str += c;
+    }
+
+    void putc_data(string &str, int c)
+    {
+      if (c != '&')
+	  return putc(str, c);
+
+      c = getc();
+
+      // character reference
+      if (c == '#')
+	{
+	  int base = 10;
+	  int r = 0;
+	  while ((c = getc()) != ';')
+	    {
+	      switch (c)
+		{
+		case 'x':
+		  base = 16;
+		  break;
+		case '0': case '1': case '2': case '3': case '4':
+		case '5': case '6': case '7': case '8': case '9':
+		  r = r * base + c - '0';
+		  break;
+		case 'A': case 'B': case 'C':
+		case 'D': case 'E': case 'F':
+		  r = r * base + 10 + c - 'A';
+		  break;
+		case 'a': case 'b': case 'c':
+		case 'd': case 'e': case 'f':
+		  r = r * base + 10 + c - 'a';
+		  break;
+		default:
+		  error("bad escaping");
+		}
+	    }
+	  return putc(str, r);
+	}
+
+      // entity reference
+      string ref;
+      do {
+	ref += c;
+	c = getc();
+      } while (c != ';');
+      scan_get_reference(ref);
+      str += ref;
+    }
+
+    void process_attr_value(string &value, int c)
+    {
+      for (; c != '='; c = getc())
+	if (c > 32)
+	  error("unexpected char in attribute name");
+      for (c = getc(); c != '"' && c != '\''; c = getc())
+	if (c > 32)
+	  error("unexpected char in attribute value");
+      int q = c;
+      for (c = getc(); c != q; c = getc())
+	putc_data(value, c);
+    }
+
+    void process_instruction()
+    {
+      _misc.clear();
+      while (1)
+	{
+	  int c = getc();
+
+	  switch (c)
+	    {
+	    case '?':
+	      if (getc() != '>')
+		error("unexpected char in instruction");
+	      return scan_instruction(_misc);
+
+	    case '"':
+	    case '\'': {
+	      int q = c;
+	      putc_data(_misc, c);
+	      for (c = getc(); c != q; c = getc())
+		putc_data(_misc, c);
+	    }
+
+	    default:
+	      putc(_misc, c);
+	    }
+	}
+    }
+
+    void process_comment()
+    {
+      int c1 = 0, c2 = 0;
+      while (1)
+	{
+	  int c = getc();
+
+	  switch (c)
+	    {
+	    case '>':
+	      if (c1 == '-' && c2 == '-')
+		{
+		  _misc.resize(_misc.size()-2);
+		  return scan_comment(_misc);
+		}
+
+	    default:
+	      c2 = c1;
+	      c1 = c;
+	      putc(_misc, c);
+	    }
+	}
+    }
+
+    void process_cdata()
+    {
+      int c1 = 0, c2 = 0;
+      while (1)
+	{
+	  int c = getc();
+
+	  switch (c)
+	    {
+	    case '>':
+	      if (c1 == ']' && c2 == ']')
+		{
+		  _misc.resize(_misc.size()-2);
+		  return scan_cdata(_misc);
+		}
+
+	    default:
+	      c2 = c1;
+	      c1 = c;
+	      putc(_misc, c);
+	    }
+	}
+    }
+
+    void process_directive()
+    {
+      _misc.clear();
+      while (1)
+	{
+	  int c = getc();
+
+	  switch (c)
+	    {
+	    case '[':
+	      for (const char *s = "CDATA["; *s; s++)
+		if (getc() != *s)
+		  error("bad directive");
+	      return process_cdata();
+
+	    case '-':
+	      if (getc() != '-')
+		error("bad directive");
+	      return process_comment();
+
+	    default: {
+	      int r = 0;
+	      if (_depth)
+		error("unexpected directive inside tag");
+	      do {
+		putc(_misc, c);
+		switch (c)
+		  {
+		  case '"':
+		  case '\'': {
+		    int q = c;
+		    for (c = getc(); c != q; c = getc())
+		      putc_data(_misc, c);
+		    putc_data(_misc, c);
+		    break;
+		  }
+		  case '[':
+		    r++;
+		    break;
+		  case ']':
+		    r--;
+		    break;
+		  }
+		c = getc();
+	      } while (r || c != '>');
+
+	      return scan_directive(_misc);
+	    }
+	    }
+	}
+    }
+
+    virtual void process_assignment(int c) = 0;
+
+    bool process_attributes()
+    {
+      while (1)
+	{
+	  int c = getc();
+
+	  switch (c)
+	    {
+	    case '>':
+	      return false;
+
+	    case '/':	
+	      c = getc();
+	      if (c != '>')
+		error("unexpected char in empty tag");
+	      return true;
+
+	    case ' ':
+	    case '\t':
+	    case '\r':
+	    case '\n':
+	      continue;
+
+	    default:
+	      process_assignment(c);
+	    }
+	}
+    }
+
+    virtual void process_start_tag_name(int c) = 0;
+    virtual void process_end_tag_name() = 0;
+
+    void process_end_tag_tail(int c)
+    {
+      while (c != '>')
+	{
+	  if (c > 32)
+	    error("unexpected char in end tag");
+	  c = getc();
+	}
+    }
+
+    bool process_tag()
+    {
+      while (1)
+	{
+	  int c = getc();
+
+	  switch (c)
+	    {
+	    case '?':
+	      process_instruction();
+	      return false;
+	    case '!':
+	      process_directive();
+	      return false;
+
+	    case '/': {
+
+	      if (!_depth--)
+		error("unexpected end tag");
+
+	      process_end_tag_name();
+	      return true;
+	    }
+
+	    case ' ':
+	    case '\t':
+	    case '\r':
+	    case '\n':
+	      continue;
+
+	    default:
+	      process_start_tag_name(c);
+	      return true;
+	    }
+	}
+    }
+
+    void process_root()
+    {
+      int c;
+
+      scan_start_doc();
+
+      do {
+	c = getc();
+      } while (c < 32);
+      for (const char *s = "<?xml"; *s; c = getc())
+	if (c > 32 && std::tolower(c) != *s++)
+	  error("bad header");
+      while (1)
+	{
+	  c = getc();
+	  switch (c)
+	    {
+	    case '?':
+	      goto hdr_done;
+
+	    case ' ':
+	    case '\t':
+	    case '\r':
+	    case '\n':
+	      break;
+
+	    default: {
+	      string attr, value;
+
+	      do {
+		putc(attr, c);
+		c = getc();
+	      } while (c > 32 && c != '=');
+
+	      process_attr_value(value, c);
+	      scan_header_value(attr, value);
+	    }
+	    }
+	}
+     hdr_done:
+      if (getc() != '>')
+	error("bad header end");
+
+      bool eof;
+      c = getc_eof(eof);
+      while (1)
+	{
+	  if (eof)
+	    {
+	      if (_depth)
+		error("unexpected end of xml stream");
+	      scan_end_doc();
+	      return;
+	    }
+	  switch (c)
+	    {
+	    case '<':
+	      if (process_tag() && !_depth &&
+		  !(ext & XML_EXT_MULTIPLE_ROOTS))
+		return;
+	      break;
+
+	    case ' ':
+	    case '\t':
+	    case '\r':
+	    case '\n':
+	      if (!_depth)
+		break;
+
+	    default: {
+	      if (!_depth && !(ext & XML_EXT_CONTENT_OUTSIDE_ROOT))
+		error("text content outside root node");
+	      string content;
+	      do {
+		putc_data(content, c);
+		c = getc_eof(eof);
+	      } while (!eof && c != '<');
+	      scan_content(content);
+	      continue;
+	    }
+	    }
+	  c = getc_eof(eof);
+	}
+    }
+
+  private:
+    istream *_i;
+    unsigned int _depth;
+    unsigned int _line;
+    string _misc;
+  };
+
+  /**
+     @short XML scanner
+     @module {XML}
+     @header dpp/xml
+     @see xml_event_parser
+     @see xml_options
+
+     @This implements an XML scanner. Derived classes must override
+     some functions to handle XML scanning events.
+
+     @ref xml_error exception is thrown on syntax error. Start and
+     end tags count must be balanced but tags name missmatch is not checked
+     here.
+
+     @section {Example}
+     @example test/test_xml_scanner.cc:scanner P
+     @example test/test_xml_scanner.cc:use
+     @end section
+   */
+  template <typename Char, xml_options ext>
+  class xml_scanner : public xml_scanner_base<Char, ext>
+  {
+    typedef xml_scanner_base<Char, ext> base;
+    std::basic_istringstream<Char> _ss;
+
+  public:
+    typedef std::basic_string<Char> string;
+    typedef std::basic_istream<Char> istream;
+
+    /** @This create an xml scanner for processing from input stream. */
+    xml_scanner(istream &i)
+      : xml_scanner_base<Char, ext>(i)
+    {
+    }
+
+    /** @This create an xml scanner for processing from string content. */
+    xml_scanner(const string &s)
+      : _ss(s),
+	xml_scanner_base<Char, ext>(_ss)
+    {
+    }
+
+  private:
+
+    void process_assignment(int c)
+    {
+      string attr, value;
+
+      do {
+	base::putc(attr, c);
+	c = base::getc();
+      } while (c > 32 && c != '=');
+
+      base::process_attr_value(value, c);
+      scan_attribute(attr, value);
+    }
+
+    void process_start_tag_name(int c)
+    {
+      string stag;
+      do {
+	base::putc(stag, c);
+	c = base::getc();
+      } while (c > 32 && c != '>' && c != '/');
+
+      if (c == '\n')
+	base::_line--;
+      base::_i->unget();
+
+      scan_start_tag(stag);
+      if (base::process_attributes())
+	scan_end_tag(stag);
+      else
+	base::_depth++;
+    }
+
+    void process_end_tag_name()
+    {
+      string etag;
+      int c;
+
+      while ((c = base::getc()) != '>' && c > 32)
+	base::putc(etag, c);
+
+      base::process_end_tag_tail(c);
+      scan_end_tag(etag);
+    }
+
+  protected:
+
+    /** @This is called for each start tag */
+    virtual void scan_start_tag(const string &start_tag)
+    {
+    }
+
+    /** @This is called for each end tag */
+    virtual void scan_end_tag(const string &end_tag)
+    {
+    }
+
+    /** @This is called for each attribute found in the preceding start tag */
+    virtual void scan_attribute(const string &name, const string &value)
+    {
+    }
+  };
+
+  /**
+     @short XML scanner with namespace support
+     @module {XML}
+     @header dpp/xml
+     @see xml_scanner
+
+     This class implements an XML scanner. This class is similar to
+     @xref{xml_scanner} but tag and attribute namespace name is
+     extracted.
+   */
+  template <typename Char, xml_options ext>
+  class xml_scanner_ns : public xml_scanner_base<Char, ext>
+  {
+    typedef xml_scanner_base<Char, ext> base;
+
+    std::basic_istringstream<Char> _ss;
+
+  public:
+    typedef std::basic_string<Char> string;
+    typedef std::basic_istream<Char> istream;
+
+    /** @This create an xml scanner for processing from input stream. */
+    xml_scanner_ns(istream &i)
+      : xml_scanner_base<Char, ext>(i)
+    {
+    }
+
+    /** @This create an xml scanner for processing from string content. */
+    xml_scanner_ns(const string &s)
+      : _ss(s),
+	xml_scanner_base<Char, ext>(_ss)
+    {
+    }
+
+  private:
+    void process_assignment(int c)
+    {
+      string xmlns, attr, value;
+
+      do {
+	base::putc(xmlns, c);
+	c = base::getc();
+      } while (c > 32 && c != '=' && c != ':');
+
+      if (c == ':') {
+	c = base::getc();
+	do {
+	  base::putc(attr, c);
+	  c = base::getc();
+	} while (c > 32 && c != '=');
+      }
+      else
+	attr.swap(xmlns);
+
+      base::process_attr_value(value, c);
+      scan_attribute(xmlns, attr, value);
+    }
+
+    void process_start_tag_name(int c)
+    {
+      string xmlns;
+      string stag;
+      do {
+	base::putc(xmlns, c);
+	c = base::getc();
+      } while (c > 32 && c != '>' && c != '/' && c != ':');
+
+      if (c == ':') {
+	c = base::getc();
+	do {
+	  base::putc(stag, c);
+	  c = base::getc();
+	} while (c > 32 && c != '>' && c != '/');
+      }
+      else
+	stag.swap(xmlns);
+
+      if (c == '\n')
+	base::_line--;
+      base::_i->unget();
+
+      scan_start_tag(xmlns, stag);
+      if (base::process_attributes())
+	scan_end_tag(xmlns, stag);
+      else
+	base::_depth++;
+    }
+
+    void process_end_tag_name()
+    {
+      string xmlns;
+      string etag;
+      int c;
+
+      while (1)
+	{
+	  c = base::getc();
+	  if (!((c != '>' && c != ':' && c > 32)))
+	    break;
+	  base::putc(xmlns, c);
+	}
+
+      if (c == ':') {
+	while (1)
+	  {
+	    c = base::getc();
+	    if (!((c != '>' && c > 32)))
+	      break;
+	    base::putc(etag, c);
+	  }
+      }
+      else
+	etag.swap(xmlns);
+
+      base::process_end_tag_tail(c);
+      scan_end_tag(xmlns, etag);
+    }
+
+  protected:
+
+    /** @This is called for each start tag */
+    virtual void scan_start_tag(const string &xmlns, const string &start_tag)
+    {
+    }
+
+    /** @This is called for each end tag */
+    virtual void scan_end_tag(const string &xmlns, const string &end_tag)
+    {
+    }
+
+    /** @This is called for each attribute found in the preceding start tag */
+    virtual void scan_attribute(const string &xmlns, const string &name, const string &value)
+    {
+    }
+  };
+
+  //////////////////////////////////////////////////////////////////////
+  //	XML event
+  //////////////////////////////////////////////////////////////////////
+
+  /**
+     @short XML event handler for the event parser
+     @module {XML}
+     @header dpp/xml
+     @see xml_event_parser
+  */
+  template <typename Char>
+  class xml_event_handlers
+  {
+  protected:
+    typedef std::basic_string<Char> string;
+
+    typedef std::map<string, string> attributes_map_t;
+
+    /** @This is called for each parsed start tag.
+
+	Attributes list is passed as a non-const reference so that it
+	can be swapped with an other empty @ref std::map to avoid data copy.
+
+	@This is called once the new tag @tt Node object has
+	been pushed onto the processing stack, it can be accessed from
+	@this as well as other parsing functions by using the @ref
+	stack_top function.
+
+	@see parse_start_doc @see parse_end_tag
+     */
+    virtual void parse_start_tag(const string &name, attributes_map_t &attributes)
+    {
+    }
+
+    /** @This is called for each parsed end tag.
+
+	@This is called before the ended tag @tt Node object
+	is poped from the processing stack.
+
+	@see parse_start_tag
+    */
+    virtual void parse_end_tag(const string &name)
+    {
+    }
+
+    /** @This is called with content found before the next start/end tag */
+    virtual void parse_content(const string &content)
+    {
+    }
+
+    /** @This is called when a @tt CDATA section has been parsed */
+    virtual void parse_cdata(const string &cdata)
+    {
+    }
+  };
+
+  /**
+     @short XML event parser
+     @module {XML}
+     @header dpp/xml
+     @main
+     @see xml_scanner
+     @see xml_options
+
+     @This implements an XML event based parser. A user @tt Node
+     type may be embedded in the internal processing stack to ease
+     building of in memory tree representation of XML documents (see @xref{example 2}).
+
+     The @tt String template parameter may be used to specify a
+     string class with optional wide characters support.
+
+     @ref xml_error exception is thrown on input error.
+
+     @section {Example 1}
+
+     In this example we simply reprint the XML document during parsing.
+
+     @example test/test_xml_event_parser.cc:parser P
+     @example test/test_xml_event_parser.cc:use
+     @end section
+
+     @section {Example 2}
+
+     In this example we use a @ref ref smart pointer to our @tt MyNode
+     structure to build a tree from XML input. The smart pointer
+     ensures that our tree is automatically freed even if an exception
+     is thrown during parsing.
+
+     @example test/test_xml_event_parser_tree.cc:node P
+     @example test/test_xml_event_parser_tree.cc:parser
+     @example test/test_xml_event_parser_tree.cc:use
+     @end section
+   */
+  template <typename Char, class Node, xml_options ext>
+  class xml_event_parser
+    : protected xml_scanner<Char, ext>
+    , public xml_event_handlers<Char>
+  {
+    typedef xml_scanner<Char, ext> base;
+
+  public:
+    typedef std::basic_string<Char> string;
+    typedef std::map<string, string> attributes_map_t;
+
+    /** @This forwards argument to @ref xml_scanner constructor */
+    template <typename T>
+    xml_event_parser(T &t)
+      : base(t)
+    {
+    }
+
+    /** @This starts XML parsing and returns document root @tt Node. */
+    Node parse() throw(xml_error)
+    {
+      try {
+	xml_scanner<Char>::scan();
+      } catch (...) {
+	parse_error();
+	cleanup();
+	throw;
+      }
+
+      Node r = _stack.back()._tc;
+      cleanup();
+      return r;
+    }
+
+  protected:
+
+    using base::line;
+    using base::depth;
+
+    /** @This is called on XML document start.
+
+	XML header attributes list is passed as a non-const reference
+	so that it can be swaped with an other empty @ref std::map to
+	avoid data copy.
+
+	@This is called once the new tag @tt Node object has
+	been pushed onto the processing stack, it can be accessed by using
+	the @ref stack_top function.
+
+	@see parse_start_tag @see parse_end_doc
+     */
+    virtual void parse_start_doc(attributes_map_t &header_values)
+    {
+    }
+
+    /** @This is called on XML document parse end */
+    virtual void parse_end_doc()
+    {
+    }
+
+    /** @This is called when a "@tt{<! >}" directive has been parsed */
+    virtual void parse_directive(const string &dir)
+    {
+    }
+
+    /** @This is called when a comment has been parsed */
+    virtual void parse_comment(const string &comment)
+    {
+    }
+
+    /** @This is called when a "@tt{<? ?>}" instruction has been parsed */
+    virtual void parse_instruction(const string &ins)
+    {
+    }
+
+    /** @This is called when a parse error occurs, before the internal
+	stack is destroyed */
+    virtual void parse_error()
+    {
+    }
+
+    /** @This returns node on stack relative to stack top, -1 is stack top. */
+    Node & stack_top(int i)
+    {
+      return _stack[_stack.size() + i]._tc;
+    }
+
+    /** @This returns node on stack relative to stack bottom, 0 is stack bottom. */
+    Node & stack_bottom(int i)
+    {
+      return _stack[i]._tc;
+    }
+
+    /** @This returns current stack size */
+    size_t stack_size()
+    {
+      return _stack.size();
+    }
+
+  private:
+
+    void scan_cdata(const string &cdata) _DPP_OVERRIDE
+    {
+      (this->*_do_start)();
+      this->parse_cdata(cdata);
+    }
+
+    void scan_comment(const string &comment) _DPP_OVERRIDE
+    {
+      (this->*_do_start)();
+      this->parse_comment(comment);
+    }
+
+    void scan_directive(const string &dir) _DPP_OVERRIDE
+    {
+      (this->*_do_start)();
+      this->parse_directive(dir);
+    }
+
+    void scan_instruction(const string &ins) _DPP_OVERRIDE
+    {
+      (this->*_do_start)();
+      this->parse_instruction(ins);
+    }
+
+    void scan_content(const string &content) _DPP_OVERRIDE
+    {
+      (this->*_do_start)();
+      this->parse_content(content);
+    }
+
+    void scan_attribute(const string &name, const string &value) _DPP_OVERRIDE
+    {
+      _attr[name] = value;
+    }
+
+    void scan_start_tag(const string &start_tag) _DPP_OVERRIDE
+    {
+      (this->*_do_start)();
+      _attr.clear();
+      _started_tag = start_tag;
+      _do_start = &xml_event_parser::do_start_tag;
+    }
+
+    void scan_end_tag(const string &end_tag) _DPP_OVERRIDE
+    {
+      (this->*_do_start)();
+      assert(_stack.size() > 1);
+      if (_stack.back()._name != end_tag)
+	base::error("end tag name doesn't match");
+      this->parse_end_tag(_stack.back()._name);
+      _stack.pop_back();
+    }
+
+    void scan_start_doc() _DPP_OVERRIDE
+    {
+      _do_start = &xml_event_parser::do_start_doc;
+    }
+
+    void scan_header_value(const string &name, const string &value) _DPP_OVERRIDE
+    {
+      _attr[name] = value;
+    }
+
+    void scan_end_doc() _DPP_OVERRIDE
+    {
+      assert(_stack.size() == 1);
+      parse_end_doc();
+    }
+
+    void do_start_none()
+    {
+    }
+
+    void do_start_doc()
+    {
+      _do_start = &xml_event_parser::do_start_none;
+      _stack.push_back(stack_item(string()));
+      parse_start_doc(_attr);
+    }
+
+    void do_start_tag()
+    {
+      _do_start = &xml_event_parser::do_start_none;
+      _stack.push_back(stack_item(_started_tag));
+      this->parse_start_tag(_started_tag, _attr);
+    }
+
+    void cleanup()
+    {
+      _stack.clear();
+      _attr.clear();
+      _started_tag.clear();
+    }
+
+    struct stack_item
+    {
+      stack_item(const string &name)
+	: _name(name), _tc()
+      {
+      }
+
+      string _name;
+      Node _tc;
+    };
+
+    std::vector<stack_item>  _stack;
+    std::map<string, string> _attr;
+    void (xml_event_parser::*_do_start)();
+    string _started_tag;
+  };
+
+  /**
+     @short XML event parser with namespace support
+     @module {XML}
+     @header dpp/xml
+     @see xml_event_parser
+     @see xml_options
+     @hidden
+
+     This class implements an XML event based parser.
+   */
+  template <typename Char, xml_options ext>
+  class xml_event_parser_ns
+  {
+  };
+
+  //////////////////////////////////////////////////////////////////////
+  //	XML dom
+  //////////////////////////////////////////////////////////////////////
+
+  /**
+      @module {XML}
+      @header dpp/xml
+      @internal
+  */
+  template <typename Char>
+  inline void xml_print_escape(std::basic_ostream<Char> &o, const std::basic_string<Char> &str)
+  {
+    typedef std::basic_string<Char> string;
+
+    for (typename string::const_iterator i = str.begin(); i != str.end(); i++)
+      {
+	unsigned long c = *i;
+	switch (c)
+	  {
+	  case '&':
+ 	    o << "&amp;";
+	    break;
+	  case '"':
+ 	    o << "'&quot;";
+	    break;
+	  case '<':
+ 	    o << "&lt;";
+	    break;
+	  case '>':
+ 	    o << "&gt;";
+	    break;
+	  case '\'':
+ 	    o << "&apos;";
+	    break;
+
+	  default:
+	    if ((sizeof(Char) == 1 && c >= 127) || (c >= (1ULL << (sizeof(Char) * 8))))
+	      {
+		o << "&#x";
+		for (int i = sizeof(Char) * 8 - 4; i >=0; i -= 4)
+		  o << (Char)("0123456789abcdef"[(c >> i) & 0xf]);
+		o << ';';
+	      }
+	    else
+	      {
+		o << *i;
+	      }
+	  }
+      }
+  }
+
+  /**
+      @module {XML}
+      @header dpp/xml
+      @internal
+  */
+  template <typename Char>
+  inline void xml_print_cdata(std::basic_ostream<Char> &o, const std::basic_string<Char> &str)
+  {
+    typedef std::basic_string<Char> string;
+
+    o << "<![CDATA[";
+    int state = 0;
+    for (typename string::const_iterator i = str.begin(); i != str.end(); i++)
+      {
+	if (state < 2)
+	  state = (*i == ']') ? state + 1 : 0;
+	else	
+	  {
+	    if (*i == '>')
+	      o << "]]><![CDATA[";
+	    state = 0;
+	  }
+	o << *i;
+      }
+    o << "]]>";
+  }
+
+  //////////////////////////////////////////////////////////////////////
+
+  /**
+     @short XML dom iterator class
+     @module {XML}
+     @header dpp/xml
+     @internal
+  */
+  template <class DomNode, bool forward>
+  class xml_dom_iterator
+  {
+    template <class> friend class xml_dom_parent_node;
+    template <class, bool> friend class xml_dom_iterator;
+
+  public:
+
+    typedef std::bidirectional_iterator_tag iterator_category;
+    typedef DomNode value_type;
+    typedef DomNode & reference;
+    typedef DomNode * pointer;
+    typedef int difference_type;
+
+    xml_dom_iterator()
+      : _node(0)
+    {
+    }
+
+    xml_dom_iterator(const xml_dom_iterator &i)
+      : _node(i._node)
+    {
+    }
+
+    template <class D, bool fwd>
+    xml_dom_iterator(const xml_dom_iterator<D, fwd> &i)
+      : _node(i._node)
+    {
+    }
+
+    const xml_dom_iterator & operator++()
+    {
+      _node = forward ? _node->_next : _node->_prev;
+      return *this;
+    }
+
+    xml_dom_iterator operator++(int)
+    {
+      xml_dom_iterator n(*this);
+      _node = forward ? _node->_next : _node->_prev;
+      return n;
+    }
+
+    const xml_dom_iterator & operator--()
+    {
+      _node = forward ? _node->_prev : _node->_next;
+      return *this;
+    }
+
+    xml_dom_iterator operator--(int)
+    {
+      xml_dom_iterator n(*this);
+      _node = forward ? _node->_prev : _node->_next;
+      return n;
+    }
+
+    DomNode & operator*() const
+    {
+      return *_node;
+    }
+
+    DomNode * operator->() const
+    {
+      return _node;
+    }
+
+    bool operator==(const xml_dom_iterator &i) const
+    {
+      return i._node == _node;
+    }
+
+    bool operator!=(const xml_dom_iterator &i) const
+    {
+      return i._node != _node;
+    }
+
+    xml_dom_iterator(DomNode *n)
+      : _node(n)
+    {
+    }
+
+  private:
+
+    DomNode *_node;
+  };
+
+  //////////////////////////////////////////////////////////////////////
+
+  /**
+     @short XML dom, node base class
+     @module {XML}
+     @header dpp/xml
+     @internal
+  */
+  template <typename Char>
+  class xml_dom_node
+  {
+    template <class, xml_options> friend class xml_dom_parser;
+    template <class> friend class xml_dom_parent_node;
+    template <class> friend class xml_dom_element;
+    template <class> friend class xml_dom_content;
+    template <class, bool > friend class xml_dom_iterator;
+
+  public:
+    typedef std::basic_ostream<Char> ostream;
+    typedef std::basic_string<Char> string;
+
+    /** @This creates an new element as a sibling before this node. */
+    xml_dom_element<Char> * insert_element(const string &name)
+    {
+      xml_dom_element<Char> *e = new xml_dom_element<Char>(name);
+      push_back(e);
+      return e;
+    }
+
+    /** @This creates an new content node as a sibling before this node. */
+    xml_dom_content<Char> * insert_content(const string &content, xml_content_type type = XML_CONTENT_TEXT)
+    {
+      xml_dom_content<Char> *e = new xml_dom_content<Char>(content, type);
+      push_back(e);
+      return e;
+    }
+
+    /** @This creates an new element as a sibling after this node. */
+    xml_dom_element<Char> * insert_post_element(const string &name)
+    {
+      xml_dom_element<Char> *e = new xml_dom_element<Char>(name);
+      push_front(e);
+      return e;
+    }
+
+    /** @This creates an new content node as a sibling after this node. */
+    xml_dom_content<Char> * insert_post_content(const string &content, xml_content_type type = XML_CONTENT_TEXT)
+    {
+      xml_dom_content<Char> *e = new xml_dom_content<Char>(content, type);
+      push_front(e);
+      return e;
+    }
+
+    /** @This removes and deletes this node. */
+    void remove()
+    {
+      _prev->_next = _next;
+      _next->_prev = _prev;
+      delete this;
+    }
+
+    /** @This performs a @tt dynamic_cast of this node to the @ref xml_dom_element class. */
+    xml_dom_element<Char> * to_element()
+    {
+      return dynamic_cast<xml_dom_element<Char> *>(this);
+    }
+
+    /** @This performs a @tt dynamic_cast of this node to the @ref xml_dom_element class. */
+    const xml_dom_element<Char> * to_element() const
+    {
+      return dynamic_cast<const xml_dom_element<Char> *>(this);
+    }
+
+    /** @This performs a @tt dynamic_cast of this node to the @ref xml_dom_content class. */
+    xml_dom_content<Char> * to_content()
+    {
+      return dynamic_cast<xml_dom_content<Char> *>(this);
+    }
+
+    /** @This performs a @tt dynamic_cast of this node to the @ref xml_dom_content class. */
+    const xml_dom_content<Char> * to_content() const
+    {
+      return dynamic_cast<const xml_dom_content<Char> *>(this);
+    }
+
+    /** @This performs a @tt dynamic_cast of this node to the @ref xml_dom_doc class. */
+    xml_dom_doc<Char> * to_doc()
+    {
+      return dynamic_cast<xml_dom_doc<Char> *>(this);
+    }
+
+    /** @This performs a @tt dynamic_cast of this node to the @ref xml_dom_doc class. */
+    const xml_dom_doc<Char> * to_doc() const
+    {
+      return dynamic_cast<const xml_dom_doc<Char> *>(this);
+    }
+
+  private:
+
+    xml_dom_node()
+    {
+    }
+
+    xml_dom_node(const xml_dom_node &xml_dom_node);
+
+    virtual ~xml_dom_node()
+    {
+    }
+
+    void push_front(xml_dom_node *b)
+    {
+      xml_dom_node *a = this;
+      b->_prev = a;
+      a->_next->_prev = b;
+      b->_next = a->_next;
+      a->_next = b;
+    }
+
+    void push_back(xml_dom_node *b)
+    {
+      xml_dom_node *a = this;
+      b->_next = a;
+      a->_prev->_next = b;
+      b->_prev = a->_prev;
+      a->_prev = b;
+    }
+
+    virtual void print(ostream &o) const
+    {
+    }
+
+    xml_dom_node *_next;
+    xml_dom_node *_prev;
+  };
+
+  //////////////////////////////////////////////////////////////////////
+
+  /**
+     @short XML dom, parent node base class
+     @module {XML}
+     @header dpp/xml
+     @internal
+  */
+  template <typename Char>
+  class xml_dom_parent_node : public xml_dom_node<Char>
+  {
+    template <class, xml_options> friend class xml_dom_parser;
+    template <class> friend class xml_dom_element;
+    template <class> friend class xml_dom_doc;
+
+  public:
+    typedef std::basic_string<Char> string;
+    typedef std::basic_ostream<Char> ostream;
+
+    typedef xml_dom_iterator<xml_dom_node<Char>, true> iterator;
+    typedef xml_dom_iterator<const xml_dom_node<Char>, true> const_iterator;
+    typedef xml_dom_iterator<xml_dom_node<Char>, false> reverse_iterator;
+    typedef xml_dom_iterator<const xml_dom_node<Char>, false> const_reverse_iterator;
+
+    /** @This tests if the node has children. */
+    bool empty() const
+    {
+      return _root._next == &_root;
+    }
+
+    /** @This appends an element node as a child of this node. */
+    xml_dom_element<Char> * add_element(const string &name)
+    {
+      xml_dom_element<Char> *e = new xml_dom_element<Char>(name);
+      _root.push_back(e);
+      return e;
+    }
+
+    /** @This appends a content node as a child of this node. */
+    xml_dom_content<Char> * add_content(const string &content, xml_content_type type = XML_CONTENT_TEXT)
+    {
+      xml_dom_content<Char> *e = new xml_dom_content<Char>(content, type);
+      _root.push_back(e);
+      return e;
+    }
+
+    /** @This returns an iterator pointing on first child element. */
+    iterator begin()
+    {
+      return iterator(_root._next);
+    }
+
+    /** @This returns an iterator pointing past last child element. */
+    iterator end()
+    {
+      return iterator(&_root);
+    }
+
+    /** @This returns an iterator pointing on first child element. */
+    const_iterator begin() const
+    {
+      return const_iterator(_root._next);
+    }
+
+    /** @This returns an iterator pointing past last child element. */
+    const_iterator end() const
+    {
+      return const_iterator(&_root);
+    }
+
+    /** @This returns an iterator pointing on first child element. */
+    const_iterator cbegin() const
+    {
+      return const_iterator(_root._next);
+    }
+
+    /** @This returns an iterator pointing past last child element. */
+    const_iterator cend() const
+    {
+      return const_iterator(&_root);
+    }
+
+    /** @This returns a reverse iterator pointing on last child element. */
+    reverse_iterator rbegin()
+    {
+      return reverse_iterator(_root._prev);
+    }
+
+    /** @This returns an reverse iterator pointing before first child element. */
+    reverse_iterator rend()
+    {
+      return reverse_iterator(&_root);
+    }
+
+    /** @This returns a reverse iterator pointing on last child element. */
+    const_reverse_iterator rbegin() const
+    {
+      return const_reverse_iterator(_root._prev);
+    }
+
+    /** @This returns an reverse iterator pointing before first child element. */
+    const_reverse_iterator rend() const
+    {
+      return const_reverse_iterator(&_root);
+    }
+
+    /** @This returns a reverse iterator pointing on last child element. */
+    const_reverse_iterator crbegin() const
+    {
+      return const_reverse_iterator(_root._prev);
+    }
+
+    /** @This returns an reverse iterator pointing before first child element. */
+    const_reverse_iterator crend() const
+    {
+      return const_reverse_iterator(&_root);
+    }
+
+    /** @This find the next element with matching name. */
+    const xml_dom_element<Char> * find_element(const string &name, const const_iterator &first = cbegin()) const
+    {
+      const xml_dom_node<Char> *i = first._node;
+      while (i != &_root)
+	{
+	  if (const xml_dom_element<Char> *e = i->to_element())
+	    if (e->get_name() == name)
+	      return e;
+	  i = i->_next;
+	}
+      return 0;
+    }
+
+    /** @This find the next element with matching name. */
+    xml_dom_element<Char> * find_element(const string &name, const iterator &first = begin()) const
+    {
+      xml_dom_node<Char> *i = first._node;
+      while (i != &_root)
+	{
+	  if (xml_dom_element<Char> *e = i->to_element())
+	    if (e->get_name() == name)
+	      return e;
+	  i = i->_next;
+	}
+      return 0;
+    }
+
+  private:
+
+    xml_dom_parent_node()
+    {
+      _root._next = &_root;
+      _root._prev = &_root;
+    }
+
+    ~xml_dom_parent_node()
+    {
+      cleanup();
+    }
+
+    void print(ostream &o) const
+    {
+      for (xml_dom_node<Char> *i = _root._next; i != &_root; i = i->_next)
+	i->print(o);
+    }
+
+    void cleanup()
+    {
+      xml_dom_node<Char> *j;
+      for (xml_dom_node<Char> *i = _root._next; i != &_root; i = j)
+	{
+	  j = i->_next;
+	  delete i;
+	}
+    }
+
+    xml_dom_node<Char> _root;
+  };
+
+  //////////////////////////////////////////////////////////////////////
+
+  /**
+     @short XML dom, node with attributes base class
+     @module {XML}
+     @header dpp/xml
+     @internal
+  */
+  template <typename Char>
+  class xml_dom_attr_node
+  {
+    template <class, xml_options> friend class xml_dom_parser;
+    template <class> friend class xml_dom_element;
+    template <class> friend class xml_dom_doc;
+
+  public:
+    typedef std::basic_string<Char> string;
+    typedef std::basic_ostream<Char> ostream;
+    typedef std::map<string, string> attr_hash_t;
+
+    /** @This returns a const reference to the internal attributes map */
+    const attr_hash_t &get_attributes() const
+    {
+      return _attrs;
+    }
+
+    /** @This returns a modifiable reference to the internal attributes map */
+    attr_hash_t &get_attributes()
+    {
+      return _attrs;
+    }
+
+    /** @This returns the value of the specified attribute or default a value. */
+    const string &get_attribute(const string &name, const string &default_ = string()) const
+    {
+      typename attr_hash_t::const_iterator i = _attrs.find(name);
+
+      if (i == _attrs.end())
+	return default_;
+
+      return i->second;
+    }
+
+    /** @This sets an attribute value. */
+    void set_attribute(const string &name, const string &value)
+    {
+      _attrs[name] = value;
+    }
+
+    /** @This erases an attribute. */
+    void erase_attribute(const string &name)
+    {
+      _attrs.erase(name);
+    }
+
+  private:
+
+    xml_dom_attr_node()
+    {
+    }
+
+    void print_attr(ostream &o) const
+    {
+      for (typename attr_hash_t::const_iterator i = _attrs.begin();
+	   i != _attrs.end(); i++)
+	{
+	  o << " " << i->first << "=\"";
+	  xml_print_escape(o, i->second);
+	  o << "\"";
+	}
+    }
+
+    attr_hash_t _attrs;
+  };
+
+  //////////////////////////////////////////////////////////////////////
+
+  /** @internal */
+  template <typename Char>
+  std::basic_string<Char> xml_from_charptr(const char *cstr)
+  {
+    std::basic_string<Char> str;
+    size_t len = std::strlen(cstr);
+    str.resize(len);
+    for (int i = 0; i < len; i++)
+      str[i] = cstr[i];
+    return str;
+  }
+
+  /**
+     @short XML dom, document node
+     @module {XML}
+     @header dpp/xml
+     @main
+
+     @This is designed to contain elements of an XML document.
+
+     An XML document object can be populated by hand or by using the
+     @ref xml_dom_parser class; it can be streamed on a @ref
+     std::ostream object by using the @tt << operator.
+
+     The whole XML tree is freed when this object is destroyed.
+
+     @section {Example}
+     This example shows how to populate an XML dom:
+     @example test/test_xml_dom.cc:a P
+
+     This example shows how to iterate over XML nodes:
+     @example test/test_xml_dom.cc:b P
+
+     This example shows how to iterate over XML elements having a given name:
+     @example test/test_xml_dom.cc:c P
+     @end section
+  */
+  template <typename Char>
+  class xml_dom_doc
+    : public xml_dom_parent_node<Char>
+    , public xml_dom_attr_node<Char>
+  {
+    template <class, xml_options> friend class xml_dom_parser;
+    typedef xml_dom_parent_node<Char> base;
+
+  public:
+    typedef std::basic_string<Char> string;
+    typedef std::basic_ostream<Char> ostream;
+
+    using typename xml_dom_attr_node<Char>::attr_hash_t;
+
+    /** @This creates an empty XML document. */
+    xml_dom_doc(const string &encoding, const string &version)
+    {
+      xml_dom_attr_node<Char>::set_attribute(xml_from_charptr<Char>("encoding"), encoding);
+      xml_dom_attr_node<Char>::set_attribute(xml_from_charptr<Char>("version"), version);
+    }
+
+  private:
+    void print(ostream &o) const
+    {
+      o << "<?xml";
+      xml_dom_attr_node<Char>::print_attr(o);
+      o << " ?>";
+      base::print(o);
+    }
+
+    friend inline ostream & operator<<(ostream &o, const xml_dom_doc &doc)
+    {
+      doc.print(o);
+      return o;
+    }
+
+    xml_dom_doc(const xml_dom_doc &);
+
+    xml_dom_doc()
+    {
+    }
+
+  };
+
+  //////////////////////////////////////////////////////////////////////
+
+  /**
+     @short XML dom, tag element
+     @module {XML}
+     @header dpp/xml
+  */
+  template <typename Char>
+  class xml_dom_element
+    : public xml_dom_parent_node<Char>
+    , public xml_dom_attr_node<Char>
+  {
+    template <class, xml_options> friend class xml_dom_parser;
+    template <class> friend class xml_dom_parent_node;
+    template <class> friend class xml_dom_node;
+    typedef xml_dom_parent_node<Char> base;
+
+  public:
+    typedef std::basic_string<Char> string;
+    typedef std::basic_ostream<Char> ostream;
+
+    using typename xml_dom_attr_node<Char>::attr_hash_t;
+
+    /** @This returns the element name. */
+    const string &get_name() const
+    {
+      return _name;
+    }
+
+    /** @This changes the element name. */
+    void set_name(const string &name)
+    {
+      _name = name;
+    }
+
+  private:
+
+    xml_dom_element(const xml_dom_element &e);
+
+    xml_dom_element(const string &name)
+      : _name(name)
+    {
+    }
+
+    ~xml_dom_element()
+    {
+    }
+
+    void print(ostream &o) const
+    {
+      o << "<" << _name;
+      xml_dom_attr_node<Char>::print_attr(o);
+      if (base::empty())
+	o << " />";
+      else
+	{
+	  o << ">";
+	  base::print(o);
+	  o << "</" << _name << ">";
+	}
+    }
+
+    string _name;
+  };
+
+  //////////////////////////////////////////////////////////////////////
+
+  /**
+     @short XML dom, text and CDATA content node
+     @module {XML}
+     @header dpp/xml
+  */
+  template <typename Char>
+  class xml_dom_content : public xml_dom_node<Char>
+  {
+    template <class, xml_options> friend class xml_dom_parser;
+    template <class> friend class xml_dom_parent_node;
+    template <class> friend class xml_dom_node;
+
+  public:
+    typedef std::basic_string<Char> string;
+    typedef std::basic_ostream<Char> ostream;
+
+    /** @This returns the content. */
+    const string & get_content() const
+    {
+      return _content;
+    }
+
+    /** @This returns a modifiable reference to the content. */
+    string & get_content_ref()
+    {
+      return _content;
+    }
+
+    /** @This changes the content. */
+    void set_content(const string &content)
+    {
+      _content = content;
+    }
+
+    /** @This returns the type of XML content. */
+    xml_content_type type() const
+    {
+      return _type;
+    }
+
+  private:
+
+    xml_dom_content(const xml_dom_content &c);
+
+    xml_dom_content(const string &content, xml_content_type type = XML_CONTENT_TEXT)
+      : _content(content),
+	_type(type)
+    {
+    }
+
+    ~xml_dom_content()
+    {
+    }
+
+    void print(ostream &o) const
+    {
+      switch (_type)
+	{
+	case XML_CONTENT_CDATA:
+	  return xml_print_cdata(o, _content);
+	case XML_CONTENT_TEXT:
+	  return xml_print_escape(o, _content);
+	}
+    }
+
+    string _content;
+    xml_content_type _type;
+  };
+
+  //////////////////////////////////////////////////////////////////////
+
+  /**
+     @short XML dom parser
+     @module {XML}
+     @header dpp/xml
+     @see xml_event_parser
+     @see xml_dom_doc
+     @see xml_options
+     @main
+
+     @This implements an XML dom parser. It builds an in memory
+     tree representation of the XML input.
+
+     The @ref parse function must be used to start XML input parsing.
+     A new @ref xml_dom_doc object is returned when the underlying
+     event parser reports the end of the XML document.
+
+     The @tt Char template parameter specifies the type of character
+     used by both the class API and internally to store strings.
+
+     An @ref xml_error exception is thrown on parse error.
+
+     @section {Example}
+     @example test/test_xml_dom_parser.cc:read P
+     @end section
+  */
+  template <typename Char, xml_options ext>
+  class xml_dom_parser : protected xml_event_parser<Char, xml_dom_parent_node<Char>*, ext>
+  {
+    typedef xml_event_parser<Char, xml_dom_parent_node<Char>*, ext> base;
+    typedef xml_dom_element<Char> element_t;
+    typedef xml_dom_node<Char> node_t;
+
+  public:
+    typedef std::basic_string<Char> string;
+    typedef std::map<string, string> attributes_map_t;
+
+    /** @This forwards argument to @ref xml_event_parser constructor */
+    template <typename T>
+    xml_dom_parser(T &t)
+      : base(t)
+    {
+    }
+
+    /** @This parses input and returns the root node */
+    xml_dom_doc<Char> * parse() throw(xml_error)
+    {
+      xml_dom_doc<Char> *r;
+
+      try {
+	r = static_cast<xml_dom_doc<Char>*>(base::parse());
+      } catch (...) {
+	throw;
+      }
+
+      return r;
+    }
+
+  private:
+
+    void parse_start_doc(attributes_map_t &attrs) _DPP_OVERRIDE
+    {
+      xml_dom_doc<Char> *r = new xml_dom_doc<Char>();
+      base::stack_top(-1) = r;
+      r->_attrs.swap(attrs);
+    }
+
+    void parse_start_tag(const string &name, attributes_map_t &attrs) _DPP_OVERRIDE
+    {
+      element_t *e = new xml_dom_element<Char>(name);
+      base::stack_top(-1) = e;
+      e->_attrs.swap(attrs);
+    }
+
+    void parse_end_tag(const string &name) _DPP_OVERRIDE
+    {
+      base::stack_top(-2)->_root.push_back(base::stack_top(-1));
+    }
+
+    void parse_content(const string &content) _DPP_OVERRIDE
+    {
+      xml_dom_content<Char> *c = new xml_dom_content<Char>(content, XML_CONTENT_TEXT);
+      base::stack_top(-1)->_root.push_back(c);
+    }
+
+    void parse_cdata(const string &content) _DPP_OVERRIDE
+    {
+      xml_dom_node<Char> &n = base::stack_top(-1)->_root;
+      if (xml_dom_content<Char> *e = dynamic_cast<xml_dom_content<Char> *>(n._prev))
+	if ((ext & XML_OPT_MERGE_CDATA) && e->type() == XML_CONTENT_CDATA)
+	  {
+	    e->get_content_ref() += content;
+	    return;
+	  }
+      xml_dom_content<Char> *c = new xml_dom_content<Char>(content, XML_CONTENT_CDATA);
+      n.push_back(c);
+    }
+
+    void parse_error() _DPP_OVERRIDE
+    {
+      for (size_t i = 0; i < base::stack_size(); i++)
+	delete base::stack_bottom(i);
+    }
+
+  };
+
+}
+
+#endif
+

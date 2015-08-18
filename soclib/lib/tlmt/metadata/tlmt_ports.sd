@@ -1,0 +1,56 @@
+# -*- mode: python; coding: utf-8 -*-
+#
+# SOCLIB_LGPL_HEADER_BEGIN
+# 
+# This file is part of SoCLib, GNU LGPLv2.1.
+# 
+# SoCLib is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published
+# by the Free Software Foundation; version 2.1 of the License.
+# 
+# SoCLib is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+# 
+# You should have received a copy of the GNU Lesser General Public
+# License along with SoCLib; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301 USA
+# 
+# SOCLIB_LGPL_HEADER_END
+#
+# Maintainers: fpecheux, nipo
+#
+# Copyright (c) UPMC / Lip6, 2008
+#     François Pêcheux <francois.pecheux@lip6.fr>
+#     Nicolas Pouillon <nipo@ssji.net>
+
+__id__ = "$Id: tlmt_ports.sd 1159 2009-06-12 14:36:42Z nipo $"
+__version__ = "$Revision: 1159 $"
+
+Signal('tlmt:sig',
+	   accepts = {
+	'tlmt:tlmt_in':1,
+	'tlmt:tlmt_out':1,
+	}
+	   )
+
+PortDecl('tlmt:tlmt_in',
+		 classname = 'tlmt_core::tlmt_in',
+		 tmpl_parameters = [
+	parameter.Type('data_t'),
+	],
+		 signal = 'tlmt:sig'
+		 )
+
+PortDecl('tlmt:tlmt_out',
+		 classname = 'tlmt_core::tlmt_out',
+		 tmpl_parameters = [
+	parameter.Type('data_t'),
+	],
+		 signal = 'tlmt:sig',
+		 extensions = [
+	'dsx:lhs_port',
+	],
+		 )

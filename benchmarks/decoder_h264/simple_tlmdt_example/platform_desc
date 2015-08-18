@@ -1,0 +1,43 @@
+
+# -*- python -*-
+
+cpus = []
+
+for cpu in "mips32el", "arm", "ppc405":
+  cpus += [
+    Uses('tlmdt:vci_xcache_wrapper',
+         iss_t = 'common:'+cpu),
+    Uses('tlmdt:vci_xcache_wrapper',
+         iss_t = 'common:iss2_simhelper',
+         simhelper_iss_t = 'common:'+cpu),
+    Uses('tlmdt:vci_xcache_wrapper',
+         iss_t = 'common:gdb_iss',
+         gdb_iss_t = 'common:'+cpu),
+    Uses('tlmdt:vci_xcache_wrapper',
+         iss_t = 'common:iss_memchecker',
+         iss_memchecker_t = 'common:'+cpu),
+    Uses('tlmdt:vci_xcache_wrapper',
+         iss_t = 'common:gdb_iss',
+         gdb_iss_t = 'common:iss_memchecker',
+         iss_memchecker_t = 'common:'+cpu),
+    ]
+
+todo = Platform('tlmdt', 'top.cpp',
+                uses = [
+	Uses('tlmdt:vci_ram'),
+	#Uses('tlmdt:vci_rom'), rom not supoprted in TLMDT
+	Uses('tlmdt:vci_multi_tty'),
+	#Uses('tlmdt:vci_xicu'), xicu not supported in TLMDT
+        Uses('tlmdt:vci_icu'),
+	Uses('tlmdt:vci_timer'),
+	Uses('tlmdt:vci_vgmn'),
+        Uses('tlmdt:vci_blackhole'),
+	Uses('common:elf_file_loader'),
+        Uses('common:plain_file_loader'),
+        Uses('tlmdt:vci_framebuffer'),
+        Uses('tlmdt:vci_simhelper'),
+	] + cpus,
+        addr_t = 'uint32_t',
+        data_t = 'uint32_t'
+)
+

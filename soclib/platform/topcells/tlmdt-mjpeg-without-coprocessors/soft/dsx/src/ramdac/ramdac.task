@@ -1,0 +1,23 @@
+# -*- python -*-
+
+from soclib.hwtask import HwTask, MwmrCoproc
+
+hw_fifo_ramdac = MwmrCoproc(
+	module = 'caba:fifo_writer',
+	from_coproc = [],
+	to_coproc = [ 'input:fifo' ],
+	config = [],
+	status = [],
+	binary = 'soclib-pipe2fb',
+	argv = [ 'soclib-pipe2fb', '%(WIDTH)s', '%(HEIGHT)s' ],
+	word_t = 'uint32_t' )
+
+TaskModel('ramdac',
+          ports = {'input':MwmrInput(48*8)},
+          impls = [ SwTask( 'ramdac',
+                            #bootstrap = 'bootstrap',
+                            stack_size = 4096,
+                            sources = [ 'my_ramdac.c', 'ramdac_x11.c' ],
+                            defines = [ 'WIDTH', 'HEIGHT' ] ),
+                    #HwTask( hw_fifo_ramdac )
+                    ] )

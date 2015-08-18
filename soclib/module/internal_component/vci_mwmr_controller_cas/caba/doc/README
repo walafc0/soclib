@@ -1,0 +1,3 @@
+This vci_mwmr_controller_cas has two main difference compared to the vci_mwmr_controller:
+    1) This mwmr contoller send and receive data who are word sized.
+    2) This mwmr controller use the CAS (compare and swap) technique to take the lock.

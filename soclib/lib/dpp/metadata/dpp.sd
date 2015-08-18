@@ -1,0 +1,11 @@
+
+# -*- python -*-
+
+__id__ = "$Id: dpp.sd 1007 2009-04-09 13:42:58Z nipo $"
+__version__ = "$Revision: 1007 $"
+
+Module('common:dpp',
+	header_files = [
+	'../source/include/dpp_placeholder.h',
+	],
+)

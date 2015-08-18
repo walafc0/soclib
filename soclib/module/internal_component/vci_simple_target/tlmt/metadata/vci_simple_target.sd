@@ -1,0 +1,50 @@
+# -*- mode: python; coding: utf-8 -*-
+#
+# SOCLIB_LGPL_HEADER_BEGIN
+# 
+# This file is part of SoCLib, GNU LGPLv2.1.
+# 
+# SoCLib is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published
+# by the Free Software Foundation; version 2.1 of the License.
+# 
+# SoCLib is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+# 
+# You should have received a copy of the GNU Lesser General Public
+# License along with SoCLib; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301 USA
+# 
+# SOCLIB_LGPL_HEADER_END
+#
+# Maintainers: fpecheux, nipo
+#
+# Copyright (c) UPMC / Lip6, 2008
+#     François Pêcheux <francois.pecheux@lip6.fr>
+#     Nicolas Pouillon <nipo@ssji.net>
+
+__id__ = "$Id: vci_simple_target.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+Module('tlmt:vci_simple_target',
+	classname = 'soclib::tlmt::VciSimpleTarget',
+	   tmpl_parameters = [
+	parameter.Module('vci_param',  default = 'tlmt:vci_param')
+	],
+	header_files = ['../source/include/vci_simple_target.h',],
+	implementation_files = ['../source/src/vci_simple_target.cpp',],
+			  ports = [
+	Port('tlmt:vci_target', 'p_vci'),
+	],
+	uses = [
+		Uses('tlmt:base_module'),
+		Uses('common:mapping_table'),
+		],
+	   extensions = [
+	'dsx:addressable',
+	'dsx:max_segments=1',
+   ],
+)

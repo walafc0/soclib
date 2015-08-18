@@ -1,0 +1,36 @@
+
+# -*- python -*-
+
+
+MetaSignal('caba:wishbone',
+	   tmpl_parameters = [parameter.Module('wb_param', default = 'caba:wb_param')],
+	   classname = 'soclib::caba::WbSignal',
+	   header_files = ['../source/include/wb_signal.h'],
+	   accepts = {
+	'caba:wb_master': 1,
+	'caba:wb_slave': 1,
+	},
+	   )
+
+PortDecl('caba:wb_master',
+	 tmpl_parameters = [parameter.Module('wb_param', default = 'caba:wb_param')],
+	 classname = 'soclib::caba::WbMaster',
+	 signal = 'caba:wishbone',
+	 header_files = ['../source/include/wb_master.h'],
+	 )
+
+PortDecl('caba:wb_slave',
+	 tmpl_parameters = [parameter.Module('wb_param', default = 'caba:wb_param')],
+	 classname = 'soclib::caba::WbSlave',
+	 signal = 'caba:wishbone',
+	 header_files = ['../source/include/wb_slave.h'],
+	 )
+
+Module('caba:wb_param',
+	   classname = 'soclib::caba::WbParams',
+	   tmpl_parameters = [
+        parameter.Int('wb_data_width'),
+        parameter.Int('wb_addr_width'),
+		],
+	   header_files = ['../source/include/wb_param.h',],
+)

@@ -1,0 +1,32 @@
+
+# -*- python -*-
+
+__id__ = "$Id: st231.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+Module('common:st231',
+	classname = 'soclib::common::ST231iss',
+	header_files = [
+		"../st231.hh",
+		"../cpu/cpu_tlmt.hh",
+		"../cpu/cpu.hh",
+		"../cpu/st231_isa.hh",
+		"../cpu/exception.hh",
+		"../cpu/soclib_symtab.hh",
+	],
+	uses = [
+		Uses('common:iss'),
+	],
+	implementation_files = [
+		"../st231.cpp",
+		"../cpu/soclib_symtab.cpp",
+		"../cpu/cpu.cpp",
+		"../cpu/cpu_tlmt.cpp",
+		"../cpu/st231_isa.cpp",
+		"../cpu/exception.cpp",
+		"../cpu/bundle.cpp",
+		],
+	   constants = {
+	'n_irq':2
+	},
+)

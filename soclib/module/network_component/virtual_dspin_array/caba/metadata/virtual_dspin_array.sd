@@ -1,0 +1,39 @@
+# -*- python -*-
+
+Module('caba:virtual_dspin_array',
+	classname = 'soclib::caba::VirtualDspinArray',
+	tmpl_parameters = [
+		parameter.Int('io_mask_size'		, default = 2),
+		parameter.Int('io_number_size'		, default = 2),
+		parameter.Int('x_addressing_size'	, default = 5),
+		parameter.Int('y_addressing_size'	, default = 5),
+
+		parameter.Int('data_size'		),
+		parameter.Int('io_mask_offset'		, default = 1),
+		parameter.Int('io_number_offset'	, default = 3),
+		parameter.Int('x_addressing_offset'	),
+		parameter.Int('y_addressing_offset'	),
+		parameter.Int('eop_offset'		, default = 0),
+		parameter.Int('broadcast_offset'	, default = 40),
+
+		parameter.Int('in_fifo_size'		),
+		parameter.Int('out_fifo_size'		),
+
+		parameter.Int('x_min_offset'		, default = 19),
+		parameter.Int('x_max_offset'		, default = 24),
+		parameter.Int('y_min_offset'		, default = 39),
+		parameter.Int('y_max_offset'		, default = 34),
+	],
+	header_files = ['../source/include/virtual_dspin_array.h',],
+	implementation_files = ['../source/src/virtual_dspin_array.cpp',],
+	ports = [
+		Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+		Port('caba:clock_in', 'p_clk', auto = 'clock'),
+		Port('caba:dspin_output', 'p_out', dspin_data_size = parameter.Reference("data_size")),
+		Port('caba:dspin_input', 'p_in', dspin_data_size = parameter.Reference("data_size")),  
+	],
+	uses = [
+		Uses('caba:base_module'),
+		Uses('caba:virtual_dspin_router'),
+	]
+)

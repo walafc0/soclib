@@ -1,0 +1,26 @@
+# -*- python -*-
+
+Module('caba:Mwmr_fir16',
+	classname = 'soclib::caba::Mwmr_fir16',
+	tmpl_parameters = [
+	parameter.Module('vci_param', default = 'caba:vci_param'),
+	],
+	instance_parameters = [
+	parameter.IntArray('coeffs'),
+	],
+	header_files = [
+	'mwmr_fir16.h',
+	],
+	implementation_files = [
+	'mwmr_fir16.cpp',
+	],
+	ports = [
+	Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+	Port('caba:clock_in', 'p_clk', auto = 'clock'),
+	Port('caba:fifo_output', 'p_to_ctrl', data_t='uint32_t'),
+	Port('caba:fifo_input', 'p_from_ctrl', data_t='uint32_t'),
+	],	
+	uses = [
+	Uses('caba:base_module'),
+	],
+)

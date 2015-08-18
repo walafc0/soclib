@@ -1,0 +1,6 @@
+export TARGET_SIM="NATIVE"
+export TARGET_NOC=""
+export TARGET_NBP="1"
+export TARGET_MEM="GLOBAL"
+export TARGET_NCL="65535"
+export TARGET_CLS="8"

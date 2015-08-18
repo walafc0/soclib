@@ -1,0 +1,30 @@
+# -*- python -*-
+
+Module('caba:wb_interco',
+        classname = 'soclib::caba::WbInterco',
+        tmpl_parameters = [
+            parameter.Module('wb_param',  default = 'caba:wb_param'),
+        ],
+        header_files = ['../include/wb_interco.h','../include/arbiter.h'],
+        implementation_files = ['../src/wb_interco.cpp','../src/arbiter.cpp'],
+        ports = [
+            Port('caba:bit_in',    'p_resetn', auto = 'resetn'),
+            Port('caba:clock_in',  'p_clk', auto = 'clock'),
+            Port('caba:wb_slave',  'p_from_masters',
+                     parameter.Reference('nb_m')),
+            Port('caba:wb_master', 'p_from_masters', 
+                    parameter.Reference('nb_s')),
+        ],
+        instance_parameters = [
+parameter.Module('mt', typename = 'common:mapping_table', auto = 'env:mapping_table'),
+        parameter.Int('nb_m'),
+        parameter.Int('nb_s'),
+        ],
+        uses = [
+        Uses('caba:base_module'),
+        Uses('caba:wishbone'),
+        Uses('common:mapping_table'),
+        ],
+        #debug = True ,
+      )
+

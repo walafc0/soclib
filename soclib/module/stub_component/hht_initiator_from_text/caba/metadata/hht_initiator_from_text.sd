@@ -1,0 +1,25 @@
+# -*- python -*-
+
+__id__ = "$Id$"
+__version__ = "$Revision$"
+
+Module('caba:hht_initiator_from_text',
+	classname = 'soclib::caba::HhtInitiatorFromText',
+	tmpl_parameters = [
+		parameter.Module('hht_param',  default = 'caba:hht_param'),
+	],
+	header_files = ['../source/include/hht_initiator_from_text.h',],
+	implementation_files = ['../source/src/hht_initiator_from_text.cpp',],
+	ports = [	    
+		Port('caba:hht_initiator', 'p_hht'),
+		Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+		Port('caba:clock_in', 'p_clk', auto = 'clock'),	
+	],
+	uses = [
+	    Uses('caba:base_module'),
+	    Uses('caba:hht_initiator'),
+		Uses('caba:lazy_fifo'),
+	],
+	instance_parameters = [
+	],
+)

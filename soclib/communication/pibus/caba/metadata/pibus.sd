@@ -1,0 +1,38 @@
+
+# -*- python -*-
+
+__id__ = "$Id: pibus.sd 1209 2009-07-10 10:29:24Z ludovic.lhours@gmail.com $"
+__version__ = "$Revision: 1209 $"
+
+Signal('caba:pibus',
+	   classname = 'soclib::caba::Pibus',
+	   accepts = {'caba:pibus_initiator':16,
+	   			  'caba:pibus_target':16,
+	   			  'caba:pibus_monitor':1,
+				  'caba:pibus_bcu_port':1},
+	   header_files = ['../source/include/pibus_signals.h'],
+	   )
+
+PortDecl('caba:pibus_initiator',
+	 classname = 'soclib::caba::PibusInitiator',
+	 signal = 'caba:pibus',
+	 header_files = ['../source/include/pibus_initiator_ports.h'],
+	 )
+
+PortDecl('caba:pibus_target',
+	 classname = 'soclib::caba::PibusTarget',
+	 signal = 'caba:pibus',
+	 header_files = ['../source/include/pibus_target_ports.h'],
+	 )
+
+PortDecl('caba:pibus_bcu_port',
+	 classname = 'soclib::caba::PibusBcuPort',
+	 signal = 'caba:pibus',
+	 header_files = ['../source/include/pibus_bcu_ports.h'],
+	 )
+
+PortDecl('caba:pibus_monitor',
+	classname = 'soclib::caba::PibusMonitor',
+	signal = 'caba:pibus',
+	header_files = ['../source/include/pibus_monitor.h'],
+)

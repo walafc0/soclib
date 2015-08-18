@@ -1,0 +1,52 @@
+# -*- python -*-
+
+__id__ = "$Id: vci_local_ring_fast.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+Module('caba:vci_local_ring_fast',
+	classname = 'soclib::caba::VciLocalRingFast',
+	tmpl_parameters = [
+	    parameter.Module('vci_param', default = 'caba:vci_param'),
+            parameter.Int('ring_cmd_data_size'),
+            parameter.Int('ring_rsp_data_size'),           	    
+	],
+	header_files = ['../source/include/vci_local_ring_fast.h',
+                        '../source/include/vci_local_ring_initiator_fast.h',
+                        '../source/include/vci_local_ring_target_fast.h',
+                        '../source/include/ring_dspin_half_gateway_initiator_fast.h', 
+                        '../source/include/ring_dspin_half_gateway_target_fast.h',
+        ],
+	implementation_files = ['../source/src/vci_local_ring_fast.cpp',],
+	ports = [
+            Port('caba:vci_initiator', 'p_to_target', parameter.Reference('nb_attached_target')),
+	    Port('caba:vci_target', 'p_to_initiator', parameter.Reference('nb_attached_initiator')),
+	    # FIXME: Ports vci
+	    Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+	    Port('caba:clock_in', 'p_clk', auto = 'clock'),
+            Port('caba:dspin_output', 'p_gate_cmd_out', dspin_data_size = parameter.Reference('ring_cmd_data_size')),
+            Port('caba:dspin_input',  'p_gate_rsp_in', dspin_data_size = parameter.Reference('ring_rsp_data_size')),
+            Port('caba:dspin_input',  'p_gate_cmd_in', dspin_data_size = parameter.Reference('ring_cmd_data_size')),
+            Port('caba:dspin_output', 'p_gate_rsp_out', dspin_data_size = parameter.Reference('ring_rsp_data_size')), 
+
+	],
+	instance_parameters = [
+		parameter.Module('mt', 'common:mapping_table'),
+	        parameter.IntTab('ringid'),
+                parameter.Int('wrapper_fifo_depth'),
+                parameter.Int('half_gateway_fifo_depth'),
+                parameter.Int('nb_attached_initiator'),
+                parameter.Int('nb_attached_target'),
+
+	],
+	uses = [
+	    Uses('caba:base_module'),
+	    Uses('common:mapping_table'),
+	    Uses('caba:ring_signals_fast'),
+	    Uses('caba:generic_fifo'),
+	],
+	   extensions = [
+	'dsx:interconnect=root',
+	'dsx:mapping_type=interconnect',
+	'dsx:obtain_ident_method=port',
+	],        
+)

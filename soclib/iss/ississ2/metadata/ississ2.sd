@@ -1,0 +1,22 @@
+
+# -*- python -*-
+
+__id__ = "$Id: ississ2.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+Module('common:ississ2',
+	classname = 'soclib::common::IssIss2',
+	header_files = ["../include/ississ2.h",],
+	implementation_files = ["../src/ississ2.cpp",],
+	   tmpl_parameters = [
+	parameter.Module('iss2_t'),
+	],
+	   uses = [
+	Uses('common:iss2'),
+	Uses('common:iss'),
+	Uses('common:exception'),
+	],
+	   extensions = [
+	'dsx:cpu=wrapper:iss2_t',
+   ],
+)

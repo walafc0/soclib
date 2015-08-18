@@ -1,0 +1,28 @@
+
+# -*- python -*-
+
+__id__ = "$Id: ppc405.sd 1101 2009-05-12 12:16:30Z nipo $"
+__version__ = "$Revision: 1101 $"
+
+Module('common:ppc405',
+	classname = 'soclib::common::Ppc405Iss',
+	header_files = ["../include/iss/ppc405.h",],
+	implementation_files = [
+		"../src/iss/ppc405.cpp",
+		"../src/iss/ppc405_instructions.cpp",
+		"../src/iss/ppc405_load_store.cpp",
+		"../src/iss/ppc405_special.cpp",
+		"../src/iss/ppc405_jump_tables.cpp",
+		],
+	   uses = [
+	Uses('common:iss2'),
+	Uses('common:base_module'),
+	],
+	  extensions = [
+	'dsx:cpu=powerpc405'
+	],
+	   constants = {
+	'n_irq':2
+	},
+#	   debug =True,
+)

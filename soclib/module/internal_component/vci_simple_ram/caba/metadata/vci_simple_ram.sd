@@ -1,0 +1,40 @@
+
+# -*- python -*-
+
+__id__ = "$Id: vci_simple_ram.sd 2361 2013-06-14 11:43:46Z alain $"
+__version__ = "$Revision: 2361 $"
+
+Module('caba:vci_simple_ram',
+	classname = 'soclib::caba::VciSimpleRam',
+	   tmpl_parameters = [
+	         parameter.Module('vci_param', default = 'caba:vci_param'),
+#                               cell_size = parameter.Reference('ram_data_width')),
+	],
+	header_files = ['../source/include/vci_simple_ram.h',],
+	implementation_files = ['../source/src/vci_simple_ram.cpp',],
+			  ports = [
+	Port('caba:vci_target', 'p_vci'),
+	Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+	Port('caba:clock_in', 'p_clk', auto = 'clock'),
+	],
+	uses = [
+		Uses('caba:base_module'),
+	 	Uses('common:linked_access_buffer', 
+			 addr_t = parameter.StringExt('sc_dt::sc_uint<%d>', parameter.Reference('addr_size')),
+			 id_t = parameter.StringExt('sc_dt::sc_uint<%d>', parameter.Reference('srcid_size'))),
+		Uses('common:loader'),
+		Uses('common:mapping_table'),
+		],
+	instance_parameters = [
+	parameter.IntTab('ident'),
+	parameter.Module('mt', 'common:mapping_table'),
+	parameter.Module('loader', 'common:loader', auto='env:loader'),
+	parameter.Int('latency'),
+	],
+	   extensions = [
+	'dsx:addressable=ident',
+	'dsx:get_ident=ident:p_vci:mt',
+    'dsx:obtain_ident_method=param:ident',
+	'dsx:mapping_type=memory',
+   ],
+)

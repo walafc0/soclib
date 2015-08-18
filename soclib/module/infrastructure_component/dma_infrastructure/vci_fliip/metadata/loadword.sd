@@ -1,0 +1,26 @@
+
+# -*- python -*-
+
+Module('caba:load_word',
+	classname = 'soclib::caba::LoadWord',
+	tmpl_parameters = [
+		parameter.Int('INPUT_BITWIDTH',  default = '16'),
+		parameter.Int('OUTPUT_BITWIDTH', default = '12'),
+		parameter.Bool('SWAP_IN',  default = False),
+		parameter.Bool('SWAP_OUT', default = False),
+	],
+	header_files = [ '../include/loadword.h', ],
+	implementation_files = ['../src/loadword.cpp', ],
+	ports = [
+		Port('caba:bit_in',   'p_resetn', auto = 'resetn'),
+		Port('caba:clock_in', 'p_clk', auto = 'clock'),
+		Port('caba:fifo_input', 'p_input',
+			data_t=parameter.StringExt('sc_uint<%s>', parameter.Reference('INPUT_BITWIDTH'))),
+		Port('caba:fifo_output', 'p_output',
+			data_t=parameter.StringExt('sc_uint<%s>', parameter.Reference('OUTPUT_BITWIDTH')))
+	],
+	uses = [
+		Uses('caba:base_module'),
+	],
+)
+

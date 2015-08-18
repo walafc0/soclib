@@ -1,0 +1,20 @@
+# -*- python -*-
+
+__id__ = "$Id$"
+__version__ = "$Revision$"
+
+Module('caba:vci_cmd_flit',
+	   classname = 'soclib::caba::VciCmdFlit',
+	   tmpl_parameters = [
+			parameter.Module('vci_param',  default = 'caba:vci_param'),
+	   ],
+	   header_files = ['../source/include/vci_flits.h',],
+)
+
+Module('caba:vci_rsp_flit',
+	   classname = 'soclib::caba::VciRspFlit',
+	   tmpl_parameters = [
+			parameter.Module('vci_param',  default = 'caba:vci_param'),
+	   ],
+	   header_files = ['../source/include/vci_flits.h',],
+)

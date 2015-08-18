@@ -1,0 +1,59 @@
+
+reset.o:     file format elf32-littlemips
+
+
+Disassembly of section .reginfo:
+
+00000000 <.reginfo>:
+   0:	3c000c00 	lui	zero,0xc00
+	...
+
+Disassembly of section .pdr:
+
+00000000 <.pdr>:
+	...
+
+Disassembly of section .reset:
+
+00000000 <reset>:
+   0:	3c1b0000 	lui	k1,0x0
+   4:	277b0000 	addiu	k1,k1,0
+   8:	401a7801 	mfc0	k0,$15,1
+   c:	334a0007 	andi	t2,k0,0x7
+  10:	001a5f00 	sll	t3,k0,0x1c
+  14:	036bd821 	addu	k1,k1,t3
+  18:	3c1a0001 	lui	k0,0x1
+  1c:	037ae821 	addu	sp,k1,k0
+  20:	3c1a0000 	lui	k0,0x0
+  24:	275a0000 	addiu	k0,k0,0
+  28:	3c1b0000 	lui	k1,0x0
+  2c:	277b0000 	addiu	k1,k1,0
+  30:	af5b0000 	sw	k1,0(k0)
+  34:	3c1b0000 	lui	k1,0x0
+  38:	277b0000 	addiu	k1,k1,0
+  3c:	af5b0004 	sw	k1,4(k0)
+  40:	3c1b0000 	lui	k1,0x0
+  44:	277b0000 	addiu	k1,k1,0
+  48:	af5b0008 	sw	k1,8(k0)
+  4c:	3c1b0000 	lui	k1,0x0
+  50:	277b0000 	addiu	k1,k1,0
+  54:	af5b000c 	sw	k1,12(k0)
+  58:	3c1b0000 	lui	k1,0x0
+  5c:	277b0000 	addiu	k1,k1,0
+  60:	036bd821 	addu	k1,k1,t3
+  64:	241a000f 	li	k0,15
+  68:	af7a0008 	sw	k0,8(k1)
+  6c:	3c1a0000 	lui	k0,0x0
+  70:	275a0098 	addiu	k0,k0,152
+  74:	000ad880 	sll	k1,t2,0x2
+  78:	035bd021 	addu	k0,k0,k1
+  7c:	8f5b0000 	lw	k1,0(k0)
+  80:	409b7000 	mtc0	k1,c0_epc
+  84:	3c1c0000 	lui	gp,0x0
+  88:	279c0000 	addiu	gp,gp,0
+  8c:	341aff13 	li	k0,0xff13
+  90:	409a6000 	mtc0	k0,c0_status
+  94:	42000018 	eret
+
+00000098 <tab_main>:
+	...

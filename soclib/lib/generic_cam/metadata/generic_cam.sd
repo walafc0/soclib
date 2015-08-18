@@ -1,0 +1,7 @@
+
+# -*- python -*-
+
+Module('caba:generic_cam',
+	classname = 'soclib::caba::GenericCam',
+	header_files = ['../include/caba/generic_cam.h',],
+)

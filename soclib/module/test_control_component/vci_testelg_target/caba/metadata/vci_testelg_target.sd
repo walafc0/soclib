@@ -1,0 +1,25 @@
+# -*- python -*-
+
+__id__ = "$Id$"
+__version__ = "$Revision$"
+
+Module('caba:vci_testelg_target',
+	classname = 'soclib::caba::VciTestelgTarget',
+	tmpl_parameters = [
+		parameter.Module('vci_param',  default = 'caba:vci_param'),
+	],
+	header_files = ['../source/include/vci_testelg_target.h',],
+	implementation_files = ['../source/src/vci_testelg_target.cpp',],
+	ports = [	    
+		Port('caba:vci_target', 'p_vci'),
+		Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+		Port('caba:clock_in', 'p_clk', auto = 'clock'),	
+	],
+	uses = [
+	    Uses('caba:base_module'),
+	    Uses('caba:vci_target'),
+	],
+	instance_parameters = [
+		parameter.IntTab('ident'),
+	],
+)

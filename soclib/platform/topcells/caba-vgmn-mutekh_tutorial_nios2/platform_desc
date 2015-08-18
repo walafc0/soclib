@@ -1,0 +1,48 @@
+
+# -*- python -*-
+
+cpus = []
+
+for cpu in "mips32el", "arm", "ppc405", "niosII":
+  cpus += [
+    Uses('caba:vci_xcache_wrapper',
+         iss_t = 'common:'+cpu),
+    Uses('caba:vci_xcache_wrapper',
+         iss_t = 'common:gdb_iss',
+         gdb_iss_t = 'common:'+cpu),
+    Uses('caba:vci_xcache_wrapper',
+         iss_t = 'common:iss2_simhelper',
+         simhelper_iss_t = 'common:'+cpu),
+    Uses('caba:vci_xcache_wrapper',
+         iss_t = 'common:iss_memchecker',
+         iss_memchecker_t = 'common:'+cpu),
+    Uses('caba:vci_xcache_wrapper',
+         iss_t = 'common:gdb_iss',
+         gdb_iss_t = 'common:iss_memchecker',
+         iss_memchecker_t = 'common:'+cpu),
+    ]
+
+todo = Platform('caba', 'top.cpp',
+                uses = [
+	Uses('caba:vci_ram'),
+	Uses('caba:vci_rom'),
+	Uses('caba:vci_multi_tty'),
+	Uses('caba:vci_xicu'),
+	Uses('caba:vci_block_device'),
+	Uses('caba:vci_log_console'),
+	Uses('caba:vci_vgmn'),
+	Uses('common:elf_file_loader'),
+	Uses('common:plain_file_loader'),
+	] + cpus,
+	cell_size = 4,
+	plen_size = 8,
+	addr_size = 32,
+	rerror_size = 1,
+	clen_size = 1,
+	rflag_size = 1,
+	srcid_size = 8,
+	pktid_size = 4,
+	trdid_size = 4,
+	wrplen_size = 1
+)
+

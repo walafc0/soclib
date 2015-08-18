@@ -1,0 +1,19 @@
+OCEAN : (contiguous / non-contiguous)
+	DEFAULT_N : taille de la grille (258 par défaut)
+	DEFAULT_E : précision (1e-7 par défaut)
+	DEFAULT_P : nombre de processeurs
+	taille mémoire requise : ? 
+
+WATER_SPATIAL  :
+WATER_NSQUARED :
+	NB_P : nombre de processeurs	
+	NMOLS : nombre de mols (512 par défaut)
+	fdaccess_module requis!
+	random.in dans le dossier de lancement
+	taille mémoire requise : ?
+	
+
+OPTIONS :
+	DISTRIBUTED : répartition des données sur les mémoires locales
+	SIM_SOCLIB  : non utilisation des argv/argc et toute modification nécéssaire
+                  pour faire tourner l'application sur une plateforme SOCLIB

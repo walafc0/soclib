@@ -1,0 +1,428 @@
+/* -*- c++ -*-
+
+   This file is part of the dpp library of C++ template classes
+
+   doc: http://diaxen.ssji.net/dpp/index.html
+   repo: https://www.ssji.net/svn/projets/trunk/libdpp
+
+   This program is free software: you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public License
+   as published by the Free Software Foundation, either version 3 of
+   the License, or (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with this program.  If not, see
+   <http://www.gnu.org/licenses/>.
+
+   (c) 2012 Alexandre Becoulet <alexandre.becoulet@free.fr>
+
+   Some parts of this file were generated using tools/template_switch.pl
+
+*/
+
+#ifndef DPP_TEMPLATE_SWITCH_HH_
+#define DPP_TEMPLATE_SWITCH_HH_
+
+/** @file @module {Template switch} */
+
+namespace dpp {
+
+  /** 
+      @module {Template switch}
+      @header dpp/template_switch
+
+      @This declares a class designed to hold an array of function
+      pointers for multiple instances of the same template function
+      but with different values of its enum template parameter.
+
+      The class constructor fill the array with function pointers for
+      all enum values between 0 and @tt C0. The function pointer can
+      later be retrieved using the @tt {()} operator on the template
+      switch object.
+
+      Other classes exists which hold multidimensional array to deal
+      with multiple enum template parameters.
+
+      @section {Examples}
+      Use of template switch with global function and 1 enum parameter:
+      @example test/test_template_switch.cc:example|example1
+ 
+      Use of template switch with member function and 2 enum parameters:
+      @example test/test_template_switch.cc:example|example2
+      @end section
+  */
+#define DPP_TEMPLATE_SWITCH_1(clname, func_type, func, C0)	\
+  class clname							\
+  {								\
+    typedef typeof(C0) e0;					\
+								\
+    typedef func_type table_type[C0+1];				\
+    table_type _t;						\
+								\
+    template <int I0, bool done>				\
+    struct iter;						\
+								\
+    template <int I0>						\
+    struct iter<I0, true>					\
+    {								\
+      static void s(table_type &t)				\
+      {								\
+      }								\
+    };								\
+								\
+    template <int I0, bool done>				\
+    struct iter							\
+    {								\
+      static void s(table_type &t)				\
+      {								\
+	t[I0] = &func<(e0)I0>;					\
+        iter<2*I0+1, (2*I0+1 >= C0+1)>::s(t);			\
+        iter<2*I0+2, (2*I0+2 >= C0+1)>::s(t);			\
+      }								\
+    };								\
+								\
+  public:							\
+								\
+    clname()							\
+    {								\
+      iter<0, false>::s(_t);					\
+    }								\
+								\
+    const func_type operator() (e0 p0) const			\
+    {								\
+      return _t[p0];						\
+    }								\
+  }
+
+  /** 
+      @module {Template switch}
+      @header dpp/template_switch
+      @see #DPP_TEMPLATE_SWITCH_1
+  */
+#define DPP_TEMPLATE_SWITCH_2(clname, func_type, func, C0, C1)	\
+  class clname							\
+  {								\
+    typedef typeof(C0) e0;					\
+    typedef typeof(C1) e1;					\
+								\
+    typedef func_type table_type[C0+1][C1+1];			\
+    table_type _t;						\
+								\
+    template <int I0, int I1, bool done>			\
+    struct iter;						\
+								\
+    template <int I0, int I1>					\
+    struct iter<I0, I1, true>					\
+    {								\
+      static void s(table_type &t)				\
+      {								\
+      }								\
+    };								\
+								\
+    template <int I0, int I1, bool done>			\
+    struct iter							\
+    {								\
+      static void s(table_type &t)				\
+      {								\
+	t[I0][I1] = &func<(e0)I0, (e1)I1>;			\
+        iter<2*I0+1, I1, (2*I0+1 >= C0+1)>::s(t);		\
+        iter<2*I0+2, I1, (2*I0+2 >= C0+1)>::s(t);		\
+        if (2*I0+1 == C0+1 || 2*I0+2 == C0+1) {			\
+          iter<0, 2*I1+1, (2*I1+1 >= C1+1)>::s(t);		\
+          iter<0, 2*I1+2, (2*I1+2 >= C1+1)>::s(t);		\
+        }							\
+      }								\
+    };								\
+								\
+  public:							\
+								\
+    clname()							\
+    {								\
+      iter<0, 0, false>::s(_t);					\
+    }								\
+								\
+    const func_type operator() (e0 p0, e1 p1) const		\
+    {								\
+      return _t[p0][p1];					\
+    }								\
+  }
+
+
+  /** 
+      @module {Template switch}
+      @header dpp/template_switch
+      @see #DPP_TEMPLATE_SWITCH_1
+  */
+#define DPP_TEMPLATE_SWITCH_3(clname, func_type, func,		\
+			      C0, C1, C2)			\
+  class clname							\
+  {								\
+    typedef typeof(C0) e0;					\
+    typedef typeof(C1) e1;					\
+    typedef typeof(C2) e2;					\
+								\
+    typedef func_type table_type[C0+1][C1+1][C2+1];		\
+    table_type _t;						\
+								\
+    template <int I0, int I1, int I2, bool done>		\
+    struct iter;						\
+								\
+    template <int I0, int I1, int I2>				\
+    struct iter<I0, I1, I2, true>				\
+    {								\
+      static void s(table_type &t)				\
+      {								\
+      }								\
+    };								\
+								\
+    template <int I0, int I1, int I2, bool done>		\
+    struct iter							\
+    {								\
+      static void s(table_type &t)				\
+      {								\
+	t[I0][I1][I2] = &func<(e0)I0, (e1)I1, (e2)I2>;		\
+        iter<2*I0+1, I1, I2, (2*I0+1 >= C0+1)>::s(t);		\
+        iter<2*I0+2, I1, I2, (2*I0+2 >= C0+1)>::s(t);		\
+        if (2*I0+1 == C0+1 || 2*I0+2 == C0+1) {			\
+          iter<0, 2*I1+1, I2, (2*I1+1 >= C1+1)>::s(t);		\
+          iter<0, 2*I1+2, I2, (2*I1+2 >= C1+1)>::s(t);		\
+          if (2*I1+1 == C1+1 || 2*I1+2 == C1+1) {		\
+            iter<0, 0, 2*I2+1, (2*I2+1 >= C2+1)>::s(t);		\
+            iter<0, 0, 2*I2+2, (2*I2+2 >= C2+1)>::s(t);		\
+          }							\
+        }							\
+      }								\
+    };								\
+								\
+  public:							\
+								\
+    clname()							\
+    {								\
+      iter<0, 0, 0, false>::s(_t);				\
+    }								\
+								\
+    const func_type operator() (e0 p0, e1 p1, e2 p2) const	\
+    {								\
+      return _t[p0][p1][p2];					\
+    }								\
+  }
+
+
+  /** 
+      @module {Template switch}
+      @header dpp/template_switch
+      @see #DPP_TEMPLATE_SWITCH_1
+  */
+#define DPP_TEMPLATE_SWITCH_4(clname, func_type, func,			\
+			      C0, C1, C2, C3)				\
+  class clname								\
+  {									\
+    typedef typeof(C0) e0;						\
+    typedef typeof(C1) e1;						\
+    typedef typeof(C2) e2;						\
+    typedef typeof(C3) e3;						\
+									\
+    typedef func_type table_type[C0+1][C1+1][C2+1][C3+1];		\
+    table_type _t;							\
+									\
+    template <int I0, int I1, int I2, int I3, bool done>		\
+    struct iter;							\
+									\
+    template <int I0, int I1, int I2, int I3>				\
+    struct iter<I0, I1, I2, I3, true>					\
+    {									\
+      static void s(table_type &t)					\
+      {									\
+      }									\
+    };									\
+									\
+    template <int I0, int I1, int I2, int I3, bool done>		\
+    struct iter								\
+    {									\
+      static void s(table_type &t)					\
+      {									\
+	t[I0][I1][I2][I3] = &func<(e0)I0, (e1)I1, (e2)I2, (e3)I3>;	\
+        iter<2*I0+1, I1, I2, I3, (2*I0+1 >= C0+1)>::s(t);		\
+        iter<2*I0+2, I1, I2, I3, (2*I0+2 >= C0+1)>::s(t);		\
+        if (2*I0+1 == C0+1 || 2*I0+2 == C0+1) {				\
+          iter<0, 2*I1+1, I2, I3, (2*I1+1 >= C1+1)>::s(t);		\
+          iter<0, 2*I1+2, I2, I3, (2*I1+2 >= C1+1)>::s(t);		\
+          if (2*I1+1 == C1+1 || 2*I1+2 == C1+1) {			\
+            iter<0, 0, 2*I2+1, I3, (2*I2+1 >= C2+1)>::s(t);		\
+            iter<0, 0, 2*I2+2, I3, (2*I2+2 >= C2+1)>::s(t);		\
+            if (2*I2+1 == C2+1 || 2*I2+2 == C2+1) {			\
+              iter<0, 0, 0, 2*I3+1, (2*I3+1 >= C3+1)>::s(t);		\
+              iter<0, 0, 0, 2*I3+2, (2*I3+2 >= C3+1)>::s(t);		\
+            }								\
+          }								\
+        }								\
+      }									\
+    };									\
+									\
+  public:								\
+									\
+    clname()								\
+    {									\
+      iter<0, 0, 0, 0, false>::s(_t);					\
+    }									\
+									\
+    const func_type operator() (e0 p0, e1 p1, e2 p2, e3 p3) const	\
+    {									\
+      return _t[p0][p1][p2][p3];					\
+    }									\
+  }
+
+
+  /** 
+      @module {Template switch}
+      @header dpp/template_switch
+      @see #DPP_TEMPLATE_SWITCH_1
+  */
+#define DPP_TEMPLATE_SWITCH_5(clname, func_type, func,			\
+			      C0, C1, C2, C3, C4)			\
+  class clname								\
+  {									\
+    typedef typeof(C0) e0;						\
+    typedef typeof(C1) e1;						\
+    typedef typeof(C2) e2;						\
+    typedef typeof(C3) e3;						\
+    typedef typeof(C4) e4;						\
+									\
+    typedef func_type table_type[C0+1][C1+1][C2+1][C3+1][C4+1];		\
+    table_type _t;							\
+									\
+    template <int I0, int I1, int I2, int I3, int I4, bool done>	\
+    struct iter;							\
+									\
+    template <int I0, int I1, int I2, int I3, int I4>			\
+    struct iter<I0, I1, I2, I3, I4, true>				\
+    {									\
+      static void s(table_type &t)					\
+      {									\
+      }									\
+    };									\
+									\
+    template <int I0, int I1, int I2, int I3, int I4, bool done>	\
+    struct iter								\
+    {									\
+      static void s(table_type &t)					\
+      {									\
+	t[I0][I1][I2][I3][I4] = &func<(e0)I0, (e1)I1, (e2)I2, (e3)I3, (e4)I4>; \
+        iter<2*I0+1, I1, I2, I3, I4, (2*I0+1 >= C0+1)>::s(t);		\
+        iter<2*I0+2, I1, I2, I3, I4, (2*I0+2 >= C0+1)>::s(t);		\
+        if (2*I0+1 == C0+1 || 2*I0+2 == C0+1) {				\
+          iter<0, 2*I1+1, I2, I3, I4, (2*I1+1 >= C1+1)>::s(t);		\
+          iter<0, 2*I1+2, I2, I3, I4, (2*I1+2 >= C1+1)>::s(t);		\
+          if (2*I1+1 == C1+1 || 2*I1+2 == C1+1) {			\
+            iter<0, 0, 2*I2+1, I3, I4, (2*I2+1 >= C2+1)>::s(t);		\
+            iter<0, 0, 2*I2+2, I3, I4, (2*I2+2 >= C2+1)>::s(t);		\
+            if (2*I2+1 == C2+1 || 2*I2+2 == C2+1) {			\
+              iter<0, 0, 0, 2*I3+1, I4, (2*I3+1 >= C3+1)>::s(t);	\
+              iter<0, 0, 0, 2*I3+2, I4, (2*I3+2 >= C3+1)>::s(t);	\
+              if (2*I3+1 == C3+1 || 2*I3+2 == C3+1) {			\
+                iter<0, 0, 0, 0, 2*I4+1, (2*I4+1 >= C4+1)>::s(t);	\
+                iter<0, 0, 0, 0, 2*I4+2, (2*I4+2 >= C4+1)>::s(t);	\
+              }								\
+            }								\
+          }								\
+        }								\
+      }									\
+    };									\
+									\
+  public:								\
+									\
+    clname()								\
+    {									\
+      iter<0, 0, 0, 0, 0, false>::s(_t);				\
+    }									\
+									\
+    const func_type operator() (e0 p0, e1 p1, e2 p2, e3 p3, e4 p4) const \
+    {									\
+      return _t[p0][p1][p2][p3][p4];					\
+    }									\
+  }
+
+
+  /** 
+      @module {Template switch}
+      @header dpp/template_switch
+      @see #DPP_TEMPLATE_SWITCH_1
+  */
+#define DPP_TEMPLATE_SWITCH_6(clname, func_type, func,			\
+			      C0, C1, C2, C3, C4, C5)			\
+  class clname								\
+  {									\
+    typedef typeof(C0) e0;						\
+    typedef typeof(C1) e1;						\
+    typedef typeof(C2) e2;						\
+    typedef typeof(C3) e3;						\
+    typedef typeof(C4) e4;						\
+    typedef typeof(C5) e5;						\
+									\
+    typedef func_type table_type[C0+1][C1+1][C2+1][C3+1][C4+1][C5+1];	\
+    table_type _t;							\
+									\
+    template <int I0, int I1, int I2, int I3, int I4, int I5, bool done> \
+    struct iter;							\
+									\
+    template <int I0, int I1, int I2, int I3, int I4, int I5>		\
+    struct iter<I0, I1, I2, I3, I4, I5, true>				\
+    {									\
+      static void s(table_type &t)					\
+      {									\
+      }									\
+    };									\
+									\
+    template <int I0, int I1, int I2, int I3, int I4, int I5, bool done> \
+    struct iter								\
+    {									\
+      static void s(table_type &t)					\
+      {									\
+	t[I0][I1][I2][I3][I4][I5] = &func<(e0)I0, (e1)I1, (e2)I2, (e3)I3, (e4)I4, (e5)I5>; \
+        iter<2*I0+1, I1, I2, I3, I4, I5, (2*I0+1 >= C0+1)>::s(t);	\
+        iter<2*I0+2, I1, I2, I3, I4, I5, (2*I0+2 >= C0+1)>::s(t);	\
+        if (2*I0+1 == C0+1 || 2*I0+2 == C0+1) {				\
+          iter<0, 2*I1+1, I2, I3, I4, I5, (2*I1+1 >= C1+1)>::s(t);	\
+          iter<0, 2*I1+2, I2, I3, I4, I5, (2*I1+2 >= C1+1)>::s(t);	\
+          if (2*I1+1 == C1+1 || 2*I1+2 == C1+1) {			\
+            iter<0, 0, 2*I2+1, I3, I4, I5, (2*I2+1 >= C2+1)>::s(t);	\
+            iter<0, 0, 2*I2+2, I3, I4, I5, (2*I2+2 >= C2+1)>::s(t);	\
+            if (2*I2+1 == C2+1 || 2*I2+2 == C2+1) {			\
+              iter<0, 0, 0, 2*I3+1, I4, I5, (2*I3+1 >= C3+1)>::s(t);	\
+              iter<0, 0, 0, 2*I3+2, I4, I5, (2*I3+2 >= C3+1)>::s(t);	\
+              if (2*I3+1 == C3+1 || 2*I3+2 == C3+1) {			\
+                iter<0, 0, 0, 0, 2*I4+1, I5, (2*I4+1 >= C4+1)>::s(t);	\
+                iter<0, 0, 0, 0, 2*I4+2, I5, (2*I4+2 >= C4+1)>::s(t);	\
+                if (2*I4+1 == C4+1 || 2*I4+2 == C4+1) {			\
+                  iter<0, 0, 0, 0, 0, 2*I5+1, (2*I5+1 >= C5+1)>::s(t);	\
+                  iter<0, 0, 0, 0, 0, 2*I5+2, (2*I5+2 >= C5+1)>::s(t);	\
+                }							\
+              }								\
+            }								\
+          }								\
+        }								\
+      }									\
+    };									\
+									\
+  public:								\
+									\
+    clname()								\
+    {									\
+      iter<0, 0, 0, 0, 0, 0, false>::s(_t);				\
+    }									\
+									\
+    const func_type operator() (e0 p0, e1 p1, e2 p2, e3 p3, e4 p4, e5 p5) const	\
+    {									\
+      return _t[p0][p1][p2][p3][p4][p5];				\
+    }									\
+  }
+
+}
+
+#endif
+

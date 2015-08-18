@@ -1,0 +1,100 @@
+
+# -*- python -*-
+
+Module('caba:vci_acc_dma',
+	classname = 'soclib::caba::VciAcceleratorDma',
+	tmpl_parameters = [
+		parameter.Module('vci_param',   default = 'caba:vci_param'),
+		parameter.Int('NTOIP_FIFO',     default = '2'),
+		parameter.Int('NFRIP_FIFO',     default = '2'),
+		parameter.Int('FIFO_BITWIDTH',  default = '10'),
+		parameter.Int('CTRL_ADDR_SIZE', default = '3'),
+		parameter.Int('NUSER_REGS',     default = '2'),
+		parameter.Int('FIFO_SIZE',      default = '20'),
+	],
+	header_files = [
+		'../include/vci_accelerator_dma.h',
+	],
+	interface_files = [
+		'../include/soclib/dma_regs.h',
+	],
+	implementation_files = ['../src/vci_accelerator_dma.cpp', ],
+	ports = [
+		Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+		Port('caba:clock_in', 'p_clk', auto = 'clock'),
+		Port('caba:bit_out', 'p_start'),
+		Port('caba:vci_target', 'p_vci_target'),
+		Port('caba:vci_initiator', 'p_vci_initiator'),
+		Port('caba:bit_out', 'p_irq'),
+		Port('caba:fifo_output', 'p_toip_data', parameter.Reference('NTOIP_FIFO'),
+				data_t=parameter.StringExt('sc_uint<%s>', parameter.Reference('FIFO_BITWIDTH') )),
+		Port('caba:fifo_input',  'p_frip_data', parameter.Reference('NFRIP_FIFO'),
+				data_t=parameter.StringExt('sc_uint<%s>', parameter.Reference('FIFO_BITWIDTH') )),
+		Port('caba:acc_enbl_signals_out', 'p_enbl',
+				DATA_BITWIDTH=parameter.Reference('FIFO_BITWIDTH'),
+				ADDR_BITWIDTH=parameter.Reference('CTRL_ADDR_SIZE')),
+		Port('caba:word_out', 'p_user_regs', parameter.Reference('NUSER_REGS'),
+				word_t=parameter.StringExt('sc_uint<%s>', parameter.Reference('cell_size')*8)),
+	],
+	uses = [
+		Uses('caba:base_module'),
+		Uses('caba:generic_fifo'),
+		Uses('caba:vci_target_fsm', default_target = 'true', support_llsc = 'false'),
+		Uses('caba:vci_initiator_fsm'),
+		Uses('caba:read_to_fifo_request'),
+		Uses('caba:write_from_fifo_request'),
+	],
+	instance_parameters = [
+		parameter.Module('mt', typename = 'common:mapping_table'),
+		parameter.IntTab('srcid'),
+		parameter.IntTab('tgtid'),
+		parameter.Int('burst_size'),
+	],
+	extensions = [
+		'dsx:addressable=tgtid',
+		'dsx:get_ident=srcid:p_vci_initiator:mt,tgtid:p_vci_target:mt'
+	],
+)
+
+Module('caba:vci_clock_enable',
+	classname = 'soclib::caba::VciClockEnable',
+	tmpl_parameters = [
+		parameter.Module('vci_param',   default = 'caba:vci_param'),
+		parameter.Int('NTOIP_FIFO',     default = '2'),
+		parameter.Int('NFRIP_FIFO',     default = '2'),
+		parameter.Int('FIFO_BITWIDTH',  default = '10'),
+		parameter.Int('CTRL_ADDR_SIZE', default = '3'),
+		parameter.Int('NUSER_REGS',     default = '2'),
+	],
+	header_files = [
+		'../include/vci_clock_enable.h',
+	],
+	interface_files = [
+		'../include/soclib/dma_regs.h',
+	],
+	implementation_files = ['../src/vci_clock_enable.cpp', ],
+	ports = [
+		Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+		Port('caba:clock_in', 'p_clk', auto = 'clock'),
+		Port('caba:bit_out', 'p_start'),
+		Port('caba:vci_target', 'p_vci_target'),
+		Port('caba:acc_enbl_signals_out', 'p_enbl',
+				DATA_BITWIDTH=parameter.Reference('FIFO_BITWIDTH'),
+				ADDR_BITWIDTH=parameter.Reference('CTRL_ADDR_SIZE')),
+		Port('caba:word_out', 'p_user_regs', parameter.Reference('NUSER_REGS'),
+				word_t=parameter.StringExt('sc_uint<%s>', parameter.Reference('cell_size')*8)),
+	],
+	uses = [
+		Uses('caba:base_module'),
+		Uses('caba:generic_fifo'),
+		Uses('caba:vci_target_fsm', default_target = 'true', support_llsc = 'false'),
+	],
+	instance_parameters = [
+		parameter.Module('mt', typename = 'common:mapping_table'),
+		parameter.IntTab('tgtid'),
+	],
+	extensions = [
+		'dsx:addressable=tgtid',
+		'dsx:get_ident=tgtid:p_vci_target:mt'
+	],
+)

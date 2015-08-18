@@ -1,0 +1,15 @@
+
+# -*- python -*-
+
+__id__ = "$Id: address_decoding_table.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+Module('common:address_decoding_table',
+	classname = 'soclib::common::AddressDecodingTable',
+	header_files = ['../include/address_decoding_table.h',],
+	implementation_files = ['../src/address_decoding_table.cpp',],
+	tmpl_parameters = [
+	parameter.Type('input_t'),
+	parameter.Type('output_t'),
+	],
+)

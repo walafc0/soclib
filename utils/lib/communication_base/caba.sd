@@ -1,0 +1,111 @@
+
+# -*- mode: python -*-
+# SOCLIB_GPL_HEADER_BEGIN
+# 
+# This file is part of SoCLib, GNU GPLv2.
+# 
+# SoCLib is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+# 
+# SoCLib is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with SoCLib; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+# 
+# SOCLIB_GPL_HEADER_END
+# 
+# Copyright (c) UPMC, Lip6, SoC
+#         Nicolas Pouillon <nipo@ssji.net>, 2009
+# 
+# Maintainers: group:toolmakers
+
+__id__ = "$Id: caba.sd 1850 2010-08-23 08:43:56Z nipo $"
+__version__ = "$Revision: 1850 $"
+
+Signal('caba:clock',
+		   classname = 'sc_core::sc_clock',
+		   header_files = [],
+		   accepts = {'caba:clock_in':True,
+                      'caba:clock_out':1,},
+		   )
+
+Signal('caba:bit',
+		   classname = 'sc_core::sc_signal<bool>',
+		   accepts = {'caba:bit_in':True,
+					  'caba:bit_out':1},
+		   header_files = []
+		   )
+
+PortDecl('caba:bit_in',
+		 signal = 'caba:bit',
+		 classname = 'sc_core::sc_in<bool>',
+		   header_files = []
+		 )
+
+PortDecl('caba:bit_out',
+		 signal = 'caba:bit',
+		 classname = 'sc_core::sc_out<bool>',
+		   header_files = []
+		 )
+
+Signal('caba:word',
+		   classname = 'sc_core::sc_signal',
+		   accepts = {'caba:word_in':True,
+					  'caba:word_out':1},
+	   tmpl_parameters = [
+	parameter.Type('word_t'),
+	],
+		   header_files = []
+		   )
+
+PortDecl('caba:word_in',
+		 signal = 'caba:word',
+		 classname = 'sc_core::sc_in',
+	   tmpl_parameters = [
+	parameter.Type('word_t'),
+	],
+		   header_files = []
+		 )
+
+PortDecl('caba:word_out',
+		 signal = 'caba:word',
+		 classname = 'sc_core::sc_out',
+	   tmpl_parameters = [
+	parameter.Type('word_t'),
+	],
+		   header_files = []
+		 )
+
+PortDecl('caba:clock_in',
+		 signal = 'caba:clock',
+		 classname = 'sc_core::sc_in<bool>',
+		   header_files = []
+		 )
+
+PortDecl('caba:clock_out',
+		 signal = 'caba:clock',
+		 classname = 'sc_core::sc_out<bool>',
+		   header_files = []
+		 )
+
+Module('sc:uint',
+	   classname = "sc_dt::sc_uint",
+	   tmpl_parameters = [
+	parameter.Int('W'),
+	],
+	   global_header_files = ["systemc",],
+	   )
+
+Module('sc:int',
+	   classname = "sc_dt::sc_int",
+	   tmpl_parameters = [
+	parameter.Int('W'),
+	],
+	   global_header_files = ["systemc",],
+	   )

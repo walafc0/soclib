@@ -1,0 +1,74 @@
+##############################################################
+# README file for FHT test-bench platform
+##############################################################
+
+
+---------
+1) SETUP
+---------
+
+In order to compile the fht example you have to install:
+* TLM_OSCI   : TLM Standard from OSCI, version 1.0
+* TLM_ST_KIT : Propietary TLM standard from STMicroelectronics, based on TLM_OSCI 1.0
+
+You can find these packages at the following addresses :
+
+* TLM_OSCI : TLM-1.0.tar.gz can be dowload at the following http address :
+http://www.systemc.org/members/download_files/check_file?agreement=tlm-1_0
+
+* TLM_ST_KIT : 
+  - This STMicroelectronics's TLM package will be available through OpenTLM Minalogic website.
+  - Meanwhile, please contact CEA-LETI (pascal.vivet@cea.fr), which can provide this 
+    package under STMicroelectronics agreement.
+    
+Setup procedure :
+The user need to define two system variables : $TLM_OSCI_PATH and $TLM_ST_KIT_PATH: 
+setenv TLM_OSCI_PATH   .../path_to_tlm_osci/tlm
+setenv TLM_ST_KIT_PATH .../path_to_st_kit/include
+
+
+---------
+2) FHT test-bench contents
+---------
+
+This test-bench of the FHT module contains :
+ - 1 MIPS core,
+ - 3 Memories,
+ - 1 Lock memory
+ - 1 MWMR module
+ - 1 FHT core 
+
+The FHT module uses the following sub-elements :
+- soclib/communication/anoc/common/source/
+- soclib/module/streaming_component/anoc_copro_wrapper/common/
+- soclib/module/streaming_component/anoc_copro_wrapper/caba/
+- soclib/module/streaming_component/fht/common/
+- soclib/module/streaming_component/fht/caba/
+
+Documentation of the FHT module and this test-bench can be found in :
+- soclib/module/streaming_component/fht/caba/doc/
+
+
+---------
+3) FHT C-API
+---------
+
+The C-API of the FHT module can be found in :
+- soclib/platform/topcells/caba-vgmn-fht-mipsel/soft/api_fht.h
+
+The embedded software of the FHT test-bench is a simple test program of one FHT config,
+it can be found in :
+- soclib/platform/topcells/caba-vgmn-fht-mipsel/soft/main.c
+
+
+---------
+4) FHT test-bench simulation
+---------
+
+* to compile the platform :
+  > make
+  
+* to execute the platform :
+  > ./simuation.x 250000
+  
+

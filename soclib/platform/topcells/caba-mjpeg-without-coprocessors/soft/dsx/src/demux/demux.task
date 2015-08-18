@@ -1,0 +1,14 @@
+# -*- python -*-
+	
+TaskModel('demux',
+          ports = {'input':MwmrInput(32),
+                   'output':MwmrOutput(32),
+                   'huffman':MwmrOutput(32),
+                   'quanti':MwmrOutput(64),
+                   },
+          impls = [ SwTask( 'demux',
+                            stack_size = 4096,
+                            sources = [ 'demux.c',
+                                        '../common/block_io.c' ],
+                            defines = [ 'WIDTH', 'HEIGHT' ] )
+                    ] )

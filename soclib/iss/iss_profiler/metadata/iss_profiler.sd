@@ -1,0 +1,22 @@
+
+# -*- python -*-
+
+__id__ = "$Id: iss_profiler.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+Module('common:iss_profiler',
+	classname = 'soclib::common::IssProfiler',
+	header_files = ["../include/iss_profiler.h",],
+	implementation_files = [
+		"../src/iss_profiler.cpp",
+		],
+	   tmpl_parameters = [
+	parameter.Module('profiler_iss_t'),
+	],
+	   uses = [
+	Uses('common:iss'),
+	],
+	   extensions = [
+	'dsx:cpu=wrapper:profiler_iss_t',
+   ],
+)

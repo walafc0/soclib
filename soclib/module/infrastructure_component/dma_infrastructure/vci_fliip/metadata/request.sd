@@ -1,0 +1,24 @@
+
+Module('caba:read_to_fifo_request',
+	classname = 'soclib::caba::ReadToFifoRequest',
+	tmpl_parameters = [
+		parameter.Module('vci_param',  default = 'caba:vci_param'),
+	],
+	header_files = ['../include/read_to_fifo_request.h',],
+	implementation_files = ['../src/read_to_fifo_request.cpp',],
+	uses = [
+		Uses('caba:vci_initiator_req'),
+	],
+)
+
+Module('caba:write_from_fifo_request',
+	classname = 'soclib::caba::WriteFromFifoRequest',
+	tmpl_parameters = [
+		parameter.Module('vci_param',  default = 'caba:vci_param'),
+	],
+	header_files = ['../include/write_from_fifo_request.h',],
+	implementation_files = ['../src/write_from_fifo_request.cpp',],
+	uses = [
+		Uses('caba:vci_initiator_req'),
+	],
+)

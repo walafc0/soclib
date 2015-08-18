@@ -1,0 +1,536 @@
+/* *****************************************************************************
+                                    BSD LICENSE
+********************************************************************************
+Copyright (c) 2006, INRIA
+Authors: Zheng LI (zheng.x.li@inria.fr)
+
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+ - Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+ - Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+ - Neither the name of the INRIA nor the names of its contributors may be
+   used to endorse or promote products derived from this software without
+   specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED.
+IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+***************************************************************************** */
+
+//*********************************************************************************
+// the memory operations : load, store
+//*********************************************************************************
+ op ldw(stop[1]:rsv[1]:0b10[2]:0b00000[5]:null[2]:isrc2[9]:idest[6]:rsc1[6])
+ op ldw_d(stop[1]:rsv[1]:0b10[2]:0b00001[5]:null[2]:isrc2[9]:idest[6]:rsc1[6])
+
+ op ldh(stop[1]:rsv[1]:0b10[2]:0b00010[5]:null[2]:isrc2[9]:nlidest[6]:rsc1[6])
+ op ldh_d(stop[1]:rsv[1]:0b10[2]:0b00011[5]:null[2]:isrc2[9]:nlidest[6]:rsc1[6])
+ op ldhu(stop[1]:rsv[1]:0b10[2]:0b00100[5]:null[2]:isrc2[9]:nlidest[6]:rsc1[6])
+ op ldhu_d(stop[1]:rsv[1]:0b10[2]:0b00101[5]:null[2]:isrc2[9]:nlidest[6]:rsc1[6])
+ op ldb(stop[1]:rsv[1]:0b10[2]:0b00110[5]:null[2]:isrc2[9]:nlidest[6]:rsc1[6])
+ op ldb_d(stop[1]:rsv[1]:0b10[2]:0b00111[5]:null[2]:isrc2[9]:nlidest[6]:rsc1[6])
+ op ldbu(stop[1]:rsv[1]:0b10[2]:0b01000[5]:null[2]:isrc2[9]:nlidest[6]:rsc1[6])
+ op ldbu_d(stop[1]:rsv[1]:0b10[2]:0b01001[5]:null[2]:isrc2[9]:nlidest[6]:rsc1[6])
+
+ op stw(stop[1]:rsv[1]:0b10[2]:0b01010[5]:null[2]:isrc2[9]:rsc2[6]:rsc1[6])
+ op sth(stop[1]:rsv[1]:0b10[2]:0b01011[5]:null[2]:isrc2[9]:rsc2[6]:rsc1[6])
+ op stb(stop[1]:rsv[1]:0b10[2]:0b01100[5]:null[2]:isrc2[9]:rsc2[6]:rsc1[6])
+
+ // the following instructions don't really do a load/store operation
+ // but they use the ld/sw unit, so they are written in this file
+ op pft(stop[1]:rsv[1]:0b10[2]:0b01101[5]:null[2]:isrc2[9]:0b000000[6]:rsc1[6])
+ op prgadd(stop[1]:rsv[1]:0b10[2]:0b01110[5]:null[2]:isrc2[9]:0b000000[6]:rsc1[6])
+ op prgset(stop[1]:rsv[1]:0b10[2]:0b01111[5]:null[2]:isrc2[9]:0b000000[6]:rsc1[6])
+ op prginspg(stop[1]:rsv[1]:0b10[2]:0b10001[5]:null[2]:isrc2[9]:0b000000[6]:rsc1[6])
+
+ op sync(stop[1]:rsv[1]:0b10[2]:0b10000[5]:null[2]:0b000000000000000000000[21])
+ op pswset(stop[1]:rsv[1]:0b10[2]:0b10010[5]:null[11]:src2[6]:0b000000[6])
+ op pswclr(stop[1]:rsv[1]:0b10[2]:0b10011[5]:null[11]:src2[6]:0b000000[6])
+
+// op ldw(stop[1]:rsv[1]:0b10[2]:0b00000[5]:null[2]:isrc2[9]:idest[6]:rsc1[6])
+ldw.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        uint32_t ea = op1 + op2;
+        int32_t result;
+
+	if(cpu->IsDBreakHit(ea))
+   	    cpu->ThrowDBreak(ea);
+	if(cpu->IsCRegSpace(ea))
+	{
+	    cpu->ReadCheckCReg(ea);
+	    result = cpu->ReadCReg(ea);
+	}
+	else
+	{
+	    cpu->ReadCheckMemory32(ea);
+	    result = cpu->ReadMemory32(ea);
+	}
+   
+        //if(cpu->IsCRegSpace(ea))
+        //    result = cpu->ReadCReg(ea);
+        //else
+        //    result = cpu->ReadMemory32(ea);
+
+        // compute the effective address
+        cpu->SetEA(ea);
+        
+        cpu->SetGPR_N(idest, result);
+        
+}
+
+ldw.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "ldw $r" << idest << " = " <<hex<< op2 <<"[ $r" <<dec<<rsc1 << " ]    // " <<cpu->GetGPR_N(idest) <<"= mem[" <<hex <<op2 <<"+ r" <<dec<<rsc1<<"]" <<"[" <<hex<<op2<<"+"<<cpu->GetGPR_C(rsc1)<<"]"<<dec;
+}
+
+// op ldw_d(stop[1]:rsv[1]:0b10[2]:0b00001[5]:null[2]:isrc2[9]:idest[6]:rsc1[6])
+ldw_d.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        uint32_t ea = op1 + op2;
+        int32_t result;
+
+	if( cpu->IsDBreakHit(ea) )
+   	    cpu->ThrowDBreak(ea);
+	if( cpu->IsCRegSpace(ea) == 0 )
+	{ 
+	    cpu->DisReadCheckMemory32(ea);
+	    result = cpu->DisReadMemory32(ea);
+        }
+        else
+            result = 0;
+   
+//	if( cpu->IsCRegSpace(ea) )
+//	    result = 0;
+//	else
+//	    result = cpu->DisReadMemory32(ea);
+
+        // compute the effective address
+        cpu->SetEA(ea);
+
+        cpu->SetGPR_N(idest, result);
+}
+
+ldw_d.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "ldw_d $r" << idest << " = " << op2 << "[ $r" <<rsc1 << " ]";
+}
+
+// op ldh(stop[1]:rsv[1]:0b10[2]:0b00010[5]:null[2]:isrc2[9]:nlidest[6]:rsc1[6])
+ldh.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        uint32_t ea = op1 + op2;
+        int16_t result;
+
+	if(cpu->IsDBreakHit(ea))
+   	    cpu->ThrowDBreak(ea);
+	if(cpu->IsCRegSpace(ea))
+   	    cpu->ThrowCRegAccessViolation(ea);
+	else
+	    cpu->ReadCheckMemory16(ea);
+   
+	result = cpu->ReadMemory16(ea);
+
+        // compute the effective address
+        cpu->SetEA(ea);
+
+        cpu->SetGPR_N(nlidest, result);
+}
+
+ldh.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "ldh $r" << nlidest << " = " << op2 <<"[ $r" <<rsc1 << " ]";
+}
+
+// op ldh_d(stop[1]:rsv[1]:0b10[2]:0b00011[5]:null[2]:isrc2[9]:nlidest[6]:rsc1[6])
+ldh_d.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        uint32_t ea = op1 + op2;
+        int16_t result;
+
+	if( cpu->IsDBreakHit(ea) )
+   	    cpu->ThrowDBreak(ea);
+	if( cpu->IsCRegSpace(ea) == 0 ) 
+	    cpu->DisReadCheckMemory16(ea);
+
+   
+	if( cpu->IsCRegSpace(ea) )
+            result = 0;
+        else
+	    result = cpu->DisReadMemory16(ea);
+
+        // compute the effective address
+        cpu->SetEA(ea);
+
+        cpu->SetGPR_N(nlidest, result);
+        
+}
+
+ldh_d.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "ldh_d $r" << nlidest << " = " << op2 <<"[ $r" <<rsc1 << " ]";
+}
+
+// op ldhu(stop[1]:rsv[1]:0b10[2]:0b00100[5]:null[2]:isrc2[9]:nlidest[6]:rsc1[6])
+ldhu.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        uint32_t ea = op1 + op2;
+        uint16_t result;
+
+	if(cpu->IsDBreakHit(ea))
+   	    cpu->ThrowDBreak(ea);
+	if(cpu->IsCRegSpace(ea))
+   	    cpu->ThrowCRegAccessViolation(ea);
+	else
+	    cpu->ReadCheckMemory16(ea);
+   
+	result = cpu->ReadMemory16(ea);
+
+        // compute the effective address
+        cpu->SetEA(ea);
+
+        cpu->SetGPR_N(nlidest, result);
+}
+
+ldhu.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "ldhu $r" << nlidest << " = " << op2 <<"[ $r" <<rsc1 << " ]";
+}
+
+// op ldhu_d(stop[1]:rsv[1]:0b10[2]:0b00101[5]:null[2]:isrc2[9]:nlidest[6]:rsc1[6])
+ldhu_d.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        uint32_t ea = op1 + op2;
+        uint16_t result;
+
+	if( cpu->IsDBreakHit(ea) )
+   	    cpu->ThrowDBreak(ea);
+	if( cpu->IsCRegSpace(ea) == 0 ) 
+	    cpu->DisReadCheckMemory16(ea);
+
+   
+	if( cpu->IsCRegSpace(ea) )
+            result = 0;
+        else
+	    result = cpu->DisReadMemory16(ea);
+
+        // compute the effective address
+        cpu->SetEA(ea);
+
+        cpu->SetGPR_N(nlidest, result);
+        
+}
+
+ldhu_d.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "ldhu_d $r" << nlidest << " = " << op2 <<"[ $r" <<rsc1 << " ]";
+}
+
+// op ldb(stop[1]:rsv[1]:0b10[2]:0b00110[5]:null[2]:isrc2[9]:nlidest[6]:rsc1[6])
+ldb.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        uint32_t ea = op1 + op2;
+        int8_t result;
+
+	if(cpu->IsDBreakHit(ea))
+   	    cpu->ThrowDBreak(ea);
+	if(cpu->IsCRegSpace(ea))
+   	    cpu->ThrowCRegAccessViolation(ea);
+	else
+	    cpu->ReadCheckMemory8(ea);
+   
+	result = cpu->ReadMemory8(ea);
+
+        // compute the effective address
+        cpu->SetEA(ea);
+
+        cpu->SetGPR_N(nlidest, result);
+}
+
+ldb.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "ldb $r" << nlidest << " = " << op2 <<"[ $r" <<rsc1 << " ]";
+}
+
+// op ldb_d(stop[1]:rsv[1]:0b10[2]:0b00111[5]:null[2]:isrc2[9]:nlidest[6]:rsc1[6])
+ldb_d.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        uint32_t ea = op1 + op2;
+        int8_t result;
+
+	if( cpu->IsDBreakHit(ea) )
+   	    cpu->ThrowDBreak(ea);
+	if( cpu->IsCRegSpace(ea) == 0 ) 
+	    cpu->DisReadCheckMemory8(ea);
+
+   
+	if( cpu->IsCRegSpace(ea) )
+            result = 0;
+        else
+	    result = cpu->DisReadMemory8(ea);
+
+        // compute the effective address
+        cpu->SetEA(ea);
+
+        cpu->SetGPR_N(nlidest, result);
+        
+}
+
+ldb_d.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "ldb_d $r" << nlidest << " = " << op2 <<"[ $r" <<rsc1 << " ]";
+}
+
+// op ldbu(stop[1]:rsv[1]:0b10[2]:0b01000[5]:null[2]:isrc2[9]:nlidest[6]:rsc1[6])
+ldbu.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        uint32_t ea = op1 + op2;
+        uint8_t result;
+
+	if(cpu->IsDBreakHit(ea))
+   	    cpu->ThrowDBreak(ea);
+	if(cpu->IsCRegSpace(ea))
+   	    cpu->ThrowCRegAccessViolation(ea);
+	else
+	    cpu->ReadCheckMemory8(ea);
+   
+	result = cpu->ReadMemory8(ea);
+
+        // compute the effective address
+        cpu->SetEA(ea);
+
+        cpu->SetGPR_N(nlidest, result);
+}
+
+ldbu.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "ldb $r" << nlidest << " = " << op2 <<"[ $r" <<rsc1 << " ]";
+}
+
+// op ldbu_d(stop[1]:rsv[1]:0b10[2]:0b01001[5]:null[2]:isrc2[9]:nlidest[6]:rsc1[6])
+ldbu_d.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        uint32_t ea = op1 + op2;
+        uint8_t result;
+
+	if( cpu->IsDBreakHit(ea) )
+   	    cpu->ThrowDBreak(ea);
+	if( cpu->IsCRegSpace(ea) == 0 ) 
+	    cpu->DisReadCheckMemory8(ea);
+
+   
+	if( cpu->IsCRegSpace(ea) )
+            result = 0;
+        else
+	    result = cpu->DisReadMemory8(ea);
+
+        // compute the effective address
+        cpu->SetEA(ea);
+
+        cpu->SetGPR_N(nlidest, result);
+        
+}
+
+ldbu_d.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "ldh_d $r" << nlidest << " = " << op2 <<"[ $r" <<rsc1 << " ]";
+}
+
+// op stw(stop[1]:rsv[1]:0b10[2]:0b01010[5]:null[2]:isrc2[9]:rsc2[6]:rsc1[6])
+stw.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        int32_t op3 = cpu->Imm(isrc2);
+        uint32_t ea = op1 + op3;
+
+        if(cpu->IsDBreakHit(ea))
+            cpu->ThrowDBreak(ea);
+        if(cpu->IsCRegSpace(ea))
+            cpu->WriteCheckCReg(ea);
+        else
+            cpu->WriteCheckMemory32(ea);
+        
+        if(cpu->IsCRegSpace(ea))
+            cpu->WrirteCReg(ea,op2);
+        else
+            cpu->WriteMemory32(ea,op2);
+
+        // compute the effective address
+        cpu->SetEA(ea);
+}
+
+stw.disasm = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        int32_t op3 = SignEx9to32(isrc2);
+	os << "stw " <<hex<< op3 <<"[ $r" <<dec<< rsc1 << " ] = $r" << rsc2 <<"    //mem[" <<hex <<op3<<" + r" <<dec<<rsc1 <<"("<<hex<<op1<<")" << "] = " <<dec <<op2;
+}
+
+// op sth(stop[1]:rsv[1]:0b10[2]:0b01011[5]:null[2]:isrc2[9]:rsc2[6]:rsc1[6])
+sth.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        int32_t op3 = cpu->Imm(isrc2);
+        uint32_t ea = op1 + op3;
+
+	if(cpu->IsDBreakHit(ea))
+   	    cpu->ThrowDBreak(ea);
+	if(cpu->IsCRegSpace(ea))
+   	    cpu->ThrowCRegAccessViolation(ea);
+
+	cpu->WriteCheckMemory16(ea);
+	cpu->WriteMemory16(ea,op2);
+
+        // compute the effective address
+        cpu->SetEA(ea);
+}
+
+sth.disasm = {
+        int32_t op3 = SignEx9to32(isrc2);
+	os << "sth " << op3 <<"[ $r" <<rsc1 << " ] = $r" << rsc2; 
+}
+// op stb(stop[1]:rsv[1]:0b10[2]:0b01100[5]:null[2]:isrc2[9]:rsc2[6]:rsc1[6])
+stb.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->GetGPR_C(rsc2);
+        int32_t op3 = cpu->Imm(isrc2);
+        uint32_t ea = op1 + op3;
+
+	if(cpu->IsDBreakHit(ea))
+   	    cpu->ThrowDBreak(ea);
+	if(cpu->IsCRegSpace(ea))
+   	    cpu->ThrowCRegAccessViolation(ea);
+
+	cpu->WriteCheckMemory8(ea);
+	cpu->WriteMemory8(ea,op2);
+
+        // compute the effective address
+        cpu->SetEA(ea);
+}
+
+stb.disasm = {
+        int32_t op3 = SignEx9to32(isrc2);
+	os << "stb " << op3 <<"[ $r" <<rsc1 << " ] = $r" << rsc2; 
+}
+
+// op pft(stop[1]:rsv[1]:0b10[2]:0b01101[5]:null[2]:isrc2[9]:0b000000[6]:rsc1[6])
+pft.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        uint32_t ea = op1 + op2;
+
+	cpu->PrefetchCheckMemory(ea);
+	cpu->PrefetchMemory(ea);
+}
+
+pft.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "pft " << op2 <<"[ $r" <<rsc1 << " ]" ; 
+}
+
+// op prgadd(stop[1]:rsv[1]:0b10[2]:0b01110[5]:null[2]:isrc2[9]:0b000000[6]:rsc1[6])
+prgadd.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        uint32_t ea = op1 + op2;
+
+	cpu->PurgeAddressCheckMemory(ea);
+	cpu->PurgeAddress(ea);
+}
+
+prgadd.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "prgadd " << op2 <<"[ $r" <<rsc1 << " ]" ; 
+}
+
+// op prgset(stop[1]:rsv[1]:0b10[2]:0b01111[5]:null[2]:isrc2[9]:0b000000[6]:rsc1[6])
+prgset.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        uint32_t ea = op1 + op2;
+
+	cpu->PurgeSet(ea);
+}
+
+prgset.disasm = {
+        int32_t op2 = SignEx9to32(isrc2);
+	os << "prgset " << op2 <<"[ $r" <<rsc1 << " ]"; 
+}
+ 
+// op sync(stop[1]:rsv[1]:0b10[2]:0b10000[5]:null[2]:0b000000000000000000000[21])
+sync.execute = {
+	sync();
+}
+
+sync.disasm = {
+	os << "sync" ; 
+}
+
+// op prginspg(stop[1]:rsv[1]:0b10[2]:0b10001[5]:null[2]:isrc2[9]:0b000000:rsc1[6])
+prginspg.execute = {
+        int32_t op1 = cpu->GetGPR_C(rsc1);
+        int32_t op2 = cpu->Imm(isrc2);
+        uint32_t ea = op1 + op2;
+
+	if(PSW_USER_MODE)
+           cpu->ThrowIllInst();
+	cpu->PurgeInsPg(ea);
+}
+
+prginspg.disasm = {
+        int32_t op3 = SignEx9to32(isrc2);
+	os << "prginspg " << op3 <<"[ $r" <<rsc1 << " ]" ; 
+}
+
+// op pswset(stop[1]:rsv[1]:0b10[2]:0b10010[5]:null[11]:src2[6]:0b000000[6])
+pswset.execute = {
+        int32_t ea = cpu->GetGPR_C(src2);
+
+	if(PSW_USER_MODE)
+           cpu->ThrowIllInst();
+
+	cpu->PswSet(ea);
+}
+
+pswset.disasm = {
+	os << "pswset $r" << src2 ; 
+}
+
+// op pswclr(stop[1]:rsv[1]:0b10[2]:0b10011[5]:null[11]:src2[6]:0b000000[6])
+pswclr.execute = {
+        int32_t ea = cpu->GetGPR_C(src2);
+
+	if(PSW_USER_MODE)
+           cpu->ThrowIllInst();
+
+	cpu->PswClr(ea);
+}
+
+pswclr.disasm = {
+	os << "pswclr $r" << src2 ; 
+}
+

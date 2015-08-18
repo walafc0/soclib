@@ -1,0 +1,25 @@
+
+# -*- python -*-
+
+Module('common:niosII',
+	classname = 'soclib::common::Nios2fIss',
+	header_files = ["../include/niosII.h",],
+	implementation_files = [
+		"../src/niosII.cpp",
+		"../src/niosII_itype_instructions.cpp",
+		"../src/niosII_rtype_instructions.cpp",
+		"../src/niosII_custom_instructions.cpp",
+		"../src/niosII_ctrlReg.cpp",
+		],
+	uses = [
+		Uses('common:iss2'),
+		Uses('common:base_module'),
+		],
+    extensions = [
+	'dsx:cpu=nios2_fast_generic'
+	],
+	   constants = {
+	'n_irq':32
+	},
+#debug = True,
+)

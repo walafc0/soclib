@@ -1,0 +1,19 @@
+
+__id__ = "$Id: vci_timer.sd 1093 2009-05-10 17:34:14Z nipo $"
+__version__ = "$Revision: 1093 $"
+
+Module('tlmt:vci_timer',
+       classname = 'soclib::tlmt::VciTimer',
+       tmpl_parameters = [ parameter.Module('vci_param',  default = 'tlmt:vci_param') ],
+       header_files = ['../source/include/vci_timer.h',
+                       ],
+	   interface_files = [
+                       '../../include/soclib/timer.h',
+					   ],
+       implementation_files = ['../source/src/vci_timer.cpp',],
+       ports = [ Port('tlmt:vci_target', 'p_vci') ],
+       uses = [ Uses('tlmt:base_module'),
+		Uses('common:mapping_table'),
+		],
+       debug = False,
+       )

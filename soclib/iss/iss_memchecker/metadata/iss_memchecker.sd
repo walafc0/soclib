@@ -1,0 +1,32 @@
+
+# -*- python -*-
+
+__id__ = "$Id: iss_memchecker.sd 2123 2011-09-18 18:36:34Z becoulet $"
+__version__ = "$Revision: 2123 $"
+
+Module('common:iss_memchecker',
+	classname = 'soclib::common::IssMemchecker',
+	header_files = ["../include/iss_memchecker.h",
+			],
+	interface_files = ["../headers/soclib/iss_memchecker_registers.h",
+			],
+	implementation_files = [
+		"../src/iss_memchecker.cpp",
+		],
+	   tmpl_parameters = [
+	parameter.Module('iss_memchecker_t'),
+	],
+	   uses = [
+	Uses('common:iss2'),
+	Uses('common:mapping_table'),
+	Uses('common:exception'),
+	Uses('common:loader'),
+        Uses('common:dpp'),
+	],
+	   extensions = [
+	'dsx:cpu=wrapper:iss_memchecker_t',
+	'dsx:set_config=CONFIG_SOCLIB_MEMCHECK',
+	'dsx:static_config_lines=%(class)s::init(%(env:mapping_table)s,%(env:loader)s,"%(meta:all_peripherals)s")',
+   ],
+#	   debug = True,
+)

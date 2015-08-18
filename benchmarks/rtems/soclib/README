@@ -1,0 +1,9 @@
+RTEMS Board support package for SoCLib with MIPS processor
+original author: Alexandre Becoulet <alexandre.becoulet@free.fr>
+
+SoCLib simulator can be found at: http://www.soclib.fr/
+
+tested with to work with:
+ ../rtems-4.9.2/configure --target=mips-rtems4.9 --prefix=/tmp/rtems --enable-rtemsbsp=soclib --enable-posix --disable-itron --disable-networking
+
+SMP support may be enabled with --enable-multiprocessing

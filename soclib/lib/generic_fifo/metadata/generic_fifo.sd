@@ -1,0 +1,10 @@
+
+# -*- python -*-
+
+__id__ = "$Id: generic_fifo.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+Module('caba:generic_fifo',
+	classname = 'soclib::caba::GenericFifo',
+	header_files = ['../include/caba/generic_fifo.h',],
+)

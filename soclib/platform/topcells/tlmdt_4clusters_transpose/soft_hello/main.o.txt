@@ -1,0 +1,228 @@
+
+main.o:     file format elf32-littlemips
+
+
+Disassembly of section .text:
+
+00000000 <main>:
+   0:	27bdffe0 	addiu	sp,sp,-32
+   4:	afbf001c 	sw	ra,28(sp)
+   8:	3c020000 	lui	v0,0x0
+   c:	24440000 	addiu	a0,v0,0
+  10:	0c000000 	jal	0 <main>
+  14:	00000000 	nop
+  18:	27a20010 	addiu	v0,sp,16
+  1c:	00402021 	move	a0,v0
+  20:	0c000000 	jal	0 <main>
+  24:	00000000 	nop
+  28:	08000002 	j	8 <main+0x8>
+  2c:	00000000 	nop
+
+Disassembly of section .reginfo:
+
+00000000 <.reginfo>:
+   0:	a0000014 	sb	zero,20(zero)
+	...
+
+Disassembly of section .pdr:
+
+00000000 <.pdr>:
+   0:	00000000 	nop
+   4:	80000000 	lb	zero,0(zero)
+   8:	fffffffc 	sdc3	$31,-4(ra)
+	...
+  14:	00000020 	add	zero,zero,zero
+  18:	0000001d 	0x1d
+  1c:	0000001f 	0x1f
+
+Disassembly of section .debug_abbrev:
+
+00000000 <.debug_abbrev>:
+   0:	25011101 	addiu	at,t0,4353
+   4:	030b130e 	0x30b130e
+   8:	110e1b0e 	beq	t0,t6,6c44 <main+0x6c44>
+   c:	10011201 	beq	zero,at,4814 <main+0x4814>
+  10:	02000006 	srlv	zero,zero,s0
+  14:	0b0b0024 	j	c2c0090 <main+0xc2c0090>
+  18:	0e030b3e 	jal	80c2cf8 <main+0x80c2cf8>
+  1c:	2e030000 	sltiu	v1,s0,0
+  20:	030c3f01 	0x30c3f01
+  24:	3b0b3a0e 	xori	t3,t8,0x3a0e
+  28:	1113490b 	beq	t0,s3,12458 <main+0x12458>
+  2c:	40011201 	0x40011201
+  30:	00130106 	0x130106
+  34:	00340400 	0x340400
+  38:	0b3a0803 	j	ce8200c <main+0xce8200c>
+  3c:	13490b3b 	beq	k0,t1,2d2c <main+0x2d2c>
+  40:	00000a02 	srl	at,zero,0x8
+  44:	0b002405 	j	c009014 <main+0xc009014>
+  48:	030b3e0b 	0x30b3e0b
+  4c:	06000008 	bltz	s0,70 <main+0x70>
+  50:	13490035 	beq	k0,t1,128 <main+0x128>
+  54:	Address 0x0000000000000054 is out of bounds.
+
+
+Disassembly of section .debug_info:
+
+00000000 <.debug_info>:
+   0:	00000065 	0x65
+   4:	00000002 	srl	zero,zero,0x0
+   8:	01040000 	0x1040000
+   c:	00000078 	0x78
+  10:	00008401 	0x8401
+	...
+  1c:	00003000 	sll	a2,zero,0x0
+  20:	00000000 	nop
+  24:	07040200 	0x7040200
+  28:	0000006b 	0x6b
+  2c:	008b0103 	0x8b0103
+  30:	03010000 	0x3010000
+  34:	00000055 	0x55
+  38:	00000000 	nop
+  3c:	00000030 	tge	zero,zero
+  40:	00000000 	nop
+  44:	00000055 	0x55
+  48:	01006304 	0x1006304
+  4c:	00005c05 	0x5c05
+  50:	70910200 	0x70910200
+  54:	05040500 	0x5040500
+  58:	00746e69 	0x746e69
+  5c:	00006106 	0x6106
+  60:	06010200 	bgez	s0,864 <main+0x864>
+  64:	00000090 	0x90
+	...
+
+Disassembly of section .debug_line:
+
+00000000 <.debug_line>:
+   0:	00000033 	tltu	zero,zero
+   4:	001d0002 	srl	zero,sp,0x0
+   8:	01010000 	0x1010000
+   c:	000d0efb 	0xd0efb
+  10:	01010101 	0x1010101
+  14:	01000000 	0x1000000
+  18:	00010000 	sll	zero,at,0x0
+  1c:	6e69616d 	0x6e69616d
+  20:	0000632e 	0x632e
+  24:	00000000 	nop
+  28:	00000205 	0x205
+  2c:	87150000 	lh	s5,0(t8)
+  30:	0802f3f3 	j	bcfcc <main+0xbcfcc>
+  34:	Address 0x0000000000000034 is out of bounds.
+
+
+Disassembly of section .rodata:
+
+00000000 <.rodata>:
+   0:	6c6c6568 	0x6c6c6568
+   4:	6f77206f 	0x6f77206f
+   8:	0a646c72 	j	991b1c8 <main+0x991b1c8>
+   c:	00000000 	nop
+
+Disassembly of section .debug_frame:
+
+00000000 <.debug_frame>:
+   0:	0000000c 	syscall
+   4:	ffffffff 	sdc3	$31,-1(ra)
+   8:	7c010001 	0x7c010001
+   c:	001d0c1f 	0x1d0c1f
+  10:	00000014 	0x14
+	...
+  1c:	00000030 	tge	zero,zero
+  20:	44200e44 	0x44200e44
+  24:	00011f11 	0x11f11
+
+Disassembly of section .debug_loc:
+
+00000000 <.debug_loc>:
+   0:	00000000 	nop
+   4:	00000004 	sllv	zero,zero,zero
+   8:	046d0001 	0x46d0001
+   c:	30000000 	andi	zero,zero,0x0
+  10:	02000000 	0x2000000
+  14:	00208d00 	0x208d00
+  18:	00000000 	nop
+  1c:	Address 0x000000000000001c is out of bounds.
+
+
+Disassembly of section .debug_pubnames:
+
+00000000 <.debug_pubnames>:
+   0:	00000017 	0x17
+   4:	00000002 	srl	zero,zero,0x0
+   8:	00690000 	0x690000
+   c:	002c0000 	0x2c0000
+  10:	616d0000 	0x616d0000
+  14:	00006e69 	0x6e69
+  18:	Address 0x0000000000000018 is out of bounds.
+
+
+Disassembly of section .debug_aranges:
+
+00000000 <.debug_aranges>:
+   0:	0000001c 	0x1c
+   4:	00000002 	srl	zero,zero,0x0
+   8:	00040000 	sll	zero,a0,0x0
+	...
+  14:	00000030 	tge	zero,zero
+	...
+
+Disassembly of section .debug_str:
+
+00000000 <.debug_str>:
+   0:	6573552f 	0x6573552f
+   4:	612f7372 	0x612f7372
+   8:	6e69616c 	0x6e69616c
+   c:	636f732f 	0x636f732f
+  10:	636f732f 	0x636f732f
+  14:	2d62696c 	sltiu	v0,t3,26988
+  18:	2d6e7673 	sltiu	t6,t3,30323
+  1c:	656e756a 	0x656e756a
+  20:	3030322d 	andi	s0,at,0x322d
+  24:	6f732f39 	0x6f732f39
+  28:	62696c63 	0x62696c63
+  2c:	636f732f 	0x636f732f
+  30:	2f62696c 	sltiu	v0,k1,26988
+  34:	74616c70 	jalx	185b1c0 <main+0x185b1c0>
+  38:	6d726f66 	0x6d726f66
+  3c:	706f742f 	0x706f742f
+  40:	6c6c6563 	0x6c6c6563
+  44:	6c742f73 	0x6c742f73
+  48:	5f74646d 	0x5f74646d
+  4c:	756c6334 	jalx	5b18cd0 <main+0x5b18cd0>
+  50:	72657473 	0x72657473
+  54:	72745f73 	0x72745f73
+  58:	70736e61 	0x70736e61
+  5c:	2f65736f 	sltiu	a1,k1,29551
+  60:	74666f73 	jalx	199bdcc <main+0x199bdcc>
+  64:	6c65685f 	0x6c65685f
+  68:	75006f6c 	jalx	401bdb0 <main+0x401bdb0>
+  6c:	6769736e 	0x6769736e
+  70:	2064656e 	addi	a0,v1,25966
+  74:	00746e69 	0x746e69
+  78:	20554e47 	addi	s5,v0,20039
+  7c:	2e342043 	sltiu	s4,s1,8259
+  80:	00322e34 	teq	at,s2,0xb8
+  84:	6e69616d 	0x6e69616d
+  88:	6d00632e 	0x6d00632e
+  8c:	006e6961 	0x6e6961
+  90:	72616863 	0x72616863
+	...
+
+Disassembly of section .comment:
+
+00000000 <.comment>:
+   0:	43434700 	c0	0x1434700
+   4:	4728203a 	c1	0x128203a
+   8:	2029554e 	addi	t1,at,21838
+   c:	2e342e34 	sltiu	s4,s1,11828
+  10:	Address 0x0000000000000010 is out of bounds.
+
+
+Disassembly of section .gnu.attributes:
+
+00000000 <.gnu.attributes>:
+   0:	00000f41 	0xf41
+   4:	756e6700 	jalx	5b99c00 <main+0x5b99c00>
+   8:	00070100 	sll	zero,a3,0x4
+   c:	01040000 	0x1040000

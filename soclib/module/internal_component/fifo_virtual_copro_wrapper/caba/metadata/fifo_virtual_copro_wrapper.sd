@@ -1,0 +1,40 @@
+
+# -*- python -*-
+
+Module('caba:fifo_virtual_copro_wrapper',
+      classname = 'dsx::caba::VirtualCoprocessorWrapper',
+      header_files = [
+         "../source/include/fifo_virtual_copro_wrapper.h",
+         "../source/include/srl_log.h",
+         "../source/include/srl.h",
+         "../source/include/srl_endianness.h",
+         "../source/include/srl_hw_helpers.h",
+         "../source/include/srl_private_types.h",
+         "../source/include/srl_endianness.h",
+      ],
+         interface_files = [
+      ],
+      implementation_files = [
+         "../source/src/fifo_virtual_copro_wrapper.cpp",
+         "../source/src/srl_log.cpp",
+         "../source/src/srl_endianness.cpp",
+      ],
+      ports = [
+         Port('caba:fifo_output', 'p_to_ctrl', parameter.Reference('fifos_out', mode = 'len')),
+         Port('caba:fifo_input', 'p_from_ctrl', parameter.Reference('fifos_in', mode = 'len')),
+         Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+         Port('caba:clock_in', 'p_clk', auto = 'clock'),
+      ],
+      uses = [
+         Uses('caba:base_module'),
+      ],
+      instance_parameters = [
+         parameter.StringArray('fifos_out'),
+         parameter.StringArray('fifos_in'),
+      ],
+      tmpl_parameters = [
+      ],
+      extensions = [
+      ],
+)
+

@@ -1,0 +1,3 @@
+In order to properly configure the platform, the following link has to be made:
+
+ ln -vsf  $PWD/avalon_switch_config.h $SOCLIB/soclib/communication/avalonbus/caba/source/include/avalon_switch_config.h

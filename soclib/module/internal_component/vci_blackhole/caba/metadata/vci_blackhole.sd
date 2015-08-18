@@ -1,0 +1,29 @@
+
+# -*- python -*-
+
+__id__ = "$Id: vci_blackhole.sd 1697 2010-04-14 03:08:25Z nipo $"
+__version__ = "$Revision: 1697 $"
+
+Module('caba:vci_blackhole',
+       classname = 'soclib::caba::VciBlackhole',
+       tmpl_parameters = [
+        parameter.Module('vci_param',  default = 'caba:vci_param'),
+	],
+       header_files = ['../source/include/vci_blackhole.h',],
+       implementation_files = ['../source/src/vci_blackhole.cpp',],
+       ports = [
+	Port('caba:vci_target', 'p_vci'),
+	Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+	Port('caba:clock_in', 'p_clk', auto = 'clock'),
+	],
+       uses = [
+        Uses('caba:base_module'),
+        ],
+       instance_parameters = [
+	parameter.IntTab('ident'),
+	],
+       extensions = [
+	'dsx:addressable=ident',
+	'dsx:get_ident=ident:p_vci:mt',
+        ],
+)

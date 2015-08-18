@@ -1,0 +1,24 @@
+
+# -*- python -*-
+
+__id__ = "$Id: upsampling.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+Module('caba:Upsampling',
+	classname = 'soclib::caba::Upsampling',
+	tmpl_parameters = [
+		parameter.Module('vci_param',  default = 'caba:vci_param'),
+		parameter.Int('fifo_depth'),
+	],
+	header_files = ['../source/include/upsampling.h',],
+	implementation_files = ['../source/src/upsampling.cpp',],
+	ports = [
+		Port('caba:fifo_output', 'p_to_ctrl'),
+                Port('caba:fifo_input', 'p_from_ctrl'),
+		Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+         	Port('caba:clock_in', 'p_clk', auto = 'clock'),
+	],
+	uses = [
+		Uses('caba:base_module'),
+	],	
+)

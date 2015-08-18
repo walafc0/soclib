@@ -1,0 +1,31 @@
+# -*- python -*-
+
+todo = Platform('tlmdt', 'multi_cluster_top.cpp',
+        uses = [
+            Uses('tlmdt:vci_xcache_wrapper', iss_t = 'common:gdb_iss', gdb_iss_t = 'common:mips32el'),
+            Uses('tlmdt:vci_vgmn'),
+            Uses('tlmdt:vci_icu'),
+            Uses('tlmdt:vci_local_crossbar'),
+            Uses('tlmdt:vci_ram'),
+            Uses('tlmdt:vci_multi_tty'),
+            Uses('tlmdt:vci_block_device'),
+            Uses('tlmdt:vci_dma'),
+            Uses('tlmdt:vci_timer'),
+            Uses('tlmdt:vci_framebuffer'),
+            Uses('tlmdt:vci_blackhole'),
+            Uses('common:elf_file_loader'),
+            Uses('common:mapping_table'),
+            ],
+        addr_t  = 'uint32_t',
+        data_t  = 'uint32_t',
+        )
+
+# Local Variables:
+# tab-width: 4;
+# c-basic-offset: 4;
+# c-file-offsets:((innamespace . 0)(inline-open . 0));
+# indent-tabs-mode: nil;
+# End:
+#
+# vim: filetype=python:expandtab:shiftwidth=4:tabstop=4:softtabstop=4
+

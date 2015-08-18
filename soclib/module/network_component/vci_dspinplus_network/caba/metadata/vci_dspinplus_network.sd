@@ -1,0 +1,33 @@
+# -*- python -*-
+
+__id__ = "$Id: vci_dspinplus_network.sd 1698 2010-04-14 03:29:34Z nipo $"
+__version__ = "$Revision: 1698 $"
+
+Module('caba:vci_dspinplus_network',
+	classname = 'soclib::caba::VciDspinPlusNetwork',
+	tmpl_parameters = [
+	    parameter.Module('vci_param', default = 'caba:vci_param'),
+	    parameter.Int('dspin_fifo_size'),
+	    parameter.Int('dspin_yx_size'),
+	],
+	header_files = ['../source/include/vci_dspinplus_network.h',],
+	implementation_files = ['../source/src/vci_dspinplus_network.cpp',],
+	ports = [
+		# FIXME: Ports vci
+	    Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+	    Port('caba:clock_in', 'p_clk', auto = 'clock'),
+	],
+	instance_parameters = [
+ 	    parameter.Module('mt', 'common:mapping_table'),
+	    parameter.Int('width_network'),
+	    parameter.Int('height_network'),
+	],
+	uses = [
+	    Uses('caba:base_module'),
+	    Uses('common:mapping_table'),
+	    Uses('caba:dspinplus_router', dspin_data_size = 37),
+	    Uses('caba:dspinplus_router', dspin_data_size = 33),
+	    Uses('caba:vci_dspinplus_initiator_wrapper'),
+	    Uses('caba:vci_dspinplus_target_wrapper'),
+	],
+)

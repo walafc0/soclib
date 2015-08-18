@@ -1,0 +1,43 @@
+
+# -*- python -*-
+
+__id__ = "$Id: xcache.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+Signal('caba:xcache_icache',
+	   classname = 'soclib::caba::ICacheSignals',
+	   accepts = {'caba:xcache_cache_icache':1,
+				  'caba:xcache_processor_icache':1},
+	   header_files = ['../source/include/xcache_signals.h'],
+	   )
+
+Signal('caba:xcache_dcache',
+	   classname = 'soclib::caba::DCacheSignals',
+	   accepts = {'caba:xcache_cache_dcache':1,
+				  'caba:xcache_processor_dcache':1},
+	   header_files = ['../source/include/xcache_signals.h'],
+	   )
+
+PortDecl('caba:xcache_cache_icache',
+	 classname = 'soclib::caba::ICacheCachePort',
+	 signal = 'caba:xcache_icache',
+	 header_files = ['../source/include/xcache_cache_ports.h'],
+	 )
+
+PortDecl('caba:xcache_cache_dcache',
+	 classname = 'soclib::caba::DCacheCachePort',
+	 signal = 'caba:xcache_dcache',
+	 header_files = ['../source/include/xcache_cache_ports.h'],
+	 )
+
+PortDecl('caba:xcache_processor_icache',
+	 classname = 'soclib::caba::ICacheProcessorPort',
+	 signal = 'caba:xcache_icache',
+	 header_files = ['../source/include/xcache_processor_ports.h'],
+	 )
+
+PortDecl('caba:xcache_processor_dcache',
+	 classname = 'soclib::caba::DCacheProcessorPort',
+	 signal = 'caba:xcache_dcache',
+	 header_files = ['../source/include/xcache_processor_ports.h'],
+	 )

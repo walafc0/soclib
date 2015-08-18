@@ -1,0 +1,177 @@
+/* -*- c++ -*-
+
+   C++ empty pointer classes
+
+   This file is part of the dpp library of C++ template classes
+
+   doc: http://diaxen.ssji.net/dpp/index.html
+   repo: https://www.ssji.net/svn/projets/trunk/libdpp
+
+   This program is free software: you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public License
+   as published by the Free Software Foundation, either version 3 of
+   the License, or (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with this program.  If not, see
+   <http://www.gnu.org/licenses/>.
+
+   (c) 2008-2011 Alexandre Becoulet <alexandre.becoulet@free.fr>
+
+*/
+
+#ifndef DPP_EMPTY_REF_HH_
+#define DPP_EMPTY_REF_HH_
+
+/** @file @module{Empty pointer} */
+
+namespace dpp {
+
+  template <class X> class weak_ptr_base;
+  template <class X> class weak_ptr;
+
+  /**
+     @internal
+   */
+  class weak_ptr_node
+  {
+    template <class> friend class weak_ptr_base;
+    template <class> friend class weak_ptr;
+
+    void init()
+    {
+      m_prev = m_next = this;
+    }
+
+    void add(weak_ptr_node *n)
+    {
+      n->m_prev = this;
+      m_next->m_prev = n;
+      n->m_next = m_next;
+      m_next = n;
+    }
+
+    void remove()
+    {
+      m_prev->m_next = m_next;
+      m_next->m_prev = m_prev;
+    }
+
+    weak_ptr_node *m_next;
+    weak_ptr_node *m_prev;
+  };
+
+  /** 
+      @short Empty pointer object base class
+      @module{Empty pointer}
+      @header dpp/weak_ptr
+
+      @This is the referenced object base class, any class which
+      inherits from this class can be pointed to by an @ref weak_ptr
+      pointer.
+   */
+  template <class X>
+  class weak_ptr_base : public weak_ptr_node
+  {
+    template <class> friend class weak_ptr;
+    typedef X _dpp_weak_ptr_type;
+
+  public:
+
+    weak_ptr_base()
+    {
+      weak_ptr_node::init();
+    }
+
+    ~weak_ptr_base()
+    {
+      for (weak_ptr_node *n = weak_ptr_node::m_next;
+	   n != (weak_ptr_node*)this; n = n->m_next)
+	static_cast<weak_ptr<X>*>(n)->_obj = 0;
+    }
+  };
+
+  /** 
+      @short Empty pointer class
+      @module{Empty pointer}
+      @header dpp/weak_ptr
+      @main
+
+      @This implements a pointer class which is automatically set to 0
+      when the associated object is deleted.
+
+      All pointers to the same object are linked together and
+      this list is used to clear all pointers from object
+      destructor. Object class must inherit from the @ref
+      weak_ptr_base class.
+
+      @example test/test_weak_ptr.cc:1
+  */
+  template <class X>
+  class weak_ptr : public weak_ptr_node
+  {
+    template <class> friend class weak_ptr_base;
+
+  public:
+    weak_ptr()
+      : _obj(0)
+    {
+    }
+
+    weak_ptr(X *o)
+      : _obj(o)
+    {
+      if (_obj)
+	const_cast<typename X::_dpp_weak_ptr_type*>(_obj)->add(this);
+    }
+
+    ~weak_ptr()
+    {
+      if (_obj)
+	weak_ptr_node::remove();
+    }
+
+    weak_ptr & operator=(X *o)
+    {
+      if (_obj)
+	weak_ptr_node::remove();
+      _obj = o;
+      if (_obj)
+	const_cast<typename X::_dpp_weak_ptr_type*>(_obj)->add(this);
+      return *this;
+    }
+
+    /** @This tests if @ref ref points to a valid object. */
+    bool valid() const
+    {
+      return _obj != 0;
+    }
+
+    X & operator*() const
+    {
+      return *_obj;
+    }
+
+    X * operator->() const
+    {
+      return _obj;
+    }
+
+    operator X* () const
+    {
+      return _obj;
+    }
+
+  private:
+    X *_obj;
+  };
+
+}
+
+#endif
+

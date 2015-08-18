@@ -1,0 +1,53 @@
+
+# -*- python -*-
+
+__id__ = "$Id: vci_mwmr_controller.sd 1699 2012-08-22 03:30:30Z $"
+__version__ = "$Revision: 1699 $"
+
+Module('caba:vci_mwmr_controller_cas',
+	classname = 'soclib::caba::VciMwmrControllerCas',
+	header_files = ['../source/include/vci_mwmr_controller_cas.h',
+					],
+    interface_files = [
+					'../../include/soclib/mwmr_controller_cas.h',
+					],
+	implementation_files = ['../source/src/vci_mwmr_controller_cas.cpp',],
+	   tmpl_parameters = [
+	parameter.Module('vci_param',  default = 'caba:vci_param'),
+	],
+			  ports = [
+	Port('caba:vci_target', 'p_vci_target'),
+	Port('caba:vci_initiator', 'p_vci_initiator'),
+	Port('caba:fifo_input', 'p_from_coproc', parameter.Reference('n_from_coproc')),
+	Port('caba:fifo_output', 'p_to_coproc', parameter.Reference('n_to_coproc')),
+	Port('caba:word_out', 'p_config', parameter.Reference('n_config'), word_t = 'uint32_t'),
+	Port('caba:word_in', 'p_status', parameter.Reference('n_status'), word_t = 'uint32_t'),
+	Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+	Port('caba:clock_in', 'p_clk', auto = 'clock'),
+	],
+	uses = [
+		Uses('caba:base_module'),
+		Uses('caba:generic_fifo', data_t = 'uint32_t'),
+		Uses('caba:vci_target_fsm', default_target = 'true', support_llsc = 'false'),
+		],
+	instance_parameters = [
+        parameter.Module('mt', typename = 'common:mapping_table'),
+		parameter.IntTab('srcid'),
+		parameter.IntTab('tgtid'),
+        parameter.Int('plaps'),
+        parameter.Int('fifo_to_coproc_depth'),
+        parameter.Int('fifo_from_coproc_depth'),
+        parameter.Int('n_to_coproc'),
+        parameter.Int('n_from_coproc'),
+        parameter.Int('n_config'),
+        parameter.Int('n_status'),
+        parameter.Int('max_burst_size'),
+	],
+	   extensions = [
+	'dsx:addressable=tgtid',
+	'dsx:get_ident=tgtid:p_vci_target:mt,srcid:p_vci_initiator:mt',
+	'dsx:max_segments=1',
+	'dsx:mapping_type=mwmr_controller',
+	'dsx:device=mwmr_controller',
+   ],
+)

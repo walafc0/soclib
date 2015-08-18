@@ -1,0 +1,24 @@
+# -*- python -*-
+
+__id__ = "$Id$"
+__version__ = "$Revision$"
+
+Module('caba:hht_testelg_target',
+	classname = 'soclib::caba::HhtTestelgTarget',
+	tmpl_parameters = [
+		parameter.Module('hht_param',  default = 'caba:hht_param'),
+	],
+	header_files = ['../source/include/hht_testelg_target.h',],
+	implementation_files = ['../source/src/hht_testelg_target.cpp',],
+	ports = [
+		Port('caba:hht_target', 'p_hht'),
+		Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+		Port('caba:clock_in', 'p_clk', auto = 'clock'),	
+	],
+	uses = [
+	    Uses('caba:base_module'),
+		Uses('caba:lazy_fifo'),
+	],
+	instance_parameters = [
+	],
+)

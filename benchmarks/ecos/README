@@ -1,0 +1,32 @@
+eCos hal package for SoCLib with MIPS processor
+original author: Alexandre Becoulet <alexandre.becoulet@free.fr>
+
+1) Install eCos as described on the eCos web site
+
+   http://ecos.sourceware.org/getstart.html
+
+2) Add soclib hal support
+
+   $ cd .../ecos-3.0/
+   $ cp -r .../soclib/benchmarks/ecos/soclib packages/hal/mips/
+   $ patch -p0 < .../soclib/benchmarks/ecos/ecos-3.0.diff
+
+3) Build ecos as explained in the documentation
+
+   http://ecos.sourceware.org/docs-3.0/user-guide/using-ecosconfig-on-linux.html
+
+   $ . ecosenv.sh
+   $ mkdir test ; cd test
+   $ ecosconfig new soclib_mips
+   $ ecosconfig tree
+   $ ecosconfig check
+   $ make
+
+4) Build samples application
+
+   $ make -C .../ecos-3.0/examples/ INSTALL_DIR=.../test/install/
+
+5) Run eCos applications with the caba-vgmn-ecos-mips32 SoCLib platform
+
+   $ ./system.x .../ecos-3.0/examples/hello
+

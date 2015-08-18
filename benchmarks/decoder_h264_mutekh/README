@@ -1,0 +1,47 @@
+==============================================================================
+==============================================================================
+=SOME EXPLANATIONS ON THE WORK PERFORMED ON THE PORTING OF SNAPGEAR ON SOCLIB=
+==============================================================================
+==============================================================================
+
+========================================================
+TGI : T0043357 Fabien Colas-Bigey, Thales Communications
+========================================================
+
+----------------------
+- Structure of files -
+----------------------
+- soclib_addresses.h
+  Contains the addresses of the different memory segments. 
+
+- decoder_h264_clone
+  Contains the software code of the H264 decoder.
+
+
+---------------------------------
+- Structure of virtual platform -
+---------------------------------
+- processor : mips, powerpc or arm
+- Caches
+  Both icache and dcache are 4 way set associative. The size of the cache is
+defined as follows:
+  size = nways * nsets * nwords * 4BytesperWord
+  nways  : number of ways in associativity
+  nsets  : number of sets; We consider, 1 block = 1 cache line
+  nwords : number of words per cache line
+  In our case we have size = 4 * 64 * 16 * 4BytesperWord = 16 KB
+
+
+---------------
+- Simulations -
+---------------
+
+- To lauch simulation :
+  % make
+  % ./platform_h264
+
+
+-------------------------
+- Configuration options -
+-------------------------
+All configuration 

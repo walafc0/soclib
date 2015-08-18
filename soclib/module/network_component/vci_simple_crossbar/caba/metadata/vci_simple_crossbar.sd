@@ -1,0 +1,35 @@
+
+# -*- python -*-
+
+__id__ = "$Id: vci_simple_crossbar.sd 1699 2010-04-14 03:30:30Z nipo $"
+__version__ = "$Revision: 1699 $"
+
+Module('caba:vci_simple_crossbar',
+	classname = 'soclib::caba::VciSimpleCrossbar',
+	   tmpl_parameters = [
+	parameter.Module('vci_param',  default = 'caba:vci_param'),
+	],
+	header_files = ['../source/include/vci_simple_crossbar.h',],
+	implementation_files = ['../source/src/vci_simple_crossbar.cpp',],
+			  ports = [
+	Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+	Port('caba:clock_in', 'p_clk', auto = 'clock'),
+	Port('caba:vci_target', 'p_to_initiator', parameter.Reference('nb_initiator')),
+	Port('caba:vci_initiator', 'p_to_target', parameter.Reference('nb_target')),
+	],
+	instance_parameters = [
+		parameter.Module('mt', typename = 'common:mapping_table'),
+		parameter.Int('nb_initiator'),
+		parameter.Int('nb_target'),
+	],
+	uses = [
+		Uses('caba:base_module'),
+		Uses('common:mapping_table'),
+		Uses('caba:vci_buffers'),
+		],
+	   extensions = [
+	'dsx:obtain_ident_method=port',
+	'dsx:interconnect=root',
+	'dsx:mapping_type=interconnect',
+	],
+)

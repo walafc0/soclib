@@ -1,0 +1,55 @@
+# -*- mode: python; coding: utf-8 -*-
+#
+# SOCLIB_LGPL_HEADER_BEGIN
+# 
+# This file is part of SoCLib, GNU LGPLv2.1.
+# 
+# SoCLib is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published
+# by the Free Software Foundation; version 2.1 of the License.
+# 
+# SoCLib is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+# 
+# You should have received a copy of the GNU Lesser General Public
+# License along with SoCLib; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301 USA
+# 
+# SOCLIB_LGPL_HEADER_END
+#
+# Maintainers: fpecheux, nipo
+#
+# Copyright (c) UPMC / Lip6, 2008
+#     François Pêcheux <francois.pecheux@lip6.fr>
+#     Nicolas Pouillon <nipo@ssji.net>
+
+__id__ = "$Id: tlmt.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+Module('common:tlmt',
+	   header_files = [
+		'../include/tlmt',
+		'../include/tlmt_callback.h',
+		'../include/tlmt_if',
+		'../include/tlmt_if.h',
+		'../include/tlmt_if.hxx',
+		'../include/tlmt_in',
+		'../include/tlmt_in.h',
+		'../include/tlmt_in.hxx',
+		'../include/tlmt_module',
+		'../include/tlmt_module.h',
+		'../include/tlmt_module.hxx',
+		'../include/tlmt_out',
+		'../include/tlmt_out.h',
+		'../include/tlmt_out.hxx',
+		'../include/tlmt_thread_context',
+		'../include/tlmt_thread_context.h',
+		'../include/tlmt_thread_context.hxx',
+		'../include/tlmt_time',
+		'../include/tlmt_time.h',
+		'../include/tlmt_time.hxx',
+		],
+)

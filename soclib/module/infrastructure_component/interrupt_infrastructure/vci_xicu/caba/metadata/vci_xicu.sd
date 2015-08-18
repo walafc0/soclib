@@ -1,0 +1,43 @@
+
+# -*- python -*-
+
+__id__ = "$Id: vci_xicu.sd 1698 2010-04-14 03:29:34Z nipo $"
+__version__ = "$Revision: 1698 $"
+
+Module('caba:vci_xicu',
+	classname = 'soclib::caba::VciXicu',
+	   tmpl_parameters = [
+	parameter.Module('vci_param',  default = 'caba:vci_param'),
+	],
+	header_files = ['../source/include/vci_xicu.h',
+					],
+    interface_files = [
+					'../../include/soclib/xicu.h',
+					],
+	implementation_files = ['../source/src/vci_xicu.cpp',],
+			  ports = [
+	Port('caba:clock_in', 'p_clk', auto = 'clock'),
+        Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+        Port('caba:vci_target', 'p_vci'),
+        Port('caba:bit_in', 'p_hwi', parameter.Reference('hwi_count')),
+        Port('caba:bit_out', 'p_irq', parameter.Reference('irq_count')),
+	],
+	uses = [
+		Uses('caba:base_module'),
+		Uses('caba:vci_target_fsm', default_target = 'true', support_llsc = 'false'),
+		],
+	instance_parameters = [
+	parameter.Module('mt', 'common:mapping_table'),
+	parameter.IntTab('index'),
+	parameter.Int('pti_count'),
+	parameter.Int('hwi_count'),
+	parameter.Int('wti_count'),
+	parameter.Int('irq_count'),
+	],
+	   extensions = [
+	'dsx:addressable=index',
+	'dsx:max_segments=1',
+	'dsx:get_ident=index:p_vci:mt',
+	'dsx:device=xicu',
+   ],
+)

@@ -1,0 +1,28 @@
+# -*- python -*-
+
+__id__ = "$Id$"
+__version__ = "$Revision$"
+
+
+todo = Platform('caba', 'top.cpp',
+	uses = [
+		Uses('caba:hht_initiator_from_text'),
+		Uses('caba:hht_testelg_target'),
+		Uses('caba:vci_cori_config_initiator'),
+		Uses('caba:vci_ciro_config_initiator'),
+		Uses('caba:vci_hht_cori_bridge'),
+		Uses('caba:vci_hht_ciro_bridge'),
+	],
+	cell_size = 4,
+	plen_size = 7,
+	addr_size = 40,
+	rerror_size = 2,
+	clen_size = 1,
+	rflag_size = 1,
+	srcid_size = 14,
+	pktid_size = 1,
+	trdid_size = 1,
+	wrplen_size = 1,
+	ctrl_size=64,
+	data_size=32
+)

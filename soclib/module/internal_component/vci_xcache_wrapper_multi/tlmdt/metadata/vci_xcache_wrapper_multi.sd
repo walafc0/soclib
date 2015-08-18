@@ -1,0 +1,19 @@
+
+# -*- python -*-
+
+Module('tlmdt:vci_xcache_wrapper_multi',
+       classname = 'soclib::tlmdt::VciXcacheWrapperMulti',
+
+       header_files = ['../source/include/vci_xcache_wrapper_multi.h', ],
+
+       implementation_files = ['../source/src/vci_xcache_wrapper_multi.cpp',],
+
+       tmpl_parameters = [ parameter.Module('vci_param', default = 'tlmdt:vci_param'),
+                           parameter.Module('iss_t'), ],
+
+       uses = [	Uses('common:tlmdt'),
+		        Uses('common:mapping_table'),
+                Uses('common:iss2'),
+                Uses('caba:multi_write_buffer'),
+                Uses('caba:generic_cache', addr_t = 'uint32_t'), ],
+      )

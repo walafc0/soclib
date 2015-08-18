@@ -1,0 +1,10 @@
+
+# -*- python -*-
+
+__id__ = "$Id: write_buffer.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+Module('caba:write_buffer',
+	classname = 'soclib::WriteBuffer',
+	header_files = ['../include/write_buffer.h',],
+)

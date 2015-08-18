@@ -1,0 +1,31 @@
+
+# -*- python -*-
+
+Module('caba:clocken',
+	classname = 'soclib::caba::ClockEnable',
+	tmpl_parameters = [
+		parameter.Int('NTOIP_FIFO',  default = '2'),
+		parameter.Int('NFRIP_FIFO',  default = '2'),
+		parameter.Int('CTRL_DATA_SIZE',  default = '10'),
+		parameter.Int('CTRL_ADDR_SIZE',  default = '3'),
+	],
+	header_files = [ '../include/clockenable.h', ],
+	implementation_files = ['../src/clockenable.cpp', ],
+	ports = [
+		Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+		Port('caba:clock_in', 'p_clk', auto = 'clock'),
+		Port('caba:bit_in', 'p_start'),
+		Port('caba:bit_in',  'p_toip_write',   parameter.Reference('NTOIP_FIFO')),
+		Port('caba:bit_out', 'p_toip_writeok', parameter.Reference('NTOIP_FIFO')),
+		Port('caba:bit_in',  'p_frip_writeok', parameter.Reference('NFRIP_FIFO')),
+		Port('caba:bit_out', 'p_frip_write',   parameter.Reference('NFRIP_FIFO')),
+		Port('caba:bit_out', 'p_ce'),
+		Port('caba:acc_enbl_signals_in', 'p_enbl',
+			DATA_BITWIDTH=parameter.Reference('CTRL_DATA_SIZE'),
+			ADDR_BITWIDTH=parameter.Reference('CTRL_ADDR_SIZE')),
+	],
+	uses = [
+		Uses('caba:base_module'),
+	],
+)
+

@@ -1,0 +1,34 @@
+
+# -*- python -*-
+
+__id__ = "$Id: mailbox.sd 1699 2010-04-14 03:30:30Z nipo $"
+__version__ = "$Revision: 1699 $"
+
+Module('caba:mailbox',
+	classname = 'soclib::caba::mailbox',
+	tmpl_parameters = [
+		parameter.Module('vci_param',  default = 'caba:vci_param'),
+		parameter.Int('Nirq'),
+	],
+	header_files = ['../source/include/mailbox.h',],
+	implementation_files = ['../source/src/mailbox.cpp',],
+	ports = [
+		Port('caba:vci_target', 'p_vci'),
+		Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+		Port('caba:bit_out', 'p_irq', parameter.Reference('Nirq')),
+		Port('caba:clock_in', 'p_clk', auto = 'clock'),
+	],
+	uses = [
+		Uses('caba:base_module'),
+		Uses('common:mapping_table'),
+	],
+	instance_parameters = [
+		##parameter.IntTab('ident'),
+        	parameter.Module('mt', typename = 'common:mapping_table'),
+	],
+	###extensions = [
+	###	'dsx:addressable=ident',
+	###	'dsx:get_ident=ident:p_vci',
+	###	'dsx:max_segments=1',
+   	###],
+)

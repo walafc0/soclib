@@ -1,0 +1,35 @@
+
+# -*- python -*-
+
+Module('caba:vci_fir16',
+	classname = 'soclib::caba::VciFir16',
+	tmpl_parameters = [
+		parameter.Module('vci_param',   default = 'caba:vci_param'),
+	],
+	header_files = [ 'vci_fir16.h', ],
+	implementation_files = [ 'vci_fir16.cpp', ],
+	ports = [
+		Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+		Port('caba:clock_in', 'p_clk', auto = 'clock'),
+		Port('caba:vci_target', 'p_vci_target'),
+		Port('caba:vci_initiator', 'p_vci_initiator'),
+		Port('caba:bit_out', 'p_irq'),
+	],
+	uses = [
+		Uses('caba:base_module'),
+		Uses('caba:vci_acc_dma', NTOIP_FIFO="1", NFRIP_FIFO="1", FIFO_BITWIDTH="32", CTRL_ADDR_SIZE="2", NUSER_REGS="0", FIFO_SIZE="60"),
+		Uses('caba:Mwmr_fir16', ),
+		Uses('caba:load_word', INPUT_BITWIDTH="32", OUTPUT_BITWIDTH="16", SWAP_IN="true", SWAP_OUT="true"),
+		Uses('caba:load_word', INPUT_BITWIDTH="16", OUTPUT_BITWIDTH="32", SWAP_IN="true", SWAP_OUT="true"),
+	],
+	instance_parameters = [
+		parameter.Module('mt', typename = 'common:mapping_table'),
+		parameter.IntTab('srcid'),
+		parameter.IntTab('tgtid'),
+		parameter.Int('burst_size'),
+	],
+	extensions = [
+		'dsx:addressable=tgtid',
+		'dsx:get_ident=srcid:p_vci_initiator:mt,tgtid:p_vci_target:mt'
+	],
+)

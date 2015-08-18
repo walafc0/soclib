@@ -1,0 +1,26 @@
+
+# -*- python -*-
+
+Module('caba:coproc_dct',
+
+	   classname = 'soclib::caba::CoprocDct',
+
+	   header_files =         [ "../source/include/coproc_dct.h" ],
+	   implementation_files = [ "../source/src/coproc_dct.cpp" ],
+
+	   ports = [
+	       Port( 'caba:clock_in', 'p_clk', auto = 'clock' ),
+	       Port( 'caba:bit_in', 'p_resetn', auto = 'resetn' ),
+           Port( 'caba:to_coproc_input', 'p_in', word_t = 'uint32_t', cmd_t = 'uint8_t' ),
+           Port( 'caba:from_coproc_output', 'p_out', word_t = 'uint32_t', cmd_t = 'uint8_t' ),
+           Port( 'caba:word_in', 'p_config', word_t = 'uint32_t' ),
+	   ],
+
+	   uses = [
+           Uses('caba:base_module'),
+	   ],
+
+	   instance_parameters = [
+           parameter.Int('latency'),
+       ],
+)

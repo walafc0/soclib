@@ -1,0 +1,44 @@
+# -*- python -*-
+
+__id__ = "$Id: anoc_copro_wrapper.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+Module('caba:anoc_copro_wrapper',
+	classname = 'soclib::caba::anoc_copro_wrapper',
+	header_files = [
+	'../../common/source/include/ni_transaction.h',          
+	'../../common/source/include/ni_utils.h',                
+	'../../common/source/include/core_base.h',               
+	'../../common/source/include/core_config.h',             
+	'../../common/source/include/core_ro_config.h',          
+	'../../common/source/include/core_sysc.h',               
+	'../../common/source/include/core_tlm.h',                
+	'../source/include/anoc_copro_wrapper.h',
+	],
+	implementation_files = [
+	'../../common/source/src/ni_transaction.cpp',          
+	'../../common/source/src/ni_utils.cpp',                
+	'../../common/source/src/core_base.cpp',               
+	'../../common/source/src/core_config.cpp',             
+	'../../common/source/src/core_ro_config.cpp',          
+	'../../common/source/src/core_sysc.cpp',               
+	'../../common/source/src/core_tlm.cpp',                
+	'../source/src/anoc_copro_wrapper.cpp',
+	],
+	ports = [
+	Port('caba:fifo_input', 'p_from_MWMR', parameter.Reference('nb_fifo_in_')),
+	Port('caba:fifo_output', 'p_to_MWMR', parameter.Reference('nb_fifo_out_')),
+	Port('caba:fifo_input', 'p_core_config'),
+	Port('caba:word_out', 'p_config', parameter.Reference('n_config_'), word_t = 'uint32_t'),
+	Port('caba:word_in', 'p_status', parameter.Reference('n_status_'), word_t = 'uint32_t'),
+	Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+	Port('caba:clock_in', 'p_clk', auto = 'clock'),
+	],
+	uses = [
+		Uses('caba:base_module'),
+		Uses('common:anoc_common'),
+	],
+	instance_parameters = [
+        	parameter.Int('clk_period_'),
+	],
+)

@@ -1,0 +1,52 @@
+
+# -*- python -*-
+
+__id__ = "$Id: vci_pci.sd 1699 2010-04-14 03:30:30Z nipo $"
+__version__ = "$Revision: 1699 $"
+
+Module('caba:vci_pci',
+	classname = 'soclib::caba::VciPci',
+	   tmpl_parameters = [
+	parameter.Module('vci_param',  default = 'caba:vci_param'),
+	],
+	header_files = ['../source/include/vci_pci.h',
+					],
+    interface_files = [
+					'../../include/soclib/pci.h',
+					],
+	implementation_files = ['../source/src/vci_pci.cpp',],
+			  ports = [
+	Port('caba:vci_target', 'p_vci'),
+	Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+	Port('caba:bit_out', 'p_irq', auto = 'irq'),
+	Port('caba:clock_in', 'p_clk', auto = 'clock'),
+	Port('caba:clock_in', 'p_clkpci', auto = 'clockpci'),
+	Port('caba:bit_in', 'p_Sysrst', auto = 'sysrstn'),
+	Port('caba:bit_in', 'p_Idsel', auto = 'idsel'),
+	Port('caba:bit_in', 'p_Frame', auto = 'frame'),
+	Port('caba:bit_in', 'p_Devsel', auto = 'devsel'),
+	Port('caba:bit_in', 'p_Irdy', auto = 'irdy'),
+	Port('caba:bit_in', 'p_Gnt', auto = 'gnt'),
+	Port('caba:bit_in', 'p_Trdy', auto = 'trdy'),
+	Port('caba:bit_out', 'p_Inta', auto = 'inta'),
+	Port('caba:bit_in', 'p_Stop', auto = 'stop'),
+	Port('caba:bit_out', 'p_Req', auto = 'req'),
+	Port('caba:bit_in', 'p_Par', auto = 'par'),
+	Port('caba:word_in', 'p_AD32', auto = 'AD32', word_t = 'uint32_t'),
+	Port('caba:word_in', 'p_Cbe', auto = 'Cbe', word_t = 'sc_dt::sc_uint<4>'),
+	],
+	uses = [
+		Uses('caba:base_module'),
+		Uses('caba:vci_target_fsm', default_target = 'true', support_llsc = 'false'),
+		],
+	instance_parameters = [
+		parameter.IntTab('ident'),
+        parameter.Module('mt', typename = 'common:mapping_table'),
+        parameter.Int('badrvalue'),
+	],
+	   extensions = [
+	'dsx:addressable=ident',
+	'dsx:get_ident=ident:p_vci:mt',
+	'dsx:max_segments=1',
+   ],
+)

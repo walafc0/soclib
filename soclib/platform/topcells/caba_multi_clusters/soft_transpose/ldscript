@@ -1,0 +1,93 @@
+/**********************************************************
+	File : ldscript 
+	Author : Alain Greiner
+	Date : October 2009
+**********************************************************/
+
+/* definition of the base address for all segments 
+The peripherals base addresses are referenced by the
+software drivers and must be defined, even if the 
+peripherals are not present in the architecture */
+
+seg_code_base   = 0x00100000;       /* le code utilisateur */ 
+seg_data_base   = 0x00200000;       /* les données utilisateur */
+
+seg_heap_base   = 0x00300000;       /* le tas utilisateur */
+seg_stack_base  = 0x00400000;       /* la pile utilisateur */
+
+seg_kcode_base  = 0x80000000;       /* le code du système */
+seg_kdata_base  = 0x80100000;       /* les donnees du système */
+seg_kunc_base   = 0x80200000;       /* les données non cachées du système */
+
+seg_icu_base    = 0x80800000;       /* controleur ICU */
+seg_tty_base    = 0x80900000;       /* controleur TTY */
+seg_dma_base    = 0x80D00000;       /* controleur DMA */
+
+seg_ioc_base    = 0xBFA00000;       /* controleur I/O */
+seg_fb_base     = 0xBFB00000;       /* controleur FRAME BUFFER */
+
+seg_locks_base  = 0x80F00000;       /* controleur LOCKS */
+seg_gcd_base    = 0x80F10000;       /* controleur GCD */
+seg_timer_base  = 0x80F20000;       /* controleur TIMER */
+
+seg_reset_base  = 0xBFC00000;       /* le code de boot */
+
+segment_increment = 0x01000000;	    /* adress increment for TTY & ICU */
+
+/* definition of various hardware parameters.
+These variables are referenced in the drivers.c file,
+and must be defined, even if the corresponding
+peripherals are not present in the architecture */
+
+NB_LOCKS        	= 0;
+NB_TIMERS       	= 0;
+NB_PROCS		= 64;
+NB_TASKS		= 1;
+
+/* Grouping sections into segments */
+
+SECTIONS
+{
+   . = seg_kcode_base;
+   seg_kcode : {
+      *(.giet)
+      *(.switch)
+      *(.drivers)
+      *(.isr)
+   } 
+   . = seg_kdata_base;
+   seg_kdata : {
+      *(.kdata)
+   } 
+   . = seg_kunc_base;
+   seg_kunc : {
+      *(.unckdata)
+   } 
+   . = seg_kdata_base;
+   seg_kdata : {
+      *(.ksave)
+   } 
+   . = seg_code_base;
+   seg_code : {
+      *(.text)
+   } 
+   . = seg_reset_base;
+   seg_reset : {
+      *(.reset)
+   } 
+   . = seg_data_base;
+   seg_data : {
+      *(.rodata)
+      . = ALIGN(4);
+      *(.rodata.*)
+      . = ALIGN(4);
+      *(.data)
+      . = ALIGN(4);
+      *(.sdata)
+      . = ALIGN(4);
+      *(.bss)
+      *(COMMON)
+      *(.sbss)
+   } 
+}
+

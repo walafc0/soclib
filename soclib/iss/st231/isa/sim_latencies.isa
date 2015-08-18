@@ -1,0 +1,243 @@
+/* *****************************************************************************
+                                    BSD LICENSE
+********************************************************************************
+Copyright (c) 2006, INRIA
+Authors: Zheng LI (zheng.x.li@inria.fr)
+
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+ - Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+ - Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+ - Neither the name of the INRIA nor the names of its contributors may be
+   used to endorse or promote products derived from this software without
+   specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED.
+IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+***************************************************************************** */
+
+{
+
+typedef unsigned int latencies_t[8];
+#define LAT(lat) (latencies[nstages++] = (lat), latency += (lat))
+
+}
+
+var latency : {unsigned int} = {0}
+var nstages : {int} = {0}
+var latencies : {latencies_t}
+
+/**
+ * Initilize the latency values of each instrucion
+ */ 
+constructor action initialize_latencies() {
+}
+
+/*****************************************************************************/
+/* === INTEGER simple arithmetic INSTRUCTIONS ============================== */
+/*****************************************************************************/
+add.initialize_latencies = {LAT(1);}
+sub.initialize_latencies = {LAT(1);}
+rshl.initialize_latencies = {LAT(1);}
+rshr.initialize_latencies = {LAT(1);}
+shru.initialize_latencies = {LAT(1);}
+sh1add.initialize_latencies = {LAT(1);}
+sh2add.initialize_latencies = {LAT(1);}
+sh3add.initialize_latencies = {LAT(1);}
+sh4add.initialize_latencies = {LAT(1);}
+and.initialize_latencies = {LAT(1);}
+andc.initialize_latencies = {LAT(1);}
+or.initialize_latencies = {LAT(1);}
+orc.initialize_latencies = {LAT(1);}
+xor.initialize_latencies = {LAT(1);}
+max.initialize_latencies = {LAT(1);}
+maxu.initialize_latencies = {LAT(1);}
+min.initialize_latencies = {LAT(1);}
+minu.initialize_latencies = {LAT(1);}
+cmpeq.initialize_latencies = {LAT(1);}
+cmpne.initialize_latencies = {LAT(1);}
+cmpge.initialize_latencies = {LAT(1);}
+cmpgeu.initialize_latencies = {LAT(1);}
+cmpgt.initialize_latencies = {LAT(1);}
+cmpgtu.initialize_latencies = {LAT(1);}
+cmple.initialize_latencies = {LAT(1);}
+cmpleu.initialize_latencies = {LAT(1);}
+cmplt.initialize_latencies = {LAT(1);}
+cmpltu.initialize_latencies = {LAT(1);}
+andl.initialize_latencies = {LAT(1);}
+nandl.initialize_latencies = {LAT(1);}
+orl.initialize_latencies = {LAT(1);}
+norl.initialize_latencies = {LAT(1);}
+bcmpeq.initialize_latencies = {LAT(1);}
+bcmpne.initialize_latencies = {LAT(1);}
+bcmpgeu.initialize_latencies = {LAT(1);}
+bcmpge.initialize_latencies = {LAT(1);}
+bcmpgt.initialize_latencies = {LAT(1);}
+bcmpgtu.initialize_latencies = {LAT(1);}
+bcmple.initialize_latencies = {LAT(1);}
+bcmpleu.initialize_latencies = {LAT(1);}
+bcmplt.initialize_latencies = {LAT(1);}
+bcmpltu.initialize_latencies = {LAT(1);}
+bandl.initialize_latencies = {LAT(1);}
+bnandl.initialize_latencies = {LAT(1);}
+borl.initialize_latencies = {LAT(1);}
+bnorl.initialize_latencies = {LAT(1);}
+iadd.initialize_latencies = {LAT(1);}
+isub.initialize_latencies = {LAT(1);}
+ishl.initialize_latencies = {LAT(1);}
+ishr.initialize_latencies = {LAT(1);}
+ishru.initialize_latencies = {LAT(1);}
+ish1add.initialize_latencies = {LAT(1);}
+ish2add.initialize_latencies = {LAT(1);}
+ish3add.initialize_latencies = {LAT(1);}
+ish4add.initialize_latencies = {LAT(1);}
+iand.initialize_latencies = {LAT(1);}
+iandc.initialize_latencies = {LAT(1);}
+ior.initialize_latencies = {LAT(1);}
+iorc.initialize_latencies = {LAT(1);}
+ixor.initialize_latencies = {LAT(1);}
+imax.initialize_latencies = {LAT(1);}
+imaxu.initialize_latencies = {LAT(1);}
+imin.initialize_latencies = {LAT(1);}
+iminu.initialize_latencies = {LAT(1);}
+icmpeq.initialize_latencies = {LAT(1);}
+icmpne.initialize_latencies = {LAT(1);}
+icmpge.initialize_latencies = {LAT(1);}
+icmpgeu.initialize_latencies = {LAT(1);}
+icmpgt.initialize_latencies = {LAT(1);}
+icmpgtu.initialize_latencies = {LAT(1);}
+icmple.initialize_latencies = {LAT(1);}
+icmpleu.initialize_latencies = {LAT(1);}
+icmplt.initialize_latencies = {LAT(1);}
+icmpltu.initialize_latencies = {LAT(1);}
+iandl.initialize_latencies = {LAT(1);}
+inandl.initialize_latencies = {LAT(1);}
+iorl.initialize_latencies = {LAT(1);}
+inorl.initialize_latencies = {LAT(1);}
+ibcmpeq.initialize_latencies = {LAT(1);}
+ibcmpne.initialize_latencies = {LAT(1);}
+ibcmpge.initialize_latencies = {LAT(1);}
+ibcmpgeu.initialize_latencies = {LAT(1);}
+ibcmpgt.initialize_latencies = {LAT(1);}
+ibcmpgtu.initialize_latencies = {LAT(1);}
+ibcmple.initialize_latencies = {LAT(1);}
+ibcmpleu.initialize_latencies = {LAT(1);}
+ibcmplt.initialize_latencies = {LAT(1);}
+ibcmpltu.initialize_latencies = {LAT(1);}
+ibandl.initialize_latencies = {LAT(1);}
+ibnandl.initialize_latencies = {LAT(1);}
+iborl.initialize_latencies = {LAT(1);}
+ibnorl.initialize_latencies = {LAT(1);}
+sxtb.initialize_latencies = {LAT(1);}
+sxth.initialize_latencies = {LAT(1);}
+bswap.initialize_latencies = {LAT(1);}
+zxth.initialize_latencies = {LAT(1);}
+clz.initialize_latencies = {LAT(1);}
+addcg.initialize_latencies = {LAT(1);}
+divs.initialize_latencies = {LAT(1);}
+
+/*****************************************************************************/
+/* === INTEGER multipication INSTRUCTIONS ================================== */
+/*****************************************************************************/
+mullhus.initialize_latencies = {LAT(3);}
+mulhhs.initialize_latencies = {LAT(3);}
+mull.initialize_latencies = {LAT(3);}
+mullu.initialize_latencies = {LAT(3);}
+mulh.initialize_latencies = {LAT(3);}
+mulhu.initialize_latencies = {LAT(3);}
+mulll.initialize_latencies = {LAT(3);}
+mulllu.initialize_latencies = {LAT(3);}
+mullh.initialize_latencies = {LAT(3);}
+mullhu.initialize_latencies = {LAT(3);}
+mulhh.initialize_latencies = {LAT(3);}
+mulhhu.initialize_latencies = {LAT(3);}
+mulhs.initialize_latencies = {LAT(3);}
+mul32.initialize_latencies = {LAT(3);}
+mul64h.initialize_latencies = {LAT(3);}
+mul64hu.initialize_latencies = {LAT(3);}
+mulfrac.initialize_latencies = {LAT(3);}
+imullhus.initialize_latencies = {LAT(3);}
+imulhhs.initialize_latencies = {LAT(3);}
+imull.initialize_latencies = {LAT(3);}
+imullu.initialize_latencies = {LAT(3);}
+imulh.initialize_latencies = {LAT(3);}
+imulhu.initialize_latencies = {LAT(3);}
+imulll.initialize_latencies = {LAT(3);}
+imulllu.initialize_latencies = {LAT(3);}
+imullh.initialize_latencies = {LAT(3);}
+imullhu.initialize_latencies = {LAT(3);}
+imulhh.initialize_latencies = {LAT(3);}
+imulhhu.initialize_latencies = {LAT(3);}
+imulhs.initialize_latencies = {LAT(3);}
+imul32.initialize_latencies = {LAT(3);}
+imul64h.initialize_latencies = {LAT(3);}
+imul64hu.initialize_latencies = {LAT(3);}
+imulfrac.initialize_latencies = {LAT(3);}
+
+/*****************************************************************************/
+/* === BRANCH INSTRUCTIONS ================================================= */
+/*****************************************************************************/
+br.initialize_latencies = {LAT(1);}
+brf.initialize_latencies = {LAT(1);}
+icall.initialize_latencies = {LAT(1);}
+call.initialize_latencies = {LAT(1);}
+goto.initialize_latencies = {LAT(1);}
+igoto.initialize_latencies = {LAT(1);}
+
+/*****************************************************************************/
+/* === LOAD/STORE INSTRUCTIONS ============================================= */
+/*****************************************************************************/
+ldw.initialize_latencies = {if (idest==63) LAT(4); else LAT(3);}
+ldw_d.initialize_latencies = {if(idest==63) LAT(4); else LAT(3);}
+ldh.initialize_latencies = {LAT(3);}
+ldh_d.initialize_latencies = {LAT(3);}
+ldhu.initialize_latencies = {LAT(3);}
+ldhu_d.initialize_latencies = {LAT(3);}
+ldb.initialize_latencies = {LAT(3);}
+ldb_d.initialize_latencies = {LAT(3);}
+ldbu.initialize_latencies = {LAT(3);}
+ldbu_d.initialize_latencies = {LAT(3);}
+
+stw.initialize_latencies = {LAT(1);}
+sth.initialize_latencies = {LAT(1);}
+stb.initialize_latencies = {LAT(1);}
+
+
+/*****************************************************************************/
+/* === specific operations & specific control instructions ================= */
+/*****************************************************************************/
+slct.initialize_latencies = {LAT(1);}
+slctf.initialize_latencies = {LAT(1);}
+islct.initialize_latencies = {LAT(1);}
+islctf.initialize_latencies = {LAT(1);}
+
+pft.initialize_latencies = {LAT(1);}
+prgadd.initialize_latencies = {LAT(1);}
+prgset.initialize_latencies = {LAT(1);}
+prginspg.initialize_latencies = {LAT(1);}
+pswset.initialize_latencies = {LAT(1);}
+pswclr.initialize_latencies = {LAT(1);}
+imml.initialize_latencies = {LAT(1);}
+immr.initialize_latencies = {LAT(1);}
+prgins.initialize_latencies = {LAT(1);}
+sbrk.initialize_latencies = {LAT(1);}
+syscall.initialize_latencies = {LAT(1);}
+break.initialize_latencies = {LAT(1);}
+sync.initialize_latencies = {LAT(1);}
+rfi.initialize_latencies = {LAT(1);} // ??? how to define the latencies before an instruction ???

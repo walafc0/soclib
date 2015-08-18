@@ -1,0 +1,26 @@
+# -*- python -*-
+
+__id__ = "$Id: ring.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+Signal('caba:ring',
+	   classname = 'soclib::caba::RingSignals',
+	   accepts = {'caba:ring_in':1,
+		      'caba:ring_out':1},
+	   header_files = ['../source/include/ring_signals.h'],
+	   
+	   )
+
+PortDecl('caba:ring_in',
+         classname = 'soclib::caba::RingIn',
+	 signal = 'caba:ring',
+	 header_files = ['../source/include/ring_ports.h'],
+	 
+	 )
+
+PortDecl('caba:ring_out',
+         classname = 'soclib::caba::RingOut',
+	 signal = 'caba:ring',
+	 header_files = ['../source/include/ring_ports.h'],
+	 
+         )

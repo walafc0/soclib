@@ -1,0 +1,42 @@
+# -*- mode: python; coding: utf-8 -*-
+#
+# SOCLIB_LGPL_HEADER_BEGIN
+# 
+# This file is part of SoCLib, GNU LGPLv2.1.
+# 
+# SoCLib is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published
+# by the Free Software Foundation; version 2.1 of the License.
+# 
+# SoCLib is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+# 
+# You should have received a copy of the GNU Lesser General Public
+# License along with SoCLib; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301 USA
+# 
+# SOCLIB_LGPL_HEADER_END
+#
+# Maintainers: alain, aline
+#
+# Copyright (c) UPMC / Lip6, 2008
+#     Alain Greinerlon <alain.greiner@lip6.fr>
+#     Aline Vieira de Mello <aline.vieira-de-mello@lip6.fr>
+
+__id__ = "$Id: vci_icu.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+Module('tlmdt:vci_icu',
+       classname = 'soclib::tlmdt::VciIcu',
+       tmpl_parameters = [ parameter.Module('vci_param',  default = 'tlmdt:vci_param')],
+       header_files = ['../source/include/vci_icu.h'],
+       interface_files = ['../../include/soclib/icu.h',],
+       implementation_files = ['../source/src/vci_icu.cpp',],
+       uses = [	Uses('common:tlmdt'),
+		Uses('common:mapping_table'),
+		],
+       debug = False,
+)

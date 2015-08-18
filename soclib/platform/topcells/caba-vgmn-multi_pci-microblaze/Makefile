@@ -1,0 +1,5 @@
+ARCH=microblaze
+SIMULATION_ARGS=10000
+SOCLIB?=$(shell soclib-cc --getpath)
+export SOCLIB
+include $(SOCLIB)/soclib/platform/topcells/all.mk

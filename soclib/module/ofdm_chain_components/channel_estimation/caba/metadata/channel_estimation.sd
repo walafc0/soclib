@@ -1,0 +1,33 @@
+
+# -*- python -*-
+
+__id__ = "$Id: channel_estimation.sd 1699 2010-04-14 03:30:30Z nipo $"
+__version__ = "$Revision: 1699 $"
+
+Module('caba:channel_estimation',
+	classname = 'soclib::caba::channel_estimation',
+	tmpl_parameters = [
+		parameter.Module('vci_param',  default = 'caba:vci_param'),
+		#parameter.Int('Nirq'),
+	],
+	header_files = ['../source/include/channel_estimation.h',],
+	implementation_files = ['../source/src/channel_estimation.cpp',],
+	ports = [
+		Port('caba:fifo_output', 'p_to_ctrl'),
+                Port('caba:fifo_input', 'p_from_ctrl'),
+		Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+         	Port('caba:clock_in', 'p_clk', auto = 'clock'),
+	],
+	uses = [
+		Uses('caba:base_module'),
+	],
+	##instance_parameters = [
+		##parameter.IntTab('ident'),
+        ##	parameter.Module('mt', typename = 'common:mapping_table'),
+	#],
+	###extensions = [
+	###	'dsx:addressable=ident',
+	###	'dsx:get_ident=ident:p_vci',
+	###	'dsx:max_segments=1',
+   	###],
+)

@@ -1,0 +1,16 @@
+
+# -*- python -*-
+
+
+todo = Platform('tlmt', 'top.cpp',
+					uses = [
+	Uses('tlmt:vci_simple_initiator'),
+	Uses('tlmt:vci_simple_target'),
+	Uses('tlmt:vci_vgmn'),
+	Uses('tlmt:vci_ram'),
+	Uses('common:elf_file_loader'),
+	],
+	addr_t = 'uint32_t',
+	data_t = 'uint32_t',
+	nbytes = '4',
+)

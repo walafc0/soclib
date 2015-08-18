@@ -1,0 +1,40 @@
+
+# -*- python -*-
+
+# Mips32 Little endian with mips std Vmem mapping (Mips32VmemElIss)
+
+__id__ = "$Id: mips32_4k.sd 1261 2010-02-19  $"
+__version__ = "$Revision: 1261 $"
+
+Module('common:mips32el4kp',
+	classname = 'soclib::common::Mips32El4kpIss',
+	header_files = ["../include/mips32_vmem.h",],
+	uses = [
+                Uses('common:mips32'),
+		],
+)
+
+Module('common:mips32eb4kp',
+	classname = 'soclib::common::Mips32Eb4kpIss',
+	header_files = ["../include/mips32_vmem.h",],
+	uses = [
+                Uses('common:mips32'),
+		],
+)
+
+Module('common:mips32el4km',
+	classname = 'soclib::common::Mips32El4kmIss',
+	header_files = ["../include/mips32_vmem.h",],
+	uses = [
+                Uses('common:mips32'),
+		],
+)
+
+Module('common:mips32eb4km',
+	classname = 'soclib::common::Mips32Eb4kmIss',
+	header_files = ["../include/mips32_vmem.h",],
+	uses = [
+                Uses('common:mips32'),
+		],
+)
+

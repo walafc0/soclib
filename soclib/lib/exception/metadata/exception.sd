@@ -1,0 +1,10 @@
+
+# -*- python -*-
+
+__id__ = "$Id: exception.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+Module('common:exception',
+	header_files = [ '../include/exception.h',
+					 ],
+	)

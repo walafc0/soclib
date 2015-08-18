@@ -1,0 +1,18 @@
+# -*- python -*-
+
+Module('caba:dspin_packet_generator',
+	classname = 'soclib::caba::DspinPacketGenerator',
+	tmpl_parameters = [ parameter.Int('cmd_width'), parameter.Int('rsp_width'), ],
+	header_files = ['../source/include/dspin_packet_generator.h',],
+	implementation_files = ['../source/src/dspin_packet_generator.cpp',],
+	ports = [
+              Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+		      Port('caba:clock_in', 'p_clk', auto = 'clock'),
+		      Port('caba:dspin_output', 'p_out', dspin_data_size = parameter.Reference('cmd_width')), 
+		      Port('caba:dspin_input', 'p_in', dspin_data_size = parameter.Reference('rsp_width')),
+	],
+	uses = [ 
+              Uses('caba:base_module'),
+              Uses('caba:generic_fifo'),
+           ],
+)

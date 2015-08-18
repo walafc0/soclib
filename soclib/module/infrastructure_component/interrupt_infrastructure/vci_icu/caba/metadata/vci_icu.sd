@@ -1,0 +1,40 @@
+
+# -*- python -*-
+
+__id__ = "$Id: vci_icu.sd 1698 2010-04-14 03:29:34Z nipo $"
+__version__ = "$Revision: 1698 $"
+
+Module('caba:vci_icu',
+	classname = 'soclib::caba::VciIcu',
+	   tmpl_parameters = [
+	parameter.Module('vci_param',  default = 'caba:vci_param'),
+	],
+	header_files = ['../source/include/vci_icu.h',
+					],
+    interface_files = [
+					'../../include/soclib/icu.h',
+					],
+	implementation_files = ['../source/src/vci_icu.cpp',],
+			  ports = [
+	Port('caba:clock_in', 'p_clk', auto = 'clock'),
+        Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+        Port('caba:vci_target', 'p_vci'),
+        Port('caba:bit_in', 'p_irq_in', parameter.Reference('nirq')),
+        Port('caba:bit_out', 'p_irq'),
+	],
+	uses = [
+		Uses('caba:base_module'),
+		Uses('caba:vci_target_fsm', default_target = 'true', support_llsc = 'false'),
+		],
+	instance_parameters = [
+	parameter.IntTab('index'),
+	parameter.Module('mt', 'common:mapping_table'),
+	parameter.Int('nirq'),
+	],
+	   extensions = [
+	'dsx:addressable=index',
+	'dsx:max_segments=1',
+	'dsx:get_ident=index:p_vci:mt',
+	'dsx:device=icu',
+   ],
+)

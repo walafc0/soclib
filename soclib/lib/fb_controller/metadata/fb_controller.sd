@@ -1,0 +1,14 @@
+
+# -*- python -*-
+
+__id__ = "$Id: fb_controller.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+Module('common:fb_controller',
+	classname = 'soclib::common::FbController',
+	header_files = ['../include/fb_controller.h',],
+	implementation_files = ['../src/fb_controller.cpp',],
+	uses = [
+		Uses('common:process_wrapper'),
+		],
+)

@@ -1,0 +1,23 @@
+
+# -*- python -*-
+
+__id__ = "$Id: avci_filter.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+Module('caba:avci_filter',
+	classname = 'soclib::caba::AdvancedVciFilter',
+	tmpl_parameters = [
+		parameter.Module('vci_param',  default = 'caba:vci_param'),
+	],
+	header_files = ['../source/include/avci_filter.h',],
+	implementation_files = ['../source/src/avci_filter.cpp',],
+	ports = [
+		Port('caba:vci_target', 'p_in'),
+		Port('caba:vci_initiator', 'p_out'),
+		Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+		Port('caba:clock_in', 'p_clk', auto = 'clock'),
+	],
+	uses = [
+		Uses('caba:base_module'),
+	],
+)

@@ -1,0 +1,27 @@
+
+# -*- python -*-
+
+__id__ = "$Id: vci_pi_target_wrapper.sd 1195 2009-07-08 12:37:56Z abdelmalek.si-merabet@lip6.fr $"
+__version__ = "$Revision: 1195 $"
+
+Module('caba:vci_pi_target_wrapper',
+	classname = 'soclib::caba::VciPiTargetWrapper',
+	   tmpl_parameters = [
+	parameter.Module('vci_param',  default = 'caba:vci_param'),
+	],
+	header_files = ['../source/include/vci_pi_target_wrapper.h',],
+	implementation_files = ['../source/src/vci_pi_target_wrapper.cpp',],
+			  ports = [
+	Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+	Port('caba:clock_in', 'p_clk', auto = 'clock'),
+	Port('caba:bit_in', 'p_sel'),
+	Port('caba:vci_initiator', 'p_vci'),
+	Port('caba:pibus_target', 'p_pi'),
+	],
+	uses = [
+		Uses('caba:base_module'),
+		],
+	extensions = [
+		'dsx:obtain_ident_method=param:ident'
+	],
+)

@@ -1,0 +1,27 @@
+# -*- python -*-
+
+__id__ = "$Id$"
+__version__ = "$Revision$"
+
+Module('caba:vci_initiator_from_text',
+	classname = 'soclib::caba::VciInitiatorFromText',
+	tmpl_parameters = [
+		parameter.Module('vci_param',  default = 'caba:vci_param'),
+	],
+	header_files = ['../source/include/vci_initiator_from_text.h',],
+	implementation_files = ['../source/src/vci_initiator_from_text.cpp',],
+	ports = [	    
+		Port('caba:vci_initiator', 'p_vci'),
+		Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+		Port('caba:clock_in', 'p_clk', auto = 'clock'),	
+	],
+	uses = [
+	    Uses('caba:base_module'),
+	    Uses('caba:vci_initiator'),
+	    Uses('caba:vci_cmd_flit'),
+	    Uses('caba:vci_rsp_flit'),
+	],
+	instance_parameters = [
+		parameter.IntTab('ident'),
+	],
+)

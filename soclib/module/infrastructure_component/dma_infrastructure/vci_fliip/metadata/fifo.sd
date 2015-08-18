@@ -1,0 +1,47 @@
+
+# -*- python -*-
+
+Module('caba:accfifo',
+	classname = 'soclib::caba::AcceleratorFifo',
+	tmpl_parameters = [
+		parameter.Int('BITWIDTH', default = '10'),
+		parameter.Int('SIZE',     default = '10'),
+	],
+	header_files = [ '../include/soclib_accelerator_fifo.h', ],
+	implementation_files = ['../src/soclib_accelerator_fifo.cpp', ],
+	ports = [
+		Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+		Port('caba:clock_in', 'p_clk', auto = 'clock'),
+		Port('caba:fifo_output', 'DATA_IN',
+			data_t=parameter.StringExt('sc_uint<%s>', parameter.Reference('BITWIDTH'))),
+		Port('caba:fifo_input',  'DATA_OUT',
+			data_t=parameter.StringExt('sc_uint<%s>', parameter.Reference('BITWIDTH'))),
+	],
+	uses = [
+		Uses('caba:base_module'),
+		Uses('caba:generic_fifo'),
+	],
+)
+
+Module('caba:fifo_adaptor',
+	classname = 'soclib::caba::FifoAdaptor',
+	tmpl_parameters = [
+		parameter.Type('INPUT_TYPE',  default = 'uint32_t'),
+		parameter.Type('OUTPUT_TYPE', default = 'uint32_t'),
+	],
+	header_files = [ '../include/fifo_adaptor.h', ],
+	implementation_files = ['../src/fifo_adaptor.cpp', ],
+	ports = [
+		Port('caba:bit_in',   'p_resetn', auto = 'resetn'),
+		Port('caba:clock_in', 'p_clk', auto = 'clock'),
+		Port('caba:fifo_input', 'p_input',
+			data_t=parameter.Reference('INPUT_TYPE')),
+		Port('caba:fifo_output', 'p_output',
+			data_t=parameter.Reference('OUTPUT_TYPE'))
+	],
+	uses = [
+		Uses('caba:base_module'),
+	],
+)
+
+

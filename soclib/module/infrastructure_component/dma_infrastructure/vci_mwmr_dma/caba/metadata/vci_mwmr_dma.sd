@@ -1,0 +1,50 @@
+
+# -*- python -*-
+
+Module('caba:vci_mwmr_dma',
+
+	classname = 'soclib::caba::VciMwmrDma',
+
+	header_files         = ['../source/include/vci_mwmr_dma.h'],
+    interface_files      = ['../../include/soclib/mwmr_dma.h'],
+	implementation_files = ['../source/src/vci_mwmr_dma.cpp'],
+
+	tmpl_parameters = [parameter.Module('vci_param', 
+                        default = 'caba:vci_param')],
+
+	ports = [
+	    Port('caba:vci_target', 'p_vci_target'),
+	    Port('caba:vci_initiator', 'p_vci_initiator'),
+        Port('caba:from_coproc_input', 'p_from_coproc',
+              parameter.Reference('n_from_coproc'),
+              word_t = 'uint32_t', cmd_t = 'uint8_t'),
+        Port('caba:to_coproc_output', 'p_to_coproc',
+              parameter.Reference('n_to_coproc'),
+              word_t = 'uint32_t', cmd_t = 'uint8_t'),
+	    Port('caba:word_out', 'p_config', 
+              parameter.Reference('n_config'),
+              word_t = 'uint32_t'),
+	    Port('caba:word_in', 'p_status',
+              parameter.Reference('n_status'),
+              word_t = 'uint32_t'),
+	    Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+	         Port('caba:clock_in', 'p_clk', auto = 'clock'),
+	],
+
+	uses = [
+	    Uses('caba:base_module'),
+	    Uses('caba:generic_fifo', data_t = 'uint32_t'),
+		Uses('common:mapping_table'),
+    ],
+
+	instance_parameters = [
+        parameter.Module('mt', typename = 'common:mapping_table'),
+		parameter.IntTab('srcid'),
+		parameter.IntTab('tgtid'),
+        parameter.Int('fifo_to_coproc_depth'),
+        parameter.Int('n_from_coproc'),
+        parameter.Int('n_config'),
+        parameter.Int('n_status'),
+        parameter.Int('burst_size'),
+	],
+)

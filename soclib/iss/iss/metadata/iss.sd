@@ -1,0 +1,10 @@
+
+# -*- python -*-
+
+__id__ = "$Id: iss.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+Module('common:iss',
+	   classname = 'soclib::common::Iss',
+	   header_files = ["../include/iss/iss.h",],
+)

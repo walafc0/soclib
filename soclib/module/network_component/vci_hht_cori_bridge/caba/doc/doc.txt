@@ -1,0 +1,16 @@
+VciHhtCoriBridge is one half of a VCI-Hypertransport bridge.
+It translates the transactions coming from VCI and aiming at HHT devices.
+From the point of view of a VCI platform, the Cori bridge (Command Out, Response In) translates the outgoing commands and the incoming responses. Hence, it is a VCI target and an HHT initiator.
+
+Handled VCI transactions:
+0-4 bytes Read: Read of plen=4 using the byte enable field(BE)
+1-16 words Read: Read of plen=4*n, 1<n<16, ignoring BE
+0-32 bytes Write: Write of plen=4*n, 1<n<8 with BE!=0xF sometimes during the request
+1-8 words Write: Write of plen=4*n, 1<n<8 with BE=0xF during the whole request
+
+Restrictions:
+plen has to be a multiple of 4 (or will be rounded to next multiple of 4)
+address has to be a multiple of 4 (or will be truncated)
+writes cannot exceed 8 words included in the same aligned 64 byte block
+
+Ordering rules:

@@ -1,0 +1,51 @@
+# -*- python -*-
+Module('caba:vci_ahci_sdc',
+    classname = 'soclib::caba::VciAhciSdc',
+
+    tmpl_parameters = [ parameter.Module('vci_param',  default = 'caba:vci_param'), ],
+	   
+    header_files = [ '../source/include/vci_ahci_sdc.h', ],
+
+    interface_files = [ '../../include/soclib/ahci_sdc.h', ],
+
+    implementation_files = [ '../source/src/vci_ahci_sdc.cpp', ],
+
+    ports = [
+	    Port('caba:clock_in'     , 'p_clk', auto = 'clock'),
+	    Port('caba:bit_in'       , 'p_resetn', auto = 'resetn'),
+
+	    Port('caba:vci_target'   , 'p_vci_target'),
+   	    Port('caba:vci_initiator', 'p_vci_initiator'),	
+	    Port('caba:bit_out'      , 'p_irq'),
+
+        Port('caba:bit_out'      , 'p_sdc_clk'),
+        Port('caba:bit_out'      , 'p_sdc_cmd_value_out'),
+        Port('caba:bit_out'      , 'p_sdc_cmd_enable_out'),
+        Port('caba:bit_in'       , 'p_sdc_cmd_value_in'),
+        Port('caba:bit_in'       , 'p_sdc_cmd_enable_in'),
+        Port('caba:bit_out'      , 'p_sdc_dat_value_out' , 4),
+        Port('caba:bit_out'      , 'p_sdc_dat_enable_out'),
+        Port('caba:bit_in'       , 'p_sdc_dat_value_in' , 4),
+        Port('caba:bit_in'       , 'p_sdc_dat_enable_in'),
+	],
+
+    uses = [
+	    Uses('caba:base_module'),
+	    Uses('common:mapping_table'),
+	    Uses('caba:generic_fifo'),
+    ],
+
+	instance_parameters = [
+       parameter.Module('mt', typename = 'common:mapping_table', 
+                              auto = 'env:mapping_table'),
+       parameter.IntTab('srcid'),
+	   parameter.IntTab('tgtid'),
+	   parameter.Int('burst_size',default=64),
+    ],
+ 
+    extensions = [
+        'dsx:addressable=tgtid',
+      	'dsx:max_segments=1',
+        'dsx:get_ident=tgtid:p_vci_target:mt,srcid:p_vci_initiator:mt',	
+    ],
+)

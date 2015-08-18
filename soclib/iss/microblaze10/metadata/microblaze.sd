@@ -1,0 +1,25 @@
+# -*- python -*-
+
+__id__ = "$Id:$"
+__version__ = "$Revision:$"
+
+Module('common:microblaze',
+	classname = 'soclib::common::MicroblazeIss',
+	header_files = ["../include/microblaze.h",],
+	uses = [
+		Uses('common:base_module'),
+		Uses('common:iss2'),
+		],
+	implementation_files = [
+	"../src/microblaze.cpp",
+	"../src/microblaze_br.cpp",
+	"../src/microblaze_misc.cpp",
+	"../src/microblaze_instructions.cpp",
+	"../src/microblaze_load_store.cpp",
+	"../src/microblaze_run.cpp",
+	"../src/microblaze_float.cpp",
+	],
+	   constants = {
+	'n_irq':1
+	},
+)

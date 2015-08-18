@@ -1,0 +1,35 @@
+# -*- python -*-
+Module('caba:sd_card',
+    classname = 'soclib::caba::SdCard',
+
+    header_files = [ '../source/include/sd_card.h', ],
+
+    interface_files = [ '../../include/soclib/ahci_sdc.h', ],
+
+    implementation_files = [ '../source/src/sd_card.cpp', ],
+
+    ports = [
+        Port('caba:clock_in'     , 'p_clk', auto = 'clock'),
+        Port('caba:bit_in'       , 'p_resetn', auto = 'resetn'),
+
+        Port('caba:bit_in'       , 'p_sdc_clk'),
+        Port('caba:bit_out'      , 'p_sdc_cmd_value_out'),
+        Port('caba:bit_out'      , 'p_sdc_cmd_enable_out'),
+        Port('caba:bit_in'       , 'p_sdc_cmd_value_in'),
+        Port('caba:bit_in'       , 'p_sdc_cmd_enable_in'),
+        Port('caba:bit_out'      , 'p_sdc_dat_value_out' , 4),
+        Port('caba:bit_out'      , 'p_sdc_dat_enable_out'),
+        Port('caba:bit_in'       , 'p_sdc_dat_value_in' , 4),
+        Port('caba:bit_in'       , 'p_sdc_dat_enable_in'),
+	],
+
+    uses = [
+	    Uses('caba:base_module'),
+    ],
+
+	instance_parameters = [
+       parameter.String('filename'),
+       parameter.Int('rx_latency'),
+	   parameter.Int('tx_latency'),
+    ],
+)

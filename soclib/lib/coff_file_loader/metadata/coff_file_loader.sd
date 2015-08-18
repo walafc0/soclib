@@ -1,0 +1,11 @@
+
+# -*- python -*-
+
+Module('common:coff_file_loader',
+	implementation_files = ['../src/coff_file_loader.cpp',
+							],
+	uses = [
+		Uses('common:exception'),
+		Uses('common:loader'),
+		],
+)

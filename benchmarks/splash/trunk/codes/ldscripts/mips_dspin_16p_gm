@@ -1,0 +1,118 @@
+ENTRY (_start)
+STARTUP(crt0.o)
+GROUP(-lc -lgcc)
+
+MEMORY
+{
+	text  :  ORIGIN = 0xBFC00000,   LENGTH = 0x00200000
+	excep :  ORIGIN = 0x80000000,    LENGTH = 0x00010000
+	global :    ORIGIN = 0xA3040000, LENGTH = 0x00200000
+}
+
+PHDRS
+{
+	reset PT_LOAD FILEHDR PHDRS ;
+	excep PT_LOAD ;
+	text PT_LOAD ;
+	data PT_LOAD ;
+	heap PT_NULL ;
+	stack PT_NULL ;
+	debug PT_NULL ;
+	bss PT_LOAD ;
+}
+
+SECTIONS
+{
+	.debug_aranges 0x0 : { *(.debug_aranges*) } :debug
+	.debug_info 0x0 : { *(.debug_info*) } :debug
+	.debug_abbrev 0x0 : { *(.debug_abbrev*) } :debug
+	.debug_line 0x0 : { *(.debug_line*) } :debug
+	.debug_ranges 0x0 : { *(.debug_ranges*) } :debug
+	.debug_str 0x0 : { *(.debug_str*) } :debug
+	.debug_frame 0x0 : { *(.debug_frame*) } :debug
+	.debug_loc 0x0 : { *(.debug_loc*) } :debug
+	.debug_pubnames 0x0 : { *(.debug_pubnames*) } :debug
+	.pdr 0x0 : { *(.pdr*) } :debug
+	.comment 0x0 : { *(.comment*) } :debug
+	.gnu.attributes 0x0 : { *(.gnu.attributes*) } :debug
+
+	.excep 0x80000180 : { *(.excep) } > excep :excep
+
+	.reset 0xBFC00000 : { *(.reset) } > text :reset
+	
+	.init ALIGN(8) : { *(.init*) } > text :text
+
+	.ctors ALIGN(8) : { *(.ctors*) } > text :text
+
+	.text ALIGN(8) : { *(.text*) } > text :text
+
+	.fini ALIGN(8) : { *(.fini*) } > text :text
+
+	.dtors ALIGN(8) : { *(.dtors*) } > text :text
+
+	.jcr ALIGN(8) : { *(.jcr*) } > text :text
+
+	. = 0xA3040000;  
+	.sdata ALIGN(8) : { *(.sdata*) *(.scommon*) } > global :data
+
+	.sbss ALIGN(0x8): { *(.sbss*) } > global :bss
+
+	.rodata ALIGN(0x8) : { *(.rodata*) } > global :data
+
+	.reginfo ALIGN(0x8) : { *(.reginfo*) } > global :data
+
+	.data ALIGN(0x8) : { *(.data*) *(.glue_7*) *(.eh_frame*) } > global :data
+
+	.os_config ALIGN(0x8): {
+		OS_N_DRIVERS = .; LONG(0x2)
+		OS_DRIVERS_LIST = .; LONG(soclib_system_module) LONG(fdaccess_module)
+		
+		OS_N_FILESYSTEMS = .; LONG(0x2)
+		OS_FILESYSTEMS_LIST = .; LONG(devfs_module) LONG(rootfs_module)
+
+		OS_THREAD_STACK_SIZE = .; LONG(0x20000)
+
+		OS_KERNEL_HEAP_ADDRESS = .; LONG(ADDR(.kheap))
+		OS_KERNEL_HEAP_SIZE = .; LONG(0x100000)
+	} > global :data
+
+	.hal ALIGN(0x8): {
+		PLATFORM_N_MIPSMIPS32 = .; LONG(16);
+		APP_ENTRY_POINT = .; LONG(_main);
+
+		CPU_OS_ENTRY_POINT = dna_kickstart;
+		CPU_SVC_STACK_ADDR  = ABSOLUTE(ADDR(.sysstack));
+
+		CPU_BSS_START = .; LONG(ADDR(.bss))
+		CPU_BSS_END = .; LONG(__hal_bss_end)
+
+		SOCLIB_TIMER_NDEV = .; LONG(0x1)
+		SOCLIB_TIMER_DEVICES = .; LONG(2) LONG(0XD0800000)
+
+		SOCLIB_TTY_NDEV = .; LONG(1)
+		SOCLIB_TTY_DEVICES = .; LONG(3) LONG(0XC0C00000) LONG(3) LONG(0XC0C00010) LONG(3) LONG(0XC0C00020) LONG(3) LONG(0XC0C00030)
+		LONG(3) LONG(0XC0C00040) LONG(3) LONG(0XC0C00050) LONG(3) LONG(0XC0C00060) LONG(3) LONG(0XC0C00070)
+		LONG(3) LONG(0XC0C00080) LONG(3) LONG(0XC0C00090) LONG(3) LONG(0XC0C000A0) LONG(3) LONG(0XC0C000B0)
+		LONG(3) LONG(0XC0C000C0) LONG(3) LONG(0XC0C000D0) LONG(3) LONG(0XC0C000E0) LONG(3) LONG(0XC0C000F0)
+
+		SOCLIB_FDACCESS_NDEV = .; LONG(0x1)
+		SOCLIB_FDACCESS_DEVICES = .; LONG(5) LONG(0XC0A00000)
+
+		CHANNEL_RDV_NDEV = .; LONG(16);
+		SOCLIB_FB_DEVICE = .; LONG(0xC0E00000);
+
+		SOCLIB_STATIC_MEM = .; LONG(0xF1000000)
+
+	} > global :data
+
+	.sysstack ALIGN(0x8) + 0x10000 : { } > global :stack
+
+	.bss ALIGN(0x8): {
+		*(.bss*) *(.rel*) *(COMMON) __hal_bss_end = .;
+	} > global :bss
+
+	.kheap ALIGN(0x8) : {} > global :heap
+
+	.uheap ALIGN(0x8) + 0x100000: {_end = .;} > global :heap
+}
+

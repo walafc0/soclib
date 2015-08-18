@@ -1,0 +1,31 @@
+
+# -*- python -*-
+
+__id__ = "$Id: vci_rttimer.sd 1699 2010-04-14 03:30:30Z becoulet $"
+__version__ = "$Revision: 1699 $"
+
+Module('caba:vci_rttimer',
+	classname = 'soclib::caba::VciRtTimer',
+	   tmpl_parameters = [
+	parameter.Module('vci_param',  default = 'caba:vci_param'),
+	],
+	header_files = ['../source/include/vci_rttimer.h',],
+	interface_files = ['../../include/soclib/rttimer.h',],
+	implementation_files = ['../source/src/vci_rttimer.cpp',],
+	ports = [
+		Port('caba:vci_target', 'p_vci'),
+		Port('caba:bit_in', 'p_resetn', auto = 'resetn'),
+		Port('caba:bit_out', 'p_irq', parameter.Reference('nirq')),
+		Port('caba:clock_in', 'p_clk', auto = 'clock'),
+	],
+	uses = [
+		Uses('caba:base_module'),
+		Uses('caba:vci_target_fsm', default_target = 'true', support_llsc = 'false'),
+		],
+	instance_parameters = [
+		parameter.IntTab('ident'),
+	        parameter.Module('mt', typename = 'common:mapping_table'),
+	        parameter.Int('nirq'),
+	],
+)
+

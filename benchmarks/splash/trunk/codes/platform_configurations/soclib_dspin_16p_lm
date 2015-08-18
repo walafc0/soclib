@@ -1,0 +1,6 @@
+export TARGET_SIM="SOCLIB"
+export TARGET_NOC="dspin"
+export TARGET_NBP="16"
+export TARGET_MEM="LOCAL"
+export TARGET_NCL="128"
+export TARGET_CLS="6"

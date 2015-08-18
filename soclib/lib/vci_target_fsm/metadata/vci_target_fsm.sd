@@ -1,0 +1,23 @@
+
+# -*- python -*-
+
+__id__ = "$Id: vci_target_fsm.sd 1337 2009-10-13 10:04:24Z nipo $"
+__version__ = "$Revision: 1337 $"
+
+Module('caba:vci_target_fsm',
+	classname = 'soclib::caba::VciTargetFsm',
+	header_files = ['../include/caba/vci/vci_target_fsm.h',],
+	implementation_files = ['../src/caba/vci/vci_target_fsm.cpp',],
+	   tmpl_parameters = [
+	parameter.Module('vci_param',  default = 'caba:vci_param'),
+	parameter.Bool('default_target'),
+	parameter.Bool('support_llsc'),
+	],
+	uses = [
+		Uses('common:mapping_table'),
+		Uses('common:linked_access_buffer', addr_t = parameter.StringExt('sc_dt::sc_uint<%s>', parameter.Reference('addr_size')), id_t = 'unsigned int'),
+		Uses('caba:base_module'),
+		Uses('caba:vci_buffers'),
+		],
+#	   debug = True,
+)

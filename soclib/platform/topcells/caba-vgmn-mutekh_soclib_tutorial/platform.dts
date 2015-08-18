@@ -1,0 +1,96 @@
+/*
+
+   You need the device tree compiler to compile this file:
+   https://www.mutekh.org/www/tools/dtc-1.2.0.tar.gz
+
+   Compile with: dtc -O dtb platform.dts -o platform.dtb
+
+*/
+
+/dts-v1/;
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+        interrupt-parent = <&{/xicu@0}>;
+
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		cpu@0 {
+                        compatible = "cpu:arm";
+			reg = <0>;
+                        interrupt-controller;
+		};
+
+		cpu@1 {
+                        compatible = "cpu:arm";
+			reg = <1>;
+                        interrupt-controller;
+		};
+
+		cpu@2 {
+                        compatible = "cpu:arm";
+			reg = <2>;
+                        interrupt-controller;
+		};
+
+		cpu@3 {
+                        compatible = "cpu:arm";
+			reg = <3>;
+                        interrupt-controller;
+		};
+
+	};
+
+	tty@0 {
+                compatible = "soclib:vci_multi_tty";
+		reg = <0xd0200000 0x10>;
+		interrupts = <0>;
+
+                param-int-tty-count = <1>;
+	};
+
+	block@0 {
+	        compatible = "soclib:vci_block_device";
+		reg = <0xd1200000 0x20>;
+		interrupts = <1>;
+	};
+
+	fdaccess@0 {
+                compatible = "soclib:vci_fdaccess";
+		reg = <0xd4200000 0x100>;
+	};
+
+	xicu@0 {
+	        compatible = "soclib:vci_xicu";
+		reg = <0xd2200000 0x1000>;
+                interrupt-controller;
+
+		/* vci_xicu outputs connected to irq 0 of every cpus. */
+
+                              /*  xicu out   target dev      target input */
+                interrupt-map = < 0          &{/cpus/cpu@0}  0
+                                  1          &{/cpus/cpu@1}  0
+                                  2          &{/cpus/cpu@2}  0
+                                  3          &{/cpus/cpu@3}  0 >;
+
+                param-int-pti-count = <1>;
+                param-int-hwi-count = <2>;
+                param-int-wti-count = <4>;
+                param-int-irq-count = <4>;
+	};
+
+	memory@0 {
+       		compatible = "soclib:vci_ram";
+		reg = <0x7f000000 0x01000000>;
+	};
+
+	aliases {
+		timer = "timer@0";
+		console = "tty@0[0]";
+	};
+
+};
+

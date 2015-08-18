@@ -1,0 +1,17 @@
+There is an error in the lm32 oficial documentation (as of August 2007)
+For the "branch if greater" instructions (bg, bgu, bge, bgeu),
+The documentation specifies the instruction format as follow:
+    OPCODE|RY|RX|ImmBranch
+And says that the branch is taken if (RX > RY) (respectivelly >=), but it seems
+that the comparison should be done in the reverse order.
+
+This is confirmed by the simulator source code given with gdb.
+(
+    The corresponding files are :
+    gdb/sim/lm32/sem-switch.c
+    gdb/sim/common/cgen-ops.h
+)
+The instructions format is :
+    OPCODE|R0|R1|ImmBranch
+And the comparison is R0>R1   (using the macro GTSI (R0,R1))
+

@@ -1,0 +1,174 @@
+/* -*- c++ -*-
+
+   C++ bitfield alias class
+
+   This file is part of the dpp library of C++ template classes
+
+   doc: http://diaxen.ssji.net/dpp/index.html
+   repo: https://www.ssji.net/svn/projets/trunk/libdpp
+
+   This program is free software: you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public License
+   as published by the Free Software Foundation, either version 3 of
+   the License, or (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with this program.  If not, see
+   <http://www.gnu.org/licenses/>.
+
+   (c) 2011 Alexandre Becoulet <alexandre.becoulet@free.fr>
+
+*/
+
+#ifndef DPP_BITFIELD_HH_
+#define DPP_BITFIELD_HH_
+
+#include <stdint.h>
+
+/** @file @module{Bitfield alias} */
+
+namespace dpp {
+
+#ifndef  DPP_BITFIELD_SWAP
+  /** @This globally changes swap mask used by @ref bitfield classes
+      by xoring with the swap mask value. */
+# define DPP_BITFIELD_SWAP 0
+#endif
+
+  /** @internal */
+  template <typename X, unsigned int swap_mask>
+  inline X _bitfield_swap(X x)
+  {
+    unsigned int m = swap_mask ^ (DPP_BITFIELD_SWAP);
+
+    if (m & 1)
+      x = ((x & 0x5555555555555555ULL) << 1)  | ((x & 0xaaaaaaaaaaaaaaaaULL) >> 1);
+    if (m & 2)
+      x = ((x & 0x3333333333333333ULL) << 2)  | ((x & 0xccccccccccccccccULL) >> 2);
+    if (m & 4)
+      x = ((x & 0x0f0f0f0f0f0f0f0fULL) << 4)  | ((x & 0xf0f0f0f0f0f0f0f0ULL) >> 4);
+    if (sizeof(X) > 8 && (m & 8))
+      x = ((x & 0x00ff00ff00ff00ffULL) << 8)  | ((x & 0xff00ff00ff00ff00ULL) >> 8);
+    if (sizeof(X) > 16 && (m & 16))
+      x = ((x & 0x0000ffff0000ffffULL) << 16) | ((x & 0xffff0000ffff0000ULL) >> 16);
+    if (sizeof(X) > 32 && (m & 32))
+      x = ((x & 0x00000000ffffffffULL) << 32) | ((x & 0xffffffff00000000ULL) >> 32);
+
+    return x;
+  }
+
+#define _DPP_BITFIELD(C, X)						\
+  class C								\
+  {									\
+    static const X mask = ((1 << width) - 1);				\
+    static const X smask = mask << position;				\
+									\
+  public:								\
+									\
+    /** @This creates a bitfield alias object for the given integer. */	\
+    C(X &x)								\
+      : _x(x)								\
+    {									\
+    }									\
+									\
+    /** @This extracts bits from given integer. */			\
+    static const X get(X x)						\
+    {									\
+      return (_bitfield_swap<X, swap_mask>(x) >> position) & mask;	\
+    }									\
+									\
+    /** @This sets bits in referenced integer to given value. */	\
+    static void set(X &v, X x)						\
+    {									\
+      static const X wmask = _bitfield_swap<X, swap_mask>(smask);	\
+      x = _bitfield_swap<X, swap_mask>(x << position);			\
+      v = (v & ~wmask) | (x & wmask);					\
+    }									\
+									\
+    /** @This extracts bits from aliased integer. */			\
+    operator X () const							\
+    {									\
+      return get(_x);							\
+    }									\
+									\
+    /** @This sets bits in aliased integer to given value. */		\
+    X operator=(X x)							\
+    {									\
+      set(_x, x);							\
+      return x;								\
+    }									\
+									\
+  private:								\
+    X &_x;								\
+  }
+
+  /** @short Generic bitfield alias class
+      @module {Bitfield alias}
+      @header dpp/bitfield
+      @main
+
+      @This can be used to declare an alias which permit convenient
+      access to specified bits range inside an integer value.
+
+      This class requires the integer type as parameter, other classes
+      are available for 8, 16, 32 and 64 bits, signed and unsigned
+      integer types.
+
+      This class exposes bits at specified @tt position and @tt width
+      in aliased integer value.
+
+      @section {Bits swapping}
+
+      An additional @tt swap_mask parameter can be used to perform a
+      bits permutation on accessed integer. Each bit in the mask specify
+      size of swapped bit packets; for instance a mask value of
+      (8+16+32) performs a bytes swap on 32 bits values.
+
+      The value of the @ref DPP_BITFIELD_SWAP macro is xored with the
+      swap mask. Its default value is 0 and it can be defined before
+      including the @tt bitfield header. This allows globally
+      inverting swap mask depending on processor endianness.
+
+      @end section
+   */
+  template <typename X,
+	    unsigned int position,
+	    unsigned int width = 1,
+	    unsigned int swap_mask = 0>
+  _DPP_BITFIELD(bitfield, X);
+
+
+#define _DPP_BITFIELD_INT(u, s, n, t)					\
+  /** @short s bits u bitfield alias class				\
+      @module {Bitfield alias}						\
+      @header dpp/bitfield						\
+									\
+      @This can be used to declare an alias which permit convenient	\
+      access to specified bits range inside an integer value.		\
+									\
+      This class is designed to work with s bits u values. See the	\
+      @ref bitfield class documentation for details.			\
+  */									\
+  template <unsigned int position,					\
+	    unsigned int width = 1,					\
+	    unsigned int swap_mask = 0>					\
+  _DPP_BITFIELD(bitfield_##n, t);
+
+  _DPP_BITFIELD_INT(unsigned, 8,  u8,  uint8_t);
+  _DPP_BITFIELD_INT(signed, 8,  s8,  int8_t);
+  _DPP_BITFIELD_INT(unsigned, 16, u16, uint16_t);
+  _DPP_BITFIELD_INT(signed, 16, s16, int16_t);
+  _DPP_BITFIELD_INT(unsigned, 32, u32, uint32_t);
+  _DPP_BITFIELD_INT(signed, 32, s32, int32_t);
+  _DPP_BITFIELD_INT(unsigned, 64, u64, uint64_t);
+  _DPP_BITFIELD_INT(signed, 64, s64, int64_t);
+
+}
+
+#endif
+

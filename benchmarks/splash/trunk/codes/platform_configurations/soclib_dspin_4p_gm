@@ -1,0 +1,6 @@
+export TARGET_SIM="SOCLIB"
+export TARGET_NOC="dspin"
+export TARGET_NBP="4"
+export TARGET_MEM="GLOBAL"
+export TARGET_NCL="1024"
+export TARGET_CLS="6"

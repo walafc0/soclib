@@ -1,0 +1,12 @@
+# -*- python -*-
+
+__id__ = "$Id$"
+__version__ = "$Revision$"
+
+Module('caba:lazy_fifo',
+	   classname = 'soclib::caba::LazyFifo',
+	   header_files = ['../include/lazy_fifo.h',],
+	   uses = [
+		Uses('caba:generic_fifo'),
+		],
+)

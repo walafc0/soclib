@@ -1,0 +1,437 @@
+/* -*- c++ -*-
+
+   C++ 16 bits float implementation
+
+   This file is part of the dpp library of C++ template classes
+
+   doc: http://diaxen.ssji.net/dpp/index.html
+   repo: https://www.ssji.net/svn/projets/trunk/libdpp
+
+   This program is free software: you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public License
+   as published by the Free Software Foundation, either version 3 of
+   the License, or (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with this program.  If not, see
+   <http://www.gnu.org/licenses/>.
+
+   (c) 2008-2012 Alexandre Becoulet <alexandre.becoulet@free.fr>
+
+*/
+
+#ifndef DPP_FLOAT16_HH_
+#define DPP_FLOAT16_HH_
+
+/** @file @module{16 bits float} */
+
+#ifdef __SSE2__
+# include <xmmintrin.h>
+# include <emmintrin.h>
+#endif
+
+#ifdef DPP_FLOAT16_NUMERIC_LIMITS
+# include <limits>
+#endif
+
+#include <stdint.h>
+
+#if __cplusplus >= 201103
+# define _DPP_FLOAT16_CONSTEXPR constexpr
+#else
+# define _DPP_FLOAT16_CONSTEXPR const
+#endif
+
+namespace dpp {
+
+  /**
+     @short 16 bits float class
+     @header dpp/float16
+     @main
+
+     @This implements the half-precision floating point format (16 bits IEEE 754).
+
+     Array conversion functions are provided. Current implementation of
+     these functions can use SSE2 instructions and will do so if the
+     @tt __SSE2__ macro is defined when the header file is included.
+
+     If the @tt DPP_FLOAT16_NUMERIC_LIMITS macro is defined before
+     inclusion of the @tt float16 header, a specialization of the @ref
+     std::numeric_limits class is defined for the @ref float16 type.
+  */
+  class float16
+  {
+#ifdef DPP_FLOAT16_NUMERIC_LIMITS
+    template <typename> friend class ::std::numeric_limits;
+#endif
+
+    static inline uint16_t float16_order(int16_t x)
+    {
+      return ((x >> 15) | (1 << 15)) ^ x;
+    }
+
+  public:
+
+    /** @internal */
+    static inline uint16_t float32_to_16(float x)  // 15 cycles on core2/gcc 4.7
+    {
+      union {
+	float    f;
+	uint32_t i;
+      };
+
+      f = x;
+      // strip sign
+      uint32_t a = 0x80000000 & i;
+      uint32_t b = a ^ i;
+
+      // compute subnormal and select normal/subnormal
+      i = b;
+      f = f * 137438953472.f;
+      uint32_t c = (0x38800000 > b) ? (uint32_t)f : b;
+
+      // shift value & adjust exponent
+      uint32_t d = c >> 13;
+      uint32_t e = d + (0xfffe4000 & -(d > 0x3ff));
+
+      // test infinity then test nan
+      uint32_t h = (c > 0x477fffff) ? 0x7c00 : e;
+      uint32_t g = -(c > 0x7f800000) & e;
+
+      return h | g | (a >> 16);
+    }
+
+#ifdef __SSE2__
+    /** @internal */
+    static inline void float32_to_16_sse2(__m128 x, void *dst)   // 23 cycles on core2/gcc 4.7
+    {
+      // strip sign
+      __m128i c0 = _mm_set1_epi32(0x80000000);
+      __m128i a = _mm_and_si128(c0, (__m128i)x);
+      __m128i b = _mm_andnot_si128(c0, (__m128i)x);
+
+      // compute subnormal and select normal/subnormal
+      __m128i f = _mm_cvttps_epi32(_mm_mul_ps((__m128)b, _mm_set1_ps(137438953472.f)));
+      __m128i m = _mm_cmpgt_epi32(_mm_set1_epi32(0x38800000), b);
+      __m128i c = _mm_or_si128(_mm_and_si128(m, f), _mm_andnot_si128(m, b));
+
+      // shift value & adjust exponent
+      __m128i d = _mm_srli_epi32(c, 13);
+      __m128i e = _mm_add_epi32(d, _mm_and_si128(_mm_set1_epi32(0xfffe4000), _mm_cmpgt_epi32(d, _mm_set1_epi32(0x3ff))));
+
+      // test infinity then test nan
+      __m128i n1 = _mm_cmpgt_epi32(c, _mm_set1_epi32(0x477fffff));
+      __m128i n2 = _mm_cmpgt_epi32(c, _mm_set1_epi32(0x7f800000));
+
+      // merge all & pack
+      __m128i h = _mm_or_si128(_mm_and_si128(n1, _mm_set1_epi32(0x7c00)), _mm_andnot_si128(_mm_andnot_si128(n2, n1), e));
+      __m128i i = _mm_or_si128(_mm_and_si128(_mm_set1_epi32(0x7fff), h), _mm_srai_epi32(a, 16));
+      __m128i r = _mm_packs_epi32(i, i);
+      _mm_storel_epi64((__m128i*)dst, r);
+    }
+#endif
+
+    /** @internal */
+    static inline float float16_to_32(uint16_t x)    // 10 cycles on core2/gcc 4.7
+    {
+      union {
+	float    f;
+	uint32_t i;
+      };
+
+      // strip sign
+      uint32_t a = x & 0x7fff;
+
+      // adjust exponent & shift value
+      uint32_t b = a + (0x1c000 & -(a > 0x3ff));
+      uint32_t c = b + (0x1c000 & -(a > 0x7bff));
+      uint32_t d = c << 13;
+
+      // compute subnormal and select normal/subnormal
+      f = 0.59604644775390625e-7f * c;
+      i = c > 0x3ff ? d : i;
+
+      // or sign
+      i = i | ((x & 0x8000) << 16);
+      return f;
+    }
+
+#ifdef __SSE2__
+    /** @internal */
+    static inline __m128 float16_to_32_sse2(const void *x)   // 14 cycles on core2/gcc 4.7
+    {
+      // unpack & strip sign
+      __m128i v = _mm_unpacklo_epi16(_mm_loadl_epi64((__m128i*)x), _mm_setzero_si128());
+      __m128i a = _mm_and_si128(v, _mm_set1_epi32(0x7fff));
+
+      // adjust exponent & shift value
+      __m128i c0 = _mm_set1_epi32(0x1c000);
+      __m128i b = _mm_add_epi32(a, _mm_and_si128(_mm_cmpgt_epi32(a, _mm_set1_epi32(0x3ff)), c0));
+      __m128i c = _mm_add_epi32(b, _mm_and_si128(_mm_cmpgt_epi32(a, _mm_set1_epi32(0x7bff)), c0));
+      __m128i d = _mm_slli_epi32(c, 13);
+
+      // compute subnormal and select normal/subnormal
+      __m128  f = _mm_mul_ps(_mm_set1_ps(0.59604644775390625e-7f), _mm_cvtepi32_ps(c));
+      __m128i m = _mm_cmpgt_epi32(c, _mm_set1_epi32(0x3ff));
+      __m128i l = _mm_or_si128(_mm_and_si128(m, d), _mm_andnot_si128(m, (__m128i)f));
+
+      // or sign
+      return (__m128)_mm_or_si128(l, _mm_slli_epi32(_mm_and_si128(v, _mm_set1_epi32(0x8000)), 16));
+    }
+#endif
+
+    /** @This converts an array of 16 bits floats to SIMD aligned 32 bits
+	floats. @This uses processor SIMD instructions when available. */
+    static void convert_array_a(float *dst, const float16 *src, size_t count)
+    {
+      unsigned int i = 0;
+#ifdef __SSE2__
+      for (; i + 3 < count; i += 4)
+	_mm_store_ps(dst + i, float16_to_32_sse2(src + i));
+      if (count & 3)
+#endif
+      for (; i < count; i++)
+	dst[i] = float16_to_32(src[i]._val);
+    }
+
+    /** @This converts an array of SIMD aligned 32 bits floats to 16 bits
+	floats. @This uses processor SIMD instructions when available. */
+    static void convert_array_a(float16 *dst, const float *src, size_t count)
+    {
+      unsigned int i = 0;
+#ifdef __SSE2__
+      for (; i + 3 < count; i += 4)
+	float32_to_16_sse2(_mm_loadu_ps(src + i), dst + i);
+      if (count & 3)
+#endif
+      for (; i < count; i++)
+	dst[i]._val = float32_to_16(src[i]);
+    }
+
+    /** @This converts an array of 16 bits floats to 32 bits
+	floats. @This may use processor SIMD instructions when available. */
+    static void convert_array(float *dst, const float16 *src, size_t count)
+    {
+      unsigned int i = 0;
+#ifdef __SSE2__
+      for (; i + 3 < count; i += 4)
+	_mm_storeu_ps(dst + i, float16_to_32_sse2(src + i));
+      if (count & 3)
+#endif
+      for (; i < count; i++)
+	dst[i] = float16_to_32(src[i]._val);
+    }
+
+    /** @This converts an array of 32 bits floats to 16 bits
+	floats. @This may use processor SIMD instructions when available. */
+    static void convert_array(float16 *dst, const float *src, size_t count)
+    {
+      unsigned int i = 0;
+#ifdef __SSE2__
+      for (; i + 3 < count; i += 4)
+	float32_to_16_sse2(_mm_load_ps(src + i), dst + i);
+      if (count & 3)
+#endif
+      for (; i < count; i++)
+	dst[i]._val = float32_to_16(src[i]);
+    }
+
+    /** @This returns the number of float values fitting in a SIMD word.
+	It can be used to check and enforce alignment constraints. */
+    static inline _DPP_FLOAT16_CONSTEXPR
+    unsigned int simd_width()
+    {
+#ifdef __SSE2__
+      return 4;
+#else
+      return 1;
+#endif
+    }
+
+    float16()
+    {
+    }
+
+    float16(const float16 &x)
+      : _val(x._val)
+    {
+    }
+
+    float16(float x)
+    {
+      _val = float32_to_16(x);
+    }
+
+    float16 operator-() const
+    {
+      float16 r;
+      r._val = _val ^ 0x8000;
+      return r;
+    }
+
+    /** @This returns absolute value.*/
+    float16 abs() const
+    {
+      float16 r;
+      r._val = _val & 0x7fff;
+      return r;
+    }
+
+    const float16 & operator= (float x)
+    {
+      _val = float32_to_16(x);
+      return *this;
+    }
+
+    const float16 & operator= (const float16 &x)
+    {
+      _val = x._val;
+      return *this;
+    }
+
+    operator float () const
+    {
+      return float16_to_32(_val);
+    }
+
+    bool operator== (const float16 &x) const
+    {
+      return _val == x._val; // XXX nan should not match, who cares?
+    }
+
+    bool operator!= (const float16 &x) const
+    {
+      return _val != x._val;
+    }
+
+    bool operator< (const float16 &x) const
+    {
+      return float16_order(_val) < float16_order(x._val);
+    }
+
+    bool operator<= (const float16 &x) const
+    {
+      return float16_order(_val) <= float16_order(x._val);
+    }
+
+    bool operator> (const float16 &x) const
+    {
+      return float16_order(_val) > float16_order(x._val);
+    }
+
+    bool operator>= (const float16 &x) const
+    {
+      return float16_order(_val) >= float16_order(x._val);
+    }
+
+  private:
+    uint16_t _val;
+  };
+
+}
+
+#ifdef DPP_FLOAT16_NUMERIC_LIMITS
+namespace std {
+
+  template <>
+  class numeric_limits< ::dpp::float16>
+  {
+    typedef ::dpp::float16 T;
+
+  public:
+    static const bool is_specialized = true;
+
+    static T epsilon() throw()
+    {
+      T f;
+      f._val = 0x3c01;
+      return f;
+    }
+
+    static T round_error() throw()
+    {
+      T f;
+      f._val = 0x3800;
+      return f;
+    }
+
+    static T min() throw()
+    {
+      T f;
+      f._val = 0x0400;
+      return f;
+    }
+
+    static T max() throw()
+    {
+      T f;
+      f._val = 0x7bff;
+      return f;
+    }
+
+    static T infinity() throw()
+    {
+      T f;
+      f._val = 0x7c00;
+      return f;
+    }
+
+    static T quiet_NaN() throw()    
+    {
+      T f;
+      f._val = 0x7e00;
+      return f;
+    }
+
+    static T signaling_NaN() throw()
+    {
+      T f;
+      f._val = 0x7d00;
+      return f;
+    }
+
+    static T denorm_min() throw()
+    {
+      T f;
+      f._val = 0x0001;
+      return f;
+    }
+
+    static _DPP_FLOAT16_CONSTEXPR int min_exponent = -14;
+    static _DPP_FLOAT16_CONSTEXPR int min_exponent10 = -5;
+    static _DPP_FLOAT16_CONSTEXPR int max_exponent = 15;
+    static _DPP_FLOAT16_CONSTEXPR int max_exponent10 = 5;
+
+    static _DPP_FLOAT16_CONSTEXPR int digits = 10;
+    static _DPP_FLOAT16_CONSTEXPR int digits10 = 3;
+    static _DPP_FLOAT16_CONSTEXPR int radix = 2;
+
+    static _DPP_FLOAT16_CONSTEXPR bool is_signed = true;
+    static _DPP_FLOAT16_CONSTEXPR bool is_integer = false;
+    static _DPP_FLOAT16_CONSTEXPR bool is_exact = false;
+
+    static _DPP_FLOAT16_CONSTEXPR bool has_infinity = true;
+    static _DPP_FLOAT16_CONSTEXPR bool has_quiet_NaN = true;
+    static _DPP_FLOAT16_CONSTEXPR bool has_signaling_NaN = true;
+    static _DPP_FLOAT16_CONSTEXPR float_denorm_style has_denorm = std::denorm_present;
+    static _DPP_FLOAT16_CONSTEXPR bool has_denorm_loss = false;
+
+    static _DPP_FLOAT16_CONSTEXPR bool is_iec559 = true;
+    static _DPP_FLOAT16_CONSTEXPR bool is_bounded = true;
+    static _DPP_FLOAT16_CONSTEXPR bool is_modulo = false;
+
+    static _DPP_FLOAT16_CONSTEXPR bool traps = false;
+    static _DPP_FLOAT16_CONSTEXPR bool tinyness_before = false;
+    static _DPP_FLOAT16_CONSTEXPR float_round_style round_style = std::round_to_nearest;
+  };
+}
+#endif
+
+
+#endif
+

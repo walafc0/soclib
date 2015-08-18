@@ -1,0 +1,34 @@
+
+# -*- python -*-
+
+__id__ = "$Id: fifo.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+Signal('caba:fifo',
+	   accepts = {'caba:fifo_output':1,
+				  'caba:fifo_input':1},
+	   tmpl_parameters = [
+	parameter.Type('data_t', default = 'uint32_t'),
+	],
+	   classname = 'soclib::caba::FifoSignals',
+	   header_files = ['../source/include/fifo_signals.h'],
+	   )
+
+PortDecl('caba:fifo_output',
+	 classname = 'soclib::caba::FifoOutput',
+	   tmpl_parameters = [
+	parameter.Type('data_t', default = 'uint32_t'),
+	],
+	 signal = 'caba:fifo',
+	 header_files = ['../source/include/fifo_ports.h'],
+	 )
+
+PortDecl('caba:fifo_input',
+	 classname = 'soclib::caba::FifoInput',
+	   tmpl_parameters = [
+	parameter.Type('data_t', default = 'uint32_t'),
+	],
+	 signal = 'caba:fifo',
+	 header_files = ['../source/include/fifo_ports.h'],
+	 )
+

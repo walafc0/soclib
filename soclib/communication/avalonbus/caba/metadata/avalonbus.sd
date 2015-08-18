@@ -1,0 +1,123 @@
+
+# -*- python -*-
+
+__id__ = "$Id: avalonbus.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+Signal('caba:avalonbus',
+       tmpl_parameters = [parameter.Module('avalon_param', default = 'caba:avalon_param')],
+       classname = 'soclib::caba::AvalonSignals',
+       header_files = ['../source/include/avalon_signals.h',
+  				     '../source/include/avalon_adl_signals.h',
+  				     '../source/include/avalon_arbiter_signals.h',],
+       accepts = {
+	'caba:avalon_arbiter_master': 1,
+	'caba:avalon_arbiter_slave': 1,
+	'caba:avalon_switch_master': 1,
+	'caba:avalon_switch_slave': 1,
+	'caba:avalonbus_master': 1,
+	'caba:avalonbus_slave': 1,
+	'caba:avalon_adl_in': 1,
+	'caba:avalon_adl_out': 1,
+	},
+	)
+
+Signal('caba:avalonarbiter',
+      tmpl_parameters = [parameter.Module('avalon_param', default = 'caba:avalon_param')],
+       classname = 'soclib::caba::AvalonArbiterSignals',
+       header_files = ['../source/include/avalon_arbiter_signals.h',],
+              accepts = {},
+	)
+
+Signal('caba:avalonmux',
+      tmpl_parameters = [parameter.Module('avalon_param', default = 'caba:avalon_param')],
+       classname = 'soclib::caba::AvalonMuxSignals',
+       header_files = ['../source/include/avalon_mux_signals.h',],
+       accepts = {
+	'caba:avalon_mux': 1,
+	'caba:avalon_mux_master': 1,
+	'caba:avalon_mux_slave': 1,
+	},
+	)
+
+PortDecl('caba:avalon_arbiter_master',
+      tmpl_parameters = [parameter.Module('avalon_param', default = 'caba:avalon_param')],
+	 classname = 'soclib::caba::AvalonArbiterMaster',
+	 signal = 'caba:avalonarbiter',
+	 header_files = ['../source/include/avalon_arbiter_master.h'],
+	 )
+
+PortDecl('caba:avalon_arbiter_slave',
+     tmpl_parameters = [parameter.Module('avalon_param', default = 'caba:avalon_param')],
+	 classname = 'soclib::caba::AvalonArbiterSlave',
+	 signal = 'caba:avalonarbiter',
+	 header_files = ['../source/include/avalon_arbiter_slave.h'],
+	 )
+
+PortDecl('caba:avalon_switch_master',
+      tmpl_parameters = [parameter.Module('avalon_param', default = 'caba:avalon_param')],
+	 classname = 'soclib::caba::AvalonSwitchMaster',
+	 signal = 'caba:avalonbus',
+	 header_files = ['../source/include/avalon_switch_master.h'],
+	 )
+
+PortDecl('caba:avalon_switch_slave',
+      tmpl_parameters = [parameter.Module('avalon_param', default = 'caba:avalon_param')],
+	 classname = 'soclib::caba::AvalonSwitchSlave',
+	 signal = 'caba:avalonbus',
+	 header_files = ['../source/include/avalon_switch_slave.h'],
+	 )
+
+PortDecl('caba:avalonbus_master',
+      tmpl_parameters = [parameter.Module('avalon_param', default = 'caba:avalon_param')],
+	 classname = 'soclib::caba::AvalonMaster',
+	 signal = 'caba:avalonbus',
+	 header_files = ['../source/include/avalonbus_master.h'],
+	 )
+
+PortDecl('caba:avalonbus_slave',
+      tmpl_parameters = [parameter.Module('avalon_param', default = 'caba:avalon_param')],
+	 classname = 'soclib::caba::AvalonSlave',
+	 signal = 'caba:avalonbus',
+	 header_files = ['../source/include/avalonbus_slave.h'],
+	 )
+
+PortDecl('caba:avalon_adl_in',
+     tmpl_parameters = [parameter.Module('avalon_param', default = 'caba:avalon_param')],
+	 classname = 'soclib::caba::AvalonAdlIn',
+	 signal = 'caba:avalonbus',
+	 header_files = ['../source/include/avalon_adl_in.h'],
+	 )
+
+PortDecl('caba:avalon_adl_out',
+     tmpl_parameters = [parameter.Module('avalon_param', default = 'caba:avalon_param')],
+	 classname = 'soclib::caba::AvalonAdlout',
+	 signal = 'caba:avalonbus',
+	 header_files = ['../source/include/avalon_adl_out.h'],
+	 )
+
+PortDecl('caba:avalon_mux_master',
+     tmpl_parameters = [parameter.Module('avalon_param', default = 'caba:avalon_param')],
+     classname = 'soclib::caba::AvalonMuxMaster',
+	 signal = 'caba:avalonmux',
+	 header_files = ['../source/include/avalon_mux_master.h'],
+	 )
+	 
+PortDecl('caba:avalon_mux_slave',
+     tmpl_parameters = [parameter.Module('avalon_param', default = 'caba:avalon_param')],
+     classname = 'soclib::caba::AvalonMuxSlave',
+	 signal = 'caba:avalonmux',
+	 header_files = ['../source/include/avalon_mux_slave.h'],
+	 )
+	 
+Module('caba:avalon_param',
+	   classname = 'soclib::caba::AvalonParams',
+	   tmpl_parameters = [
+		parameter.Int('address_width'),
+		parameter.Int('data_width'),
+		parameter.Int('burstcount_width'),
+
+		],
+	   header_files = ['../source/include/avalon_param.h',],
+)	
+	

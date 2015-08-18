@@ -1,0 +1,12 @@
+# -*- python -*-
+
+Module('tlmdt:vci_multi_dma',
+       classname = 'soclib::tlmdt::VciMultiDma',
+       tmpl_parameters = [ parameter.Module('vci_param',  default = 'tlmdt:vci_param') ],
+       header_files = ['../source/include/vci_multi_dma.h' ],
+       interface_files = [  '../../include/soclib/multi_dma.h' ],
+       implementation_files = ['../source/src/vci_multi_dma.cpp' ],
+       uses = [	Uses('common:tlmdt'),
+                Uses('common:mapping_table'), ],
+       #debug = True,
+       )

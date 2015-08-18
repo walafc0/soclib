@@ -1,0 +1,39 @@
+
+# -*- python -*-
+
+__id__ = "$Id: mapping_table.sd 2399 2013-07-12 11:13:37Z alain $"
+__version__ = "$Revision: 2399 $"
+
+Module('common:mapping_table',
+	classname = 'soclib::common::MappingTable',
+	header_files = ['../include/mapping_table.h',],
+	implementation_files = ['../src/mapping_table.cpp',],
+	uses = [
+		Uses('common:address_decoding_table', input_t = 'uint32_t', output_t = 'bool'),
+		Uses('common:address_decoding_table', input_t = 'uint32_t', output_t = 'int'),
+		Uses('common:address_decoding_table', input_t = 'uint32_t', output_t = 'size_t'),
+		Uses('common:address_masking_table', data_t = 'uint32_t'),
+		Uses('common:address_decoding_table', input_t = 'uint64_t', output_t = 'bool'),
+		Uses('common:address_decoding_table', input_t = 'uint64_t', output_t = 'int'),
+		Uses('common:address_decoding_table', input_t = 'uint64_t', output_t = 'size_t'),
+		Uses('common:address_masking_table', data_t = 'uint64_t'),
+		Uses('common:segment'),
+		Uses('common:exception'),
+		],
+	   instance_parameters = [
+	parameter.Int('addr_size'),
+	parameter.IntTab('addr_bits'),
+	parameter.IntTab('srcid_bits'),
+	parameter.Int('cacheability_mask'),
+		],
+	   extensions = [
+	'dsx:configurator=mapping_table',
+	'dsx:configurator_template=%(ref)s.add(%(conf)s)',
+	'dsx:noname',
+	]
+)
+
+Module('common:int_tab',
+	classname = 'soclib::common::IntTab',
+	header_files = ['../include/int_tab.h',],
+)

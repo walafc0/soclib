@@ -1,0 +1,14 @@
+
+__id__ = "$Id: vci_locks.sd 917 2009-03-12 10:10:06Z nipo $"
+__version__ = "$Revision: 917 $"
+
+Module('tlmt:vci_locks',
+       classname = 'soclib::tlmt::VciLocks',
+       tmpl_parameters = [ parameter.Module('vci_param',  default = 'tlmt:vci_param')],
+       header_files = ['../source/include/vci_locks.h',],
+       implementation_files = ['../source/src/vci_locks.cpp',],
+       ports = [ Port('tlmt:vci_target', 'p_vci')],
+       uses = [ Uses('tlmt:base_module'),
+		Uses('common:mapping_table'),
+		],
+       )

@@ -1,0 +1,20 @@
+
+# -*- python -*-
+
+
+todo = Platform('tlmt', 'top.cpp',
+                uses = [Uses('tlmt:vci_vgmn'),
+                        Uses('tlmt:vci_ram'),
+                        Uses('tlmt:vci_xcache_wrapper',iss_t = 'common:st231'),
+#                        Uses('tlmt:vci_xcache_wrapper',iss_t = 'common:mipsel'),
+                        Uses('tlmt:vci_multi_tty'),
+                        Uses('tlmt:vci_mwmr_controller'),
+                        Uses('tlmt:fifo_reader'),
+                        Uses('tlmt:fifo_writer'),
+#                        Uses('tlmt:coprocessor'),
+						Uses('common:elf_file_loader'),
+                        ],
+                addr_t = 'uint32_t',
+                data_t = 'uint32_t',
+                nbytes = '4',
+                )

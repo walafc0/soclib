@@ -1,0 +1,20 @@
+
+# -*- python -*-
+
+__id__ = "$Id: tms320c62.sd 990 2009-03-25 10:08:33Z irisa $"
+__version__ = "$Revision: 990 $"
+
+Module('common:tms320c62',
+	classname = 'soclib::common::Tms320C6xIss',
+	header_files = ["../include/iss/tms320c62.h",],
+		   uses = [
+	Uses('common:iss'),
+	Uses('common:base_module'),
+	Uses('caba:generic_fifo'),
+	],
+	implementation_files = [
+		"../src/iss/tms320c62.cpp",
+		"../src/iss/tms320c62_instructions.cpp",
+		"../src/iss/tms320c62_decoding.cpp",
+		],
+)

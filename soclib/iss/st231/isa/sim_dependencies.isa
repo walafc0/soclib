@@ -1,0 +1,433 @@
+/* *****************************************************************************
+                                    BSD LICENSE
+********************************************************************************
+Copyright (c) 2006, INRIA
+Authors: Zheng LI (zheng.x.li@inria.fr)
+
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+ - Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+ - Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+ - Neither the name of the INRIA nor the names of its contributors may be
+   used to endorse or promote products derived from this software without
+   specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED.
+IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+***************************************************************************** */
+{
+#include <stdarg.h>
+
+  typedef enum operand_type_t { GPR_T, GPB_T } operand_type_t;
+  typedef enum operand_direction_t { INPUT_T, OUTPUT_T } operand_direction_t;
+
+  typedef struct operand_t
+  {
+    operand_type_t type;
+    operand_direction_t dir;
+    int value;
+    struct operand_t *next;
+  } operand_t;
+
+#define ST231_INPUT(_type, _value) \
+{\
+	operands[noperands].type = _type;\
+	operands[noperands].dir = INPUT_T;\
+	operands[noperands++].value = _value;\
+}
+
+#define ST231_OUTPUT(_type, _value) \
+{\
+	operands[noperands].type = _type;\
+	operands[noperands].dir = OUTPUT_T;\
+	operands[noperands++].value = _value;\
+}
+
+#define SBITSET {}
+
+// ??? used for what???
+#define LOCAL_DEBUG \
+{\
+  for(int _i=0; _i<64; _i++)\
+  {\
+    ST231_INPUT(GPR_T,_i)\
+    ST231_OUTPUT(GPR_T,_i)\
+  }\
+  return;\
+}
+
+  typedef operand_t operands_t[64];
+
+}
+
+var noperands : {int} = {0}
+var operands : {operands_t}
+
+
+// default constructor for the not difined instructions 
+constructor action initialize_operands() { 
+  std::cerr << "ST231 ISS: action initialize_operands not defined for instruction `"\
+            << GetName() <<  "' at 0x" << std::hex << GetAddr() << " with encoding 0x"\
+            <<  GetEncoding() << std::dec << std::endl;
+  noperands=0;
+}
+
+/*****************************************************************************/
+/* === INTEGER INSTRUCTIONS ================================================ */
+/*****************************************************************************/
+
+/* === Integer Register INSTRUCTIONS =================================== */
+/* ---  integer register simple arithmetic instructions ---------------- */
+group group_reg_simple_compute(add\
+                              ,sub\
+                              ,rshl\
+                              ,rshr\
+                              ,shru\
+                              ,sh1add\
+                              ,sh2add\
+                              ,sh3add\
+                              ,sh4add\
+                              ,and\
+                              ,andc\
+                              ,or\
+                              ,orc\
+                              ,xor\
+                              ,max\
+                              ,maxu\
+                              ,min\
+                              ,minu\
+                              ,cmpeq\
+                              ,cmpne\
+                              ,cmpge\
+                              ,cmpgeu\
+                              ,cmpgt\
+                              ,cmpgtu\
+                              ,cmple\
+                              ,cmpleu\
+                              ,cmplt\
+                              ,cmpltu\
+                              ,andl\
+                              ,nandl\
+                              ,orl\
+                              ,norl\
+                              )
+group_reg_simple_compute.initialize_operands = {
+  //LOCAL_DEBUG
+  ST231_INPUT(GPR_T, rsc1);
+  ST231_INPUT(GPR_T, rsc2);
+  ST231_OUTPUT(GPR_T, dest);
+}
+
+/* ---  integer register multiplication instructions ------------------- */
+group group_reg_mul_compute(mullhus\
+                           ,mulhhs\
+                           ,mull\
+                           ,mullu\
+                           ,mulh\
+                           ,mulhu\
+                           ,mulll\
+                           ,mulllu\
+                           ,mullh\
+                           ,mullhu\
+                           ,mulhh\
+                           ,mulhhu\
+                           ,mulhs\
+                           ,mul32\
+                           ,mul64h\
+                           ,mul64hu\
+                           ,mulfrac\
+                           )
+group_reg_mul_compute.initialize_operands = {
+  //LOCAL_DEBUG
+  ST231_INPUT(GPR_T, rsc1);
+  ST231_INPUT(GPR_T, rsc2);
+  ST231_OUTPUT(GPR_T, nldest);
+}
+
+/* ---  integer register conditional branch instructions --------------- */
+group group_reg_cond_compute(bcmpeq\
+                           ,bcmpne\
+                           ,bcmpge\
+                           ,bcmpgeu\
+                           ,bcmpgt\
+                           ,bcmpgtu\
+                           ,bcmple\
+                           ,bcmpleu\
+                           ,bcmplt\
+                           ,bcmpltu\
+                           ,bandl\
+                           ,bnandl\
+                           ,borl\
+                           ,bnorl\
+                           )
+group_reg_cond_compute.initialize_operands = {
+  //LOCAL_DEBUG
+  ST231_INPUT(GPR_T, rsc1);
+  ST231_INPUT(GPR_T, rsc2);
+  ST231_OUTPUT(GPB_T, bdest);
+}
+
+/* === Integer Immediate INSTRUCTIONS ================================== */
+/* ---  integer immediate simple arithmetic instructions --------------- */
+group group_imm_simple_compute(iadd\
+                              ,isub\
+                              ,ishl\
+                              ,ishr\
+                              ,ishru\
+                              ,ish1add\
+                              ,ish2add\
+                              ,ish3add\
+                              ,ish4add\
+                              ,iand\
+                              ,iandc\
+                              ,ior\
+                              ,iorc\
+                              ,ixor\
+                              ,imax\
+                              ,imaxu\
+                              ,imin\
+                              ,iminu\
+                              ,icmpeq\
+                              ,icmpne\
+                              ,icmpge\
+                              ,icmpgeu\
+                              ,icmpgt\
+                              ,icmpgtu\
+                              ,icmple\
+                              ,icmpleu\
+                              ,icmplt\
+                              ,icmpltu\
+                              ,iandl\
+                              ,inandl\
+                              ,iorl\
+                              ,inorl\
+                              )
+group_imm_simple_compute.initialize_operands = {
+  //LOCAL_DEBUG
+  ST231_INPUT(GPR_T, rsc1);
+  ST231_OUTPUT(GPR_T, idest);
+}
+
+/* ---  integer immediate multiplication instructions ------------------ */
+group group_imm_mul_compute(imullhus\
+                           ,imulhhs\
+                           ,imull\
+                           ,imullu\
+                           ,imulh\
+                           ,imulhu\
+                           ,imulll\
+                           ,imulllu\
+                           ,imullh\
+                           ,imullhu\
+                           ,imulhh\
+                           ,imulhhu\
+                           ,imulhs\
+                           ,imul32\
+                           ,imul64h\
+                           ,imul64hu\
+                           ,imulfrac\
+                           )
+group_imm_mul_compute.initialize_operands = {
+  //LOCAL_DEBUG
+  ST231_INPUT(GPR_T, rsc1);
+  ST231_OUTPUT(GPR_T, nlidest);
+}
+
+/* ---  integer immediate conditional branch instructions -------------- */
+group group_imm_cond_compute(ibcmpeq\
+                           ,ibcmpne\
+                           ,ibcmpge\
+                           ,ibcmpgeu\
+                           ,ibcmpgt\
+                           ,ibcmpgtu\
+                           ,ibcmple\
+                           ,ibcmpleu\
+                           ,ibcmplt\
+                           ,ibcmpltu\
+                           ,ibandl\
+                           ,ibnandl\
+                           ,iborl\
+                           ,ibnorl\
+                           )
+group_imm_cond_compute.initialize_operands = {
+  //LOCAL_DEBUG
+  ST231_INPUT(GPR_T, rsc1);
+  ST231_OUTPUT(GPB_T, ibdest);
+}
+
+
+
+/* === Monadic Operation INSTRUCTIONS ================================== */
+group group_monadic_compute(sxtb\
+                           ,sxth\
+                           ,bswap\
+                           ,zxth\
+                           ,clz\
+                           )
+group_monadic_compute.initialize_operands = {
+  //LOCAL_DEBUG
+  ST231_INPUT(GPR_T, rsc1);
+  ST231_OUTPUT(GPR_T, idest);
+}
+
+
+/*****************************************************************************/
+/* = specific operations : immediate extension,selects,extended arithmetic = */
+/*****************************************************************************/
+/* === Register Select Operation INSTRUCTIONS ========================== */
+group group_reg_select_compute(slct\
+                              ,slctf\
+                              )
+group_reg_select_compute.initialize_operands = {
+  //LOCAL_DEBUG
+  ST231_INPUT(GPR_T, rsc1);
+  ST231_INPUT(GPR_T, rsc2);
+  ST231_INPUT(GPB_T, scond);
+  ST231_OUTPUT(GPR_T, dest);
+}
+
+/* === Immediant Select Operation INSTRUCTIONS ========================= */
+group group_imm_select_compute(islct\
+                              ,islctf\
+                              )
+group_imm_select_compute.initialize_operands = {
+  //LOCAL_DEBUG
+  ST231_INPUT(GPR_T, rsc1);
+  ST231_INPUT(GPB_T, scond);
+  ST231_OUTPUT(GPR_T, idest);
+}
+
+/* === 5 Operands Operation INSTRUCTIONS =============================== */
+group group_5oprands_compute(addcg\
+                            ,divs\
+                            )
+group_5oprands_compute.initialize_operands = {
+  //LOCAL_DEBUG
+  ST231_INPUT(GPR_T, rsc1);
+  ST231_INPUT(GPR_T, rsc2);
+  ST231_INPUT(GPB_T, scond);
+  ST231_OUTPUT(GPR_T, dest);
+  ST231_OUTPUT(GPB_T, bdest);
+}
+
+
+/*****************************************************************************/
+/* === LOAD/STORE INSTRUCTIONS ============================================= */
+/*****************************************************************************/
+/* === Load Word INSTRUCTIONS ========================================== */
+group group_load_word(ldw\
+                     ,ldw_d\
+                     )
+group_load_word.initialize_operands = {
+  //LOCAL_DEBUG
+  ST231_INPUT(GPR_T, rsc1);
+  ST231_OUTPUT(GPR_T, idest);
+}
+
+/* === Load Bytes INSTRUCTIONS ========================================= */
+group group_load_bytes(ldh\
+                      ,ldh_d\
+                      ,ldhu\
+                      ,ldhu_d\
+                      ,ldb\
+                      ,ldb_d\
+                      ,ldbu\
+                      ,ldbu_d\
+                      )
+group_load_bytes.initialize_operands = {
+  //LOCAL_DEBUG
+  ST231_INPUT(GPR_T, rsc1);
+  ST231_OUTPUT(GPR_T, nlidest);
+}
+
+/* === Store INSTRUCTIONS ============================================== */
+group group_store(stw\
+                 ,sth\
+                 ,stb\
+                 )
+group_store.initialize_operands = {
+  //LOCAL_DEBUG
+  ST231_INPUT(GPR_T, rsc1);
+  ST231_INPUT(GPR_T, rsc2);
+}
+
+/* === Mono-register Operation INSTRUCTIONS ============================ */
+group group_mono_reg_compute(pft\
+                            ,prgadd\
+                            ,prgset\
+                            ,prginspg\
+                            )
+group_mono_reg_compute.initialize_operands = {
+  //LOCAL_DEBUG
+  ST231_INPUT(GPR_T, rsc1);
+}
+
+/* === Psw Operation INSTRUCTIONS ====================================== */
+group group_psw_compute(pswset\
+                       ,pswclr\
+                       )
+group_psw_compute.initialize_operands = {
+  //LOCAL_DEBUG
+  ST231_INPUT(GPR_T, src2);
+}
+
+
+/*****************************************************************************/
+/* === THE CONTROL TRANSFER OPERATIONS : branch, call, rfi, goto =========== */
+/*****************************************************************************/
+/* === Branch INSTRUCTIONS ============================================= */
+group group_branch(br\
+                  ,brf\
+                  )
+group_branch.initialize_operands = {
+  //LOCAL_DEBUG
+  ST231_INPUT(GPB_T, bcond);
+}
+
+
+/*****************************************************************************/
+/* === No dependences Operation INSTRUCTIONS =============================== */
+/*****************************************************************************/
+group group_no_dependencies_compute(imml\
+                                   ,immr\
+                                   ,prgins\
+                                   ,sbrk\
+                                   ,syscall\
+                                   ,break\
+                                   ,sync\
+                                   )
+group_no_dependencies_compute.initialize_operands = {
+  //LOCAL_DEBUG
+}
+
+group group_pc_imm_jump(icall\
+                        ,igoto\
+                        ,rfi\
+                        )
+group_pc_imm_jump.initialize_operands = {
+  //LOCAL_DEBUG
+}
+
+group group_pc_link_jump(call\
+                         ,goto\
+                        )
+group_pc_link_jump.initialize_operands = {
+  ST231_INPUT(GPR_T, 63);
+}
+
